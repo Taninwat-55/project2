@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+:root {
+  /* Premium Dark Theme Palette */
+  --background: #09090b; /* Zinc 950 */
+  --foreground: #fafafa; /* Zinc 50 */
+  
+  --card: #18181b; /* Zinc 900 */
+  --card-foreground: #fafafa;
+  
+  --primary: #ccff00; /* Neon Lime */
+  --primary-foreground: #000000;
+  
+  --muted: #27272a; /* Zinc 800 */
+  --muted-foreground: #a1a1aa; /* Zinc 400 */
+  
+  --border: #27272a;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), sans-serif;
+}
