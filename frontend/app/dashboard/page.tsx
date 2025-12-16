@@ -2,6 +2,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import LogMealForm from "@/app/components/LogMealForm";
+import { getDailySummary } from "@/app/actions/dashboard";
 
 export default async function Dashboard() {
   const supabase = await createClient();
@@ -29,10 +30,36 @@ export default async function Dashboard() {
 
   const workouts = workoutsData.data || [];
   const meals = mealsData.data || [];
+  const summary = await getDailySummary();
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
       <h1 className="text-3xl font-bold mb-6">Welcome back!</h1>
+
+      {/* 1. THE HERO SECTION (New) */}
+      <div className="bg-blue-600 text-white p-6 rounded-lg shadow-md mb-8">
+        <h2 className="text-2xl font-bold mb-4">Today&apos;s Progress</h2>
+        <div className="grid grid-cols-3 gap-4 text-center">
+          <div>
+            <div className="text-3xl font-bold">
+              {summary?.calories_in || 0}
+            </div>
+            <div className="text-blue-100">Eaten</div>
+          </div>
+          <div>
+            <div className="text-3xl font-bold">
+              {summary?.calories_burned || 0}
+            </div>
+            <div className="text-blue-100">Burned</div>
+          </div>
+          <div className="bg-white/20 rounded p-2">
+            <div className="text-3xl font-bold">
+              {summary?.calories_remaining || 0}
+            </div>
+            <div className="text-blue-100">Remaining</div>
+          </div>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Column 1: The New Form */}
