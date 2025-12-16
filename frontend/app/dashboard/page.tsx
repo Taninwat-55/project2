@@ -3,6 +3,7 @@ import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import LogMealForm from "@/app/components/LogMealForm";
 import { getDailySummary } from "@/app/actions/dashboard";
+import OnboardingPage from "../onboarding/page";
 
 export default async function Dashboard() {
   const supabase = await createClient();
@@ -65,6 +66,10 @@ export default async function Dashboard() {
         {/* Column 1: The New Form */}
         <div>
           <LogMealForm />
+        </div>
+
+        <div>
+          <OnboardingPage />
         </div>
 
         {/* Column 2: Recent Workouts */}

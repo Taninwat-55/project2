@@ -14,6 +14,7 @@ export interface Profile {
   gender: Gender | null;
   height_cm: number | null;
   weight_kg: number | null;
+  date_of_birth: string | null;
   activity_level: ActivityLevel | null;
   daily_calorie_goal: number | null;
   created_at: string;
