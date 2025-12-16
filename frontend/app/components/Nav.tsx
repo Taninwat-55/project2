@@ -1,19 +1,65 @@
+"use client";
+
 import Link from "next/link";
+import { createBrowserClient } from "@supabase/ssr";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { User } from "@supabase/supabase-js";
 
 export default function Nav() {
-    return (
-        <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-black/50 backdrop-blur-xl">
-            <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-                <Link href="/" className="text-xl font-bold tracking-tight">
-                    <span className="text-primary italic">Neon</span>Fit
-                </Link>
-                <div className="flex gap-6 text-sm font-medium text-zinc-400">
-                    <Link href="/" className="hover:text-primary transition-colors">Dashboard</Link>
-                    <Link href="#" className="hover:text-primary transition-colors">Workouts</Link>
-                    <Link href="#" className="hover:text-primary transition-colors">Activity</Link>
-                </div>
-                <div className="h-8 w-8 rounded-full bg-zinc-800 border border-white/10" />
-            </div>
-        </nav>
-    );
+  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  useEffect(() => {
+    const getUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    getUser();
+  }, [supabase]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    router.push("/");
+    router.refresh();
+  };
+
+  return (
+    <nav className="w-full border-b border-gray-200 dark:border-gray-800 p-4 flex justify-between items-center">
+      <Link href="/" className="font-bold text-xl tracking-tight">
+        FitnessApp
+      </Link>
+
+      <div className="flex gap-4">
+        {user ? (
+          <>
+            <Link href="/dashboard" className="hover:underline">
+              Dashboard
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="text-red-500 hover:text-red-400"
+            >
+              Logga ut
+            </button>
+          </>
+        ) : (
+          <Link
+            href="/login"
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+          >
+            Logga in
+          </Link>
+        )}
+      </div>
+    </nav>
+  );
 }

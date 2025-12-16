@@ -1,20 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import Nav from "./components/Nav"; 
 
 export const metadata: Metadata = {
-  title: "NeonFit - Premium Fitness Tracker",
-  description: "Track your workouts in style.",
+  title: "Fitness App",
+  description: "Track your workouts and meals",
 };
 
 export default function RootLayout({
@@ -24,10 +14,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+      <body className="antialiased min-h-screen flex flex-col">
+        <Nav /> {/* <--- Lägg till Nav här högst upp */}
+        <main className="flex-1">
+          {children}
+        </main>
       </body>
     </html>
   );

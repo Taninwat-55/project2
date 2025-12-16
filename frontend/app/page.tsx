@@ -3,8 +3,6 @@ import Nav from "./components/Nav";
 export default function Home() {
   return (
     <main className="min-h-screen pb-20 pt-24">
-      <Nav />
-
       <div className="mx-auto max-w-6xl px-6">
         {/* Header */}
         <header className="mb-12 fade-in">
