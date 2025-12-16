@@ -10,7 +10,6 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // We use the Browser Client to perform the login in the browser
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -29,40 +28,47 @@ export default function LoginPage() {
       alert("Error: " + error.message);
       setLoading(false);
     } else {
-      // Refresh the router so Server Components re-run and see the new session
-      router.push("/dashboard");
+      // SUCCESS!
+      // 1. Force a router refresh so Server Components (like Dashboard) re-fetch data
       router.refresh();
+
+      // 2. Manually redirect to Dashboard immediately
+      router.push("/dashboard");
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
       <form
         onSubmit={handleLogin}
-        className="flex flex-col gap-4 p-8 bg-white border rounded-lg shadow-md w-80"
+        className="flex flex-col gap-4 p-8 bg-white dark:bg-black border dark:border-gray-800 rounded-lg shadow-md w-80"
       >
-        <h1 className="text-2xl font-bold mb-2 text-center text-gray-800">
+        <h1 className="text-2xl font-bold mb-2 text-center text-gray-800 dark:text-white">
           Login
         </h1>
 
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-600">Email</label>
+          <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
+            Email
+          </label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="border p-2 rounded text-black"
+            className="border p-2 rounded text-black dark:bg-gray-800 dark:text-white dark:border-gray-700"
             required
           />
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-600">Password</label>
+          <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
+            Password
+          </label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="border p-2 rounded text-black"
+            className="border p-2 rounded text-black dark:bg-gray-800 dark:text-white dark:border-gray-700"
             required
           />
         </div>
@@ -70,7 +76,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 disabled:opacity-50 mt-2"
+          className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 disabled:opacity-50 mt-2 font-medium"
         >
           {loading ? "Signing In..." : "Sign In"}
         </button>
