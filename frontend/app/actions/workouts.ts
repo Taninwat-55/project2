@@ -2,28 +2,27 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+import { WorkoutSchema } from "@/lib/schemas";
+import { z } from "zod";
 
-// Define the data shape you expect from the Frontend team
-type WorkoutData = {
-  name: string;
-  duration: number;
-  calories: number;
-  status: "planned" | "completed";
-};
+type WorkoutData = z.infer<typeof WorkoutSchema>;
 
 export async function logWorkout(data: WorkoutData) {
+  // 1. Validate
+  const validation = WorkoutSchema.safeParse(data);
+  if (!validation.success) {
+    return { success: false, error: validation.error.issues[0].message };
+  }
+
   const supabase = await createClient();
 
-  // 1. Security Check: Get the user
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    throw new Error("User not authenticated");
+    return { success: false, error: "User not authenticated" };
   }
 
-  // 2. Database Logic: Insert the workout
   const { error } = await supabase.from("workouts").insert({
     user_id: user.id,
     name: data.name,
@@ -37,8 +36,6 @@ export async function logWorkout(data: WorkoutData) {
     return { success: false, error: error.message };
   }
 
-  // 3. Update UI: Tell Next.js to refresh the dashboard data
   revalidatePath("/dashboard");
-
   return { success: true };
 }
