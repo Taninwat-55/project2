@@ -51,3 +51,12 @@ export interface WorkoutExercise {
   weight_kg: number | null;
   created_at: string;
 }
+
+export interface DailySummary {
+  user_id: string;
+  date: string;
+  daily_calorie_goal: number;
+  calories_in: number;
+  calories_burned: number;
+  calories_remaining: number;
+}
