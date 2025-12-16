@@ -1,22 +1,17 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
-import { ActivityLevel, Gender } from "@/types/database";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+import { ProfileSchema } from "@/lib/schemas";
+import { z } from "zod";
+import { ActivityLevel, Gender } from "@/types/database";
 
-// Define the input shape for the form
-type ProfileData = {
-  firstName: string;
-  lastName: string;
-  gender: Gender;
-  weight: number;
-  height: number;
-  dateOfBirth: string;
-  activityLevel: ActivityLevel;
-};
+type ProfileData = z.infer<typeof ProfileSchema>;
 
-// 1. Helper function to calculate BMR (Mifflin-St Jeor Equation)
+// ... keep your helper functions (calculateDailyCalories, calculateAge) exactly as they were ...
+// (I will omit them here to save space, but DO NOT DELETE THEM from your file)
+
+// Helper function to calculate BMR (Mifflin-St Jeor Equation)
 function calculateDailyCalories(
   weight: number,
   height: number,
@@ -56,8 +51,13 @@ function calculateAge(dob: string): number {
   return age;
 }
 
-// 2. The Server Action
 export async function updateProfile(data: ProfileData) {
+  // 1. Validate
+  const validation = ProfileSchema.safeParse(data);
+  if (!validation.success) {
+    return { success: false, error: validation.error.issues[0].message };
+  }
+
   const supabase = await createClient();
 
   const {
@@ -65,17 +65,15 @@ export async function updateProfile(data: ProfileData) {
   } = await supabase.auth.getUser();
   if (!user) return { success: false, error: "Unauthorized" };
 
-  // Calculate the magic number
   const age = calculateAge(data.dateOfBirth);
   const calculatedGoal = calculateDailyCalories(
     data.weight,
     data.height,
     age,
-    data.gender,
-    data.activityLevel
+    data.gender as Gender,
+    data.activityLevel as ActivityLevel
   );
 
-  // Update Supabase
   const { error } = await supabase
     .from("profiles")
     .update({
@@ -86,7 +84,7 @@ export async function updateProfile(data: ProfileData) {
       height_cm: data.height,
       date_of_birth: data.dateOfBirth,
       activity_level: data.activityLevel,
-      daily_calorie_goal: calculatedGoal, // <--- Auto-calculated!
+      daily_calorie_goal: calculatedGoal,
       updated_at: new Date().toISOString(),
     })
     .eq("id", user.id);

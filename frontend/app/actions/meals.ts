@@ -2,15 +2,22 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
+import { MealSchema } from "@/lib/schemas"; // <--- Make sure this file exists!
+import { z } from "zod";
 
-type MealData = {
-  name: string;
-  calories: number;
-  protein?: number;
-  type: "breakfast" | "lunch" | "dinner" | "snack";
-};
+// We can infer the TypeScript type directly from the Zod Schema!
+type MealData = z.infer<typeof MealSchema>;
 
 export async function logMeal(data: MealData) {
+  // 1. Validate Data with Zod
+  const validation = MealSchema.safeParse(data);
+
+  if (!validation.success) {
+    // Return the first error message to the UI
+    // CHANGE: Use .issues instead of .errors
+    return { success: false, error: validation.error.issues[0].message };
+  }
+
   const supabase = await createClient();
 
   const {
