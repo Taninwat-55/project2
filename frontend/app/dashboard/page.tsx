@@ -1,7 +1,7 @@
-// app/dashboard/page.tsx
+// frontend/app/dashboard/page.tsx
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
-// import { Workout, MealLog } from '@/types/database' // Uncomment if you created the types file!
+import LogMealForm from "@/app/components/LogMealForm";
 
 export default async function Dashboard() {
   const supabase = await createClient();
@@ -10,6 +10,7 @@ export default async function Dashboard() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
   if (!user) {
     redirect("/login");
   }
@@ -30,23 +31,31 @@ export default async function Dashboard() {
   const meals = mealsData.data || [];
 
   return (
-    <div className="p-8 max-w-4xl mx-auto">
+    <div className="p-8 max-w-6xl mx-auto">
       <h1 className="text-3xl font-bold mb-6">Welcome back!</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Recent Workouts Card */}
-        <div className="border rounded-lg p-6 shadow-sm">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* Column 1: The New Form */}
+        <div>
+          <LogMealForm />
+        </div>
+
+        {/* Column 2: Recent Workouts */}
+        <div className="border rounded-lg p-6 shadow-sm bg-white h-fit">
           <h2 className="text-xl font-semibold mb-4">Recent Workouts</h2>
           {workouts.length === 0 ? (
             <p className="text-gray-500">No workouts logged yet.</p>
           ) : (
             <ul className="space-y-3">
               {workouts.map((workout) => (
-                <li key={workout.id} className="border-b pb-2">
+                <li key={workout.id} className="border-b pb-2 last:border-0">
                   <div className="font-medium">{workout.name}</div>
                   <div className="text-sm text-gray-500">
                     {workout.duration_minutes} mins • {workout.calories_burned}{" "}
                     kcal
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    {new Date(workout.performed_at).toLocaleDateString()}
                   </div>
                 </li>
               ))}
@@ -54,18 +63,21 @@ export default async function Dashboard() {
           )}
         </div>
 
-        {/* Recent Meals Card */}
-        <div className="border rounded-lg p-6 shadow-sm">
+        {/* Column 3: Recent Meals */}
+        <div className="border rounded-lg p-6 shadow-sm bg-white h-fit">
           <h2 className="text-xl font-semibold mb-4">Recent Meals</h2>
           {meals.length === 0 ? (
             <p className="text-gray-500">No meals logged yet.</p>
           ) : (
             <ul className="space-y-3">
               {meals.map((meal) => (
-                <li key={meal.id} className="border-b pb-2">
+                <li key={meal.id} className="border-b pb-2 last:border-0">
                   <div className="font-medium capitalize">{meal.name}</div>
                   <div className="text-sm text-gray-500">
                     {meal.meal_type} • {meal.calories} kcal
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    {new Date(meal.eaten_at).toLocaleDateString()}
                   </div>
                 </li>
               ))}
