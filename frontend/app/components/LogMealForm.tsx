@@ -3,7 +3,7 @@
 import { createBrowserClient } from "@supabase/ssr";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { MealType } from "@/types/database"; // Ensure this path matches where you saved your types
+import { MealType } from "@/types/database"; 
 
 export default function LogMealForm() {
   const router = useRouter();

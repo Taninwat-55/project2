@@ -3,7 +3,7 @@ import { getDailySummary } from "@/app/actions/dashboard";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import LogMealForm from "@/app/components/LogMealForm";
-import Link from "next/link"; // <--- Add this import
+import Link from "next/link"; 
 
 export default async function Dashboard() {
   const supabase = await createClient();
