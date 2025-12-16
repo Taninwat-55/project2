@@ -1,63 +1,20 @@
-export type Gender = "male" | "female" | "other";
-export type ActivityLevel =
-  | "sedentary"
-  | "lightly_active"
-  | "moderately_active"
-  | "very_active"
-  | "extra_active";
-export type MealType = "breakfast" | "lunch" | "dinner" | "snack";
+import { Database } from "./supabase";
 
-export interface Profile {
-  id: string; // references auth.users
-  first_name: string | null;
-  last_name: string | null;
-  gender: Gender | null;
-  height_cm: number | null;
-  weight_kg: number | null;
-  date_of_birth: string | null;
-  activity_level: ActivityLevel | null;
-  daily_calorie_goal: number | null;
-  created_at: string;
-}
+// Helper to extract the Row type easily
+export type Tables<T extends keyof Database["public"]["Tables"]> =
+  Database["public"]["Tables"][T]["Row"];
+export type Enums<T extends keyof Database["public"]["Enums"]> =
+  Database["public"]["Enums"][T];
+export type Views<T extends keyof Database["public"]["Views"]> =
+  Database["public"]["Views"][T]["Row"];
 
-export interface MealLog {
-  id: string;
-  user_id: string;
-  name: string;
-  meal_type: MealType;
-  calories: number;
-  protein_g: number | null;
-  carbs_g: number | null;
-  fat_g: number | null;
-  eaten_at: string; // Date string (YYYY-MM-DD)
-  created_at: string;
-}
+// Re-export specific types for your app to use
+export type Profile = Tables<"profiles">;
+export type Workout = Tables<"workouts">;
+export type MealLog = Tables<"meal_logs">;
+export type DailySummary = Views<"daily_summary">;
 
-export interface Workout {
-  id: string;
-  user_id: string;
-  name: string;
-  status: string;
-  duration_minutes: number | null;
-  calories_burned: number | null;
-  performed_at: string; // ISO Timestamp
-}
-
-export interface WorkoutExercise {
-  id: string;
-  workout_id: string;
-  exercise_name: string;
-  sets: number | null;
-  reps: number | null;
-  weight_kg: number | null;
-  created_at: string;
-}
-
-export interface DailySummary {
-  user_id: string;
-  date: string;
-  daily_calorie_goal: number;
-  calories_in: number;
-  calories_burned: number;
-  calories_remaining: number;
-}
+// Enums (Auto-extracted from DB)
+export type ActivityLevel = Enums<"activity_level_enum">;
+export type Gender = Enums<"gender_enum">;
+export type MealType = Enums<"meal_type_enum">;
