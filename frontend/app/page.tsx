@@ -1,186 +1,117 @@
-export default function Home() {
+import Link from "next/link";
+// import Image from "next/image";
+
+export default function LandingPage() {
   return (
-    <main className="min-h-screen pb-20 pt-24">
-      <div className="mx-auto max-w-6xl px-6">
-        {/* Header */}
-        <header className="mb-12 fade-in">
-          <h1 className="text-3xl font-bold tracking-tight text-white mb-2">
-            Good Evening, <span className="text-zinc-500">Hedvig</span>
+    <div className="flex flex-col min-h-screen">
+      {/* Hero Section */}
+      <section className="flex-1 flex flex-col justify-center items-center text-center px-4 pt-20 pb-32 bg-radial-gradient from-zinc-900 to-background overflow-hidden relative">
+        
+        {/* Abstract Background Glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px] -z-10" />
+
+        <div className="space-y-6 max-w-3xl relative z-10 animate-fade-in-up">
+          <div className="inline-block px-3 py-1 rounded-full border border-white/10 bg-white/5 text-sm text-zinc-400 mb-4 backdrop-blur-sm">
+            🚀 The Ultimate Fitness Companion
+          </div>
+          
+          <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-white">
+            Crush Your Goals. <br />
+            <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-lime-500">
+              Own Your Health.
+            </span>
           </h1>
-          <p className="text-zinc-400">Time to crush your goals.</p>
-        </header>
+          
+          <p className="text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto leading-relaxed">
+            Track your workouts, log your meals, and visualize your progress with 
+            the most intuitive fitness tracker built for peak performance.
+          </p>
 
-        {/* Stats Grid */}
-        <div className="grid gap-4 md:grid-cols-3 mb-8">
-          <div className="group relative overflow-hidden rounded-2xl bg-zinc-900 border border-white/5 p-6 hover:border-primary/50 transition-colors">
-            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="64"
-                height="64"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-primary"
-              >
-                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-              </svg>
-            </div>
-            <div className="text-2xl font-bold text-white mb-1">1,248</div>
-            <div className="text-sm font-medium text-zinc-500 uppercase tracking-wider">
-              Calories Burned
-            </div>
-          </div>
-          <div className="group relative overflow-hidden rounded-2xl bg-zinc-900 border border-white/5 p-6 hover:border-primary/50 transition-colors">
-            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="64"
-                height="64"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-primary"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <polyline points="12 6 12 12 16 14" />
-              </svg>
-            </div>
-            <div className="text-2xl font-bold text-white mb-1">
-              45 <span className="text-lg text-zinc-500 font-normal">min</span>
-            </div>
-            <div className="text-sm font-medium text-zinc-500 uppercase tracking-wider">
-              Active Time
-            </div>
-            <div className="mt-4 h-1 w-full bg-zinc-800 rounded-full overflow-hidden">
-              <div className="h-full bg-primary w-[75%] rounded-full" />
-            </div>
-          </div>
-          <div className="group relative overflow-hidden rounded-2xl bg-zinc-900 border border-white/5 p-6 hover:border-primary/50 transition-colors">
-            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="64"
-                height="64"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-primary"
-              >
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                <polyline points="22 4 12 14.01 9 11.01" />
-              </svg>
-            </div>
-            <div className="text-2xl font-bold text-white mb-1">
-              3 <span className="text-lg text-zinc-500 font-normal">days</span>
-            </div>
-            <div className="text-sm font-medium text-zinc-500 uppercase tracking-wider">
-              Current Streak
-            </div>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+            <Link
+              href="/login"
+              className="px-8 py-4 rounded-xl bg-primary text-black font-bold text-lg hover:bg-lime-400 transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(204,255,0,0.3)]"
+            >
+              Get Started Now
+            </Link>
+            <Link
+              href="#features"
+              className="px-8 py-4 rounded-xl bg-zinc-900 border border-white/10 text-white font-medium text-lg hover:bg-zinc-800 transition-all"
+            >
+              Learn More
+            </Link>
           </div>
         </div>
+      </section>
 
-        <div className="grid gap-8 md:grid-cols-3">
-          {/* Recent Activity */}
-          <div className="md:col-span-2 space-y-4">
-            <h2 className="text-lg font-semibold text-white">
-              Recent Activity
-            </h2>
-            <div className="space-y-3">
-              {[
-                {
-                  title: "Upper Body Strength",
-                  time: "Today, 9:41 AM",
-                  duration: "45 min",
-                  kcal: "320",
-                },
-                {
-                  title: "HIIT Cardio",
-                  time: "Yesterday, 6:00 PM",
-                  duration: "30 min",
-                  kcal: "450",
-                },
-                {
-                  title: "Yoga Flow",
-                  time: "Mon, 7:00 AM",
-                  duration: "60 min",
-                  kcal: "180",
-                },
-              ].map((item, i) => (
-                <div
-                  key={i}
-                  className="flex items-center justify-between rounded-xl bg-zinc-900/50 border border-white/5 p-4 hover:bg-zinc-900 transition-colors cursor-pointer group"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="h-10 w-10 rounded-full bg-zinc-800 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M14.4 14.4 9.6 9.6" />
-                        <path d="M18.657 7.343l-1.414-1.414" />
-                        <path d="M5.343 20.657l1.414-1.414" />
-                        <path d="M18.657 20.657l-1.414-1.414" />
-                        <path d="M5.343 7.343l1.414-1.414" />
-                        <path d="M12 2v2" />
-                        <path d="M12 20v2" />
-                        <path d="M2 12h2" />
-                        <path d="M20 12h2" />
-                        <circle cx="12" cy="12" r="4" />
-                      </svg>
-                    </div>
-                    <div>
-                      <div className="font-medium text-white">{item.title}</div>
-                      <div className="text-xs text-zinc-500">{item.time}</div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm text-white font-medium">
-                      {item.kcal} kcal
-                    </div>
-                    <div className="text-xs text-zinc-500">{item.duration}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
+      {/* Features Grid */}
+      <section id="features" className="py-24 px-6 bg-zinc-900/30 border-t border-white/5">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-white mb-4">Everything you need</h2>
+            <p className="text-zinc-400">Streamlined tools to keep you focused on what matters.</p>
           </div>
 
-          {/* Quick Start */}
-          <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-white">Quick Start</h2>
-            <div className="bg-linear-to-br from-zinc-900 to-zinc-950 border border-white/10 rounded-2xl p-6 relative overflow-hidden">
-              <div className="relative z-10">
-                <h3 className="text-xl font-bold text-white mb-2">
-                  Ready to sweat?
-                </h3>
-                <p className="text-zinc-400 text-sm mb-6">
-                  Start your daily scheduled workout now.
-                </p>
-                <button className="w-full bg-primary text-black font-bold py-3 rounded-xl hover:opacity-90 active:scale-95 transition-all">
-                  Start Workout
-                </button>
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Feature 1 */}
+            <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5 hover:border-primary/50 transition-colors group">
+              <div className="w-12 h-12 rounded-lg bg-zinc-800 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
               </div>
-              <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+              <h3 className="text-xl font-bold text-white mb-3">Smart Tracking</h3>
+              <p className="text-zinc-400 leading-relaxed">
+                Log workouts and meals in seconds. We handle the math so you can handle the weights.
+              </p>
+            </div>
+
+            {/* Feature 2 */}
+            <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5 hover:border-primary/50 transition-colors group">
+              <div className="w-12 h-12 rounded-lg bg-zinc-800 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-3">Real-time Analytics</h3>
+              <p className="text-zinc-400 leading-relaxed">
+                Visualize your calorie intake and burn rate with beautiful, interactive charts.
+              </p>
+            </div>
+
+            {/* Feature 3 */}
+            <div className="p-8 rounded-2xl bg-zinc-900 border border-white/5 hover:border-primary/50 transition-colors group">
+              <div className="w-12 h-12 rounded-lg bg-zinc-800 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-3">Goal Setting</h3>
+              <p className="text-zinc-400 leading-relaxed">
+                Set daily targets for calories and activity. We wll keep you accountable every step of the way.
+              </p>
             </div>
           </div>
         </div>
-      </div>
-    </main>
+      </section>
+
+      {/* Footer CTA */}
+      <section className="py-24 px-6 text-center">
+        <div className="max-w-4xl mx-auto bg-linear-to-br from-zinc-900 to-zinc-950 border border-white/10 p-12 rounded-3xl relative overflow-hidden">
+           <div className="absolute top-0 right-0 p-32 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+           
+           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6 relative z-10">
+             Ready to transform your body?
+           </h2>
+           <p className="text-zinc-400 mb-8 max-w-xl mx-auto relative z-10">
+             Join thousands of users who are taking control of their fitness journey today.
+           </p>
+           <Link
+              href="/login"
+              className="inline-block px-8 py-4 rounded-xl bg-white text-black font-bold text-lg hover:bg-zinc-200 transition-colors relative z-10"
+            >
+              Start Your Free Trial
+            </Link>
+        </div>
+      </section>
+
+      <footer className="py-8 text-center text-zinc-500 text-sm border-t border-white/5">
+        <p>&copy; {new Date().getFullYear()} FitnessApp. All rights reserved.</p>
+      </footer>
+    </div>
   );
 }

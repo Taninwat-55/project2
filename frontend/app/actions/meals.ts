@@ -2,7 +2,7 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
-import { MealSchema } from "@/lib/schemas"; // <--- Make sure this file exists!
+import { MealSchema } from "@/lib/schemas"; 
 import { z } from "zod";
 
 // We can infer the TypeScript type directly from the Zod Schema!
