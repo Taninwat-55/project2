@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Mail, Lock } from "lucide-react";
 import SiteHeader from "@/app/components/SiteHeader";
+import { login } from "../actions";
 
 export default function LoginPage() {
   return (
@@ -33,15 +34,17 @@ export default function LoginPage() {
               <p className="text-gray-400 text-sm">Enter your credentials to access your dashboard</p>
             </div>
 
-            <form className="space-y-5">
+            <form className="space-y-5" action={login}>
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-gray-300 ml-1">Your Email</label>
                 <div className="relative group">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5 group-focus-within:text-[var(--color-accent)] transition-colors" />
                   <input
+                    name="email"
                     type="email"
                     placeholder="you@nexus.fit"
                     className="w-full bg-[#1c1c1e] text-white text-sm rounded-xl py-3.5 pl-12 pr-4 border border-zinc-800 outline-none focus:border-[var(--color-accent)] focus:ring-1 focus:ring-[var(--color-accent)] transition-all placeholder:text-zinc-600"
+                    required
                   />
                 </div>
               </div>
@@ -54,9 +57,11 @@ export default function LoginPage() {
                 <div className="relative group">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5 group-focus-within:text-[var(--color-accent)] transition-colors" />
                   <input
+                    name="password"
                     type="password"
                     placeholder="●●●●●●●●"
                     className="w-full bg-[#1c1c1e] text-white text-sm rounded-xl py-3.5 pl-12 pr-4 border border-zinc-800 outline-none focus:border-[var(--color-accent)] focus:ring-1 focus:ring-[var(--color-accent)] transition-all placeholder:text-zinc-600 tracking-widest"
+                    required
                   />
                 </div>
               </div>
@@ -82,7 +87,7 @@ export default function LoginPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <button className="flex items-center justify-center gap-2 py-3 px-4 bg-[#1c1c1e] hover:bg-zinc-800 border border-zinc-800 rounded-xl transition-colors group">
+              <button type="button" className="flex items-center justify-center gap-2 py-3 px-4 bg-[#1c1c1e] hover:bg-zinc-800 border border-zinc-800 rounded-xl transition-colors group">
                 {/* Google Icon */}
                 <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -92,7 +97,7 @@ export default function LoginPage() {
                 </svg>
                 <span className="text-sm font-medium text-gray-300 group-hover:text-white">Google</span>
               </button>
-              <button className="flex items-center justify-center gap-2 py-3 px-4 bg-[#1c1c1e] hover:bg-zinc-800 border border-zinc-800 rounded-xl transition-colors group">
+              <button type="button" className="flex items-center justify-center gap-2 py-3 px-4 bg-[#1c1c1e] hover:bg-zinc-800 border border-zinc-800 rounded-xl transition-colors group">
                 {/* Apple Icon */}
                 <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M17.05 19.36c.99 1.37 1.48 2.25 1.08 3.55-.26.85-.75 1.7-1.34 2.38-.97 1.1-1.91 1.69-3.3 1.73-1.2.03-2.21-.71-2.92-.71-.7 0-1.87.69-2.94.75-1.49.08-2.74-1.07-3.8-2.58-1.9-2.72-2.12-6.52-.3-9 .89-1.2 2.37-2.07 3.84-2.17 1.07-.07 2.04.57 2.68.57.64 0 1.94-.72 2.97-.64.55.03 2.15.22 3.19 1.74-.08.06-1.9 1.11-1.87 3.33.02 2.64 2.34 3.55 2.38 3.58-.02.09-1.37 4.14-2.85 6.27l.18.23zM15.48 3.51c.76-.92 1.25-2.18 1.1-3.41-1.09.04-2.4.73-3.17 1.63-.7.82-1.3 2.15-1.14 3.4 1.21.09 2.45-.7 3.21-1.62z" />
