@@ -53,7 +53,8 @@ export async function updateSession(request: NextRequest) {
       return NextResponse.redirect(url);
     }
   } catch (error) {
-    console.error("Middleware error:", error);
+    // console.error("Middleware error:", error);
+    console.warn("Supabase unreachable in middleware - proceeding as unauthenticated.");
     // If Supabase fails, allow the request to proceed (or redirect to error page)
     // For now, we allow it to proceed to avoid blocking static assets or public pages
   }
