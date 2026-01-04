@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Mail, Lock } from "lucide-react";
+import SiteHeader from "@/app/components/SiteHeader";
 
 export default function LoginPage() {
   return (
@@ -20,26 +21,7 @@ export default function LoginPage() {
       </div>
 
       {/* Header */}
-      <header className="relative z-20 flex justify-between items-center px-8 py-6 w-full max-w-[1400px] mx-auto">
-        <div className="flex items-center gap-2">
-          {/* Logo Icon */}
-          <div className="w-8 h-8 rounded-full border-2 border-[var(--color-accent)] flex items-center justify-center text-[var(--color-accent)] font-bold text-lg">
-            N
-          </div>
-          <span className="font-bold text-xl tracking-wide text-white">Nexus</span>
-        </div>
-
-        <nav className="hidden md:flex gap-8 text-sm font-medium text-gray-300">
-          <Link href="#" className="hover:text-white transition-colors">Workout</Link>
-          <Link href="#" className="hover:text-white transition-colors">Meal-Plans</Link>
-          <Link href="#" className="hover:text-white transition-colors">Data</Link>
-        </nav>
-
-        <div className="flex items-center gap-6">
-          <Link href="/login" className="px-5 py-2 bg-white text-black rounded-full text-sm font-bold hover:bg-gray-200 transition-colors">Log In</Link>
-          <Link href="/signup" className="text-sm font-bold text-white hover:text-gray-300 transition-colors">Sign Up</Link>
-        </div>
-      </header>
+      <SiteHeader />
 
       {/* Main Content */}
       <main className="relative z-20 flex-1 flex items-center justify-center px-4 w-full">
@@ -67,7 +49,7 @@ export default function LoginPage() {
               <div className="space-y-2">
                 <div className="flex justify-between items-center ml-1">
                   <label className="text-xs font-semibold text-gray-300">Password</label>
-                  <Link href="#" className="text-xs font-medium text-[var(--color-accent)] hover:underline">Forgot your password?</Link>
+                  <Link href="/forgot-password" className="text-xs font-medium text-[var(--color-accent)] hover:underline">Forgot your password?</Link>
                 </div>
                 <div className="relative group">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5 group-focus-within:text-[var(--color-accent)] transition-colors" />

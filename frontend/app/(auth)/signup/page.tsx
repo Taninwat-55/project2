@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
+import SiteHeader from "@/app/components/SiteHeader";
 
 export default function SignupPage() {
     const [showPassword, setShowPassword] = useState(false);
@@ -15,27 +16,7 @@ export default function SignupPage() {
             <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-orange-900/10 rounded-full blur-[120px] pointer-events-none z-0" />
 
             {/* Header */}
-            <header className="relative z-20 flex justify-between items-center px-6 md:px-12 py-6 w-full max-w-[1400px] mx-auto">
-                <div className="flex items-center gap-2">
-                    <Link href="/" className="flex items-center gap-2 group">
-                        <div className="w-8 h-8 rounded-full border-2 border-[var(--color-accent)] flex items-center justify-center text-[var(--color-accent)] font-bold text-lg group-hover:bg-[var(--color-accent)] group-hover:text-black transition-colors">
-                            N
-                        </div>
-                        <span className="font-bold text-xl tracking-wide text-white">Nexus</span>
-                    </Link>
-                </div>
-
-                <nav className="hidden md:flex gap-8 text-sm font-medium text-gray-300">
-                    <Link href="#" className="hover:text-white transition-colors">Workout</Link>
-                    <Link href="#" className="hover:text-white transition-colors">Meal-Plans</Link>
-                    <Link href="#" className="hover:text-white transition-colors">Data</Link>
-                </nav>
-
-                <div className="flex items-center gap-6">
-                    <Link href="/login" className="text-sm font-bold text-white hover:text-gray-300 transition-colors">Log In</Link>
-                    <Link href="/signup" className="px-5 py-2 bg-white text-black rounded-full text-sm font-bold hover:bg-gray-200 transition-colors">Sign Up</Link>
-                </div>
-            </header>
+            <SiteHeader />
 
             {/* Main Content */}
             <main className="relative z-10 flex-1 flex items-center justify-center p-4 md:p-8">
