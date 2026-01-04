@@ -1,0 +1,316 @@
+"use client";
+
+import Link from "next/link";
+import { useState, useEffect } from "react";
+import { createBrowserClient } from "@supabase/ssr";
+import { User } from "@supabase/supabase-js";
+import { useRouter } from "next/navigation";
+import {
+    User as UserIcon,
+    Dumbbell,
+    Bell,
+    Shield,
+    Monitor,
+    HelpCircle,
+    LogOut,
+    Sofa,
+    PersonStanding,
+    Zap,
+    Target,
+} from "lucide-react";
+import { signOut } from "@/app/(auth)/actions";
+
+const sidebarTabs = [
+    { id: "account", label: "Account", icon: UserIcon, href: "/settings" },
+    { id: "fitness", label: "Fitness Preferences", icon: Dumbbell, href: "/settings/fitness-preferences" },
+    { id: "notifications", label: "Notifications", icon: Bell, href: "/settings/notifications" },
+    { id: "privacy", label: "Privacy", icon: Shield, href: "/settings/privacy" },
+    { id: "display", label: "Display", icon: Monitor, href: "/settings/display" },
+];
+
+const activityLevels = [
+    { id: "sedentary", label: "Sedentary", description: "Little to no exercise, desk job.", icon: Sofa },
+    { id: "lightly_active", label: "Lightly active", description: "Light exercise 1-3 days/week.", icon: PersonStanding },
+    { id: "very_active", label: "Very active", description: "Hard exercise 6-7 days/week.", icon: Zap },
+];
+
+export default function FitnessPreferencesPage() {
+    const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(true);
+    const router = useRouter();
+
+    // Preferences state
+    const [distanceUnit, setDistanceUnit] = useState<"kilometers" | "miles">("kilometers");
+    const [weightUnit, setWeightUnit] = useState<"kilograms" | "pounds">("kilograms");
+    const [energyUnit, setEnergyUnit] = useState<"calories" | "kilojoules">("calories");
+    const [primaryFocus, setPrimaryFocus] = useState("weight_loss");
+    const [weeklyGoal, setWeeklyGoal] = useState(4);
+    const [activityLevel, setActivityLevel] = useState("lightly_active");
+
+    const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
+    useEffect(() => {
+        supabase.auth.getUser().then(({ data: { user } }) => {
+            if (!user) {
+                router.push("/login");
+                return;
+            }
+            setUser(user);
+            setLoading(false);
+        });
+    }, [router, supabase.auth]);
+
+    const handleSignOut = async () => {
+        await signOut();
+    };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-black flex items-center justify-center">
+                <div className="text-gray-400">Loading...</div>
+            </div>
+        );
+    }
+
+    const displayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "User";
+
+    return (
+        <div className="min-h-screen bg-black text-white">
+            <main className="max-w-[1400px] mx-auto px-6 md:px-12 py-8">
+                <div className="flex gap-8">
+                    {/* Sidebar */}
+                    <div className="w-64 flex-shrink-0">
+                        {/* User Card */}
+                        <div className="bg-[#0c0c0e] border border-white/5 rounded-2xl p-4 mb-6">
+                            <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-white font-bold text-lg">
+                                    {displayName.charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                    <div className="font-bold text-sm">{displayName}</div>
+                                    <div className="text-xs text-gray-500">Pro Member</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Navigation */}
+                        <nav className="space-y-1 mb-6">
+                            {sidebarTabs.map((tab) => (
+                                <Link
+                                    key={tab.id}
+                                    href={tab.href}
+                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${tab.id === "fitness"
+                                            ? "bg-[var(--color-accent)] text-white"
+                                            : "text-gray-400 hover:bg-zinc-900 hover:text-white"
+                                        }`}
+                                >
+                                    <tab.icon size={18} />
+                                    {tab.label}
+                                </Link>
+                            ))}
+                        </nav>
+
+                        <div className="border-t border-zinc-800 pt-4 space-y-1">
+                            <Link
+                                href="/support"
+                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:bg-zinc-900 hover:text-white transition-colors"
+                            >
+                                <HelpCircle size={18} />
+                                Help & Support
+                            </Link>
+                            <button
+                                onClick={handleSignOut}
+                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[var(--color-accent)] hover:bg-zinc-900 transition-colors"
+                            >
+                                <LogOut size={18} />
+                                Sign out
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Main Content */}
+                    <div className="flex-1">
+                        {/* Title */}
+                        <div className="mb-8">
+                            <h1 className="text-3xl font-bold mb-2">Fitness Preferences</h1>
+                            <p className="text-gray-400 text-sm">Customize your tracking units, goals, and daily habits to fit your lifestyle.</p>
+                        </div>
+
+                        {/* Measurement Units */}
+                        <div className="mb-8">
+                            <h2 className="text-xl font-bold mb-2">Measurement Units</h2>
+                            <p className="text-gray-400 text-sm mb-6">Choose how you want to measure your progress.</p>
+
+                            <div className="grid md:grid-cols-3 gap-6">
+                                {/* Distance */}
+                                <div>
+                                    <label className="text-sm text-gray-400 mb-3 block">Distance</label>
+                                    <div className="flex bg-zinc-900 rounded-xl p-1">
+                                        <button
+                                            onClick={() => setDistanceUnit("kilometers")}
+                                            className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${distanceUnit === "kilometers"
+                                                    ? "bg-[var(--color-accent)] text-white"
+                                                    : "text-gray-400 hover:text-white"
+                                                }`}
+                                        >
+                                            Kilometers
+                                        </button>
+                                        <button
+                                            onClick={() => setDistanceUnit("miles")}
+                                            className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${distanceUnit === "miles"
+                                                    ? "bg-[var(--color-accent)] text-white"
+                                                    : "text-gray-400 hover:text-white"
+                                                }`}
+                                        >
+                                            Miles
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Weight */}
+                                <div>
+                                    <label className="text-sm text-gray-400 mb-3 block">weight</label>
+                                    <div className="flex bg-zinc-900 rounded-xl p-1">
+                                        <button
+                                            onClick={() => setWeightUnit("kilograms")}
+                                            className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${weightUnit === "kilograms"
+                                                    ? "bg-[var(--color-accent)] text-white"
+                                                    : "text-gray-400 hover:text-white"
+                                                }`}
+                                        >
+                                            Kilograms
+                                        </button>
+                                        <button
+                                            onClick={() => setWeightUnit("pounds")}
+                                            className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${weightUnit === "pounds"
+                                                    ? "bg-[var(--color-accent)] text-white"
+                                                    : "text-gray-400 hover:text-white"
+                                                }`}
+                                        >
+                                            Pounds
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Energy */}
+                                <div>
+                                    <label className="text-sm text-gray-400 mb-3 block">Energy</label>
+                                    <div className="flex bg-zinc-900 rounded-xl p-1">
+                                        <button
+                                            onClick={() => setEnergyUnit("calories")}
+                                            className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${energyUnit === "calories"
+                                                    ? "bg-[var(--color-accent)] text-white"
+                                                    : "text-gray-400 hover:text-white"
+                                                }`}
+                                        >
+                                            Calories
+                                        </button>
+                                        <button
+                                            onClick={() => setEnergyUnit("kilojoules")}
+                                            className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${energyUnit === "kilojoules"
+                                                    ? "bg-[var(--color-accent)] text-white"
+                                                    : "text-gray-400 hover:text-white"
+                                                }`}
+                                        >
+                                            Kilojoules
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Personal Goals */}
+                        <div className="bg-[#0c0c0e] border border-white/5 rounded-2xl p-6 mb-8">
+                            <div className="flex items-center gap-3 mb-2">
+                                <div className="w-8 h-8 bg-[var(--color-accent)]/20 rounded-lg flex items-center justify-center">
+                                    <Target size={18} className="text-[var(--color-accent)]" />
+                                </div>
+                                <h2 className="text-xl font-bold">Personal Goals</h2>
+                            </div>
+                            <p className="text-gray-400 text-sm mb-6">Set your target to help us personalize your plan.</p>
+
+                            <div className="grid md:grid-cols-2 gap-6">
+                                {/* Primary Focus */}
+                                <div>
+                                    <label className="text-sm text-gray-400 mb-2 block">Primary Focus</label>
+                                    <select
+                                        value={primaryFocus}
+                                        onChange={(e) => setPrimaryFocus(e.target.value)}
+                                        className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 px-4 text-sm text-white outline-none focus:border-[var(--color-accent)] transition-colors appearance-none cursor-pointer"
+                                    >
+                                        <option value="weight_loss">Weight Loss</option>
+                                        <option value="muscle_gain">Muscle Gain</option>
+                                        <option value="endurance">Endurance</option>
+                                        <option value="flexibility">Flexibility</option>
+                                        <option value="general_fitness">General Fitness</option>
+                                    </select>
+                                </div>
+
+                                {/* Weekly Workout Goal */}
+                                <div>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <label className="text-sm text-gray-400">Weekly Workout Goal</label>
+                                        <span className="text-sm text-[var(--color-accent)] font-medium">{weeklyGoal} days</span>
+                                    </div>
+                                    <input
+                                        type="range"
+                                        min="1"
+                                        max="7"
+                                        value={weeklyGoal}
+                                        onChange={(e) => setWeeklyGoal(Number(e.target.value))}
+                                        className="w-full h-2 bg-zinc-800 rounded-full appearance-none cursor-pointer accent-[var(--color-accent)]"
+                                    />
+                                    <div className="flex justify-between text-xs text-[var(--color-accent)] mt-1">
+                                        <span>1 day</span>
+                                        <span>7 days</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Activity Level */}
+                        <div className="mb-8">
+                            <h2 className="text-xl font-bold mb-2">Activity Level</h2>
+                            <p className="text-gray-400 text-sm mb-6">How active are you on a typical day?</p>
+
+                            <div className="grid md:grid-cols-3 gap-4">
+                                {activityLevels.map((level) => (
+                                    <button
+                                        key={level.id}
+                                        onClick={() => setActivityLevel(level.id)}
+                                        className={`p-5 rounded-2xl text-left transition-all ${activityLevel === level.id
+                                                ? "bg-[var(--color-accent)]/20 border-2 border-[var(--color-accent)]"
+                                                : "bg-[#0c0c0e] border border-white/5 hover:border-zinc-700"
+                                            }`}
+                                    >
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${activityLevel === level.id
+                                                ? "bg-[var(--color-accent)] text-white"
+                                                : "bg-zinc-800 text-gray-400"
+                                            }`}>
+                                            <level.icon size={20} />
+                                        </div>
+                                        <h3 className="font-bold text-sm mb-1">{level.label}</h3>
+                                        <p className="text-xs text-gray-500">{level.description}</p>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex justify-end gap-4 pt-4 border-t border-zinc-800">
+                            <button className="px-6 py-3 border border-zinc-700 rounded-full text-sm font-medium hover:bg-zinc-800 transition-colors">
+                                Cancel
+                            </button>
+                            <button className="px-6 py-3 bg-[var(--color-accent)] rounded-full text-sm font-bold hover:bg-orange-600 transition-colors">
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    );
+}

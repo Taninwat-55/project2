@@ -19,18 +19,18 @@ import {
 import { signOut } from "@/app/(auth)/actions";
 
 const sidebarTabs = [
-    { id: "account", label: "Account", icon: UserIcon },
-    { id: "fitness", label: "Fitness Preferences", icon: Dumbbell },
-    { id: "notifications", label: "Notifications", icon: Bell },
-    { id: "privacy", label: "Privacy", icon: Shield },
-    { id: "display", label: "Display", icon: Monitor },
+    { id: "account", label: "Account", icon: UserIcon, href: "/settings" },
+    { id: "fitness", label: "Fitness Preferences", icon: Dumbbell, href: "/settings/fitness-preferences" },
+    { id: "notifications", label: "Notifications", icon: Bell, href: "/settings/notifications" },
+    { id: "privacy", label: "Privacy", icon: Shield, href: "/settings/privacy" },
+    { id: "display", label: "Display", icon: Monitor, href: "/settings/display" },
 ];
 
 export default function SettingsPage() {
     const [user, setUser] = useState<User | null>(null);
-    const [activeTab, setActiveTab] = useState("account");
     const [loading, setLoading] = useState(true);
     const router = useRouter();
+
 
     // Form state
     const [formData, setFormData] = useState({
@@ -109,17 +109,17 @@ export default function SettingsPage() {
                         {/* Navigation */}
                         <nav className="space-y-1 mb-6">
                             {sidebarTabs.map((tab) => (
-                                <button
+                                <Link
                                     key={tab.id}
-                                    onClick={() => setActiveTab(tab.id)}
-                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${activeTab === tab.id
-                                            ? "bg-[var(--color-accent)] text-white"
-                                            : "text-gray-400 hover:bg-zinc-900 hover:text-white"
+                                    href={tab.href}
+                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${tab.id === "account"
+                                        ? "bg-[var(--color-accent)] text-white"
+                                        : "text-gray-400 hover:bg-zinc-900 hover:text-white"
                                         }`}
                                 >
                                     <tab.icon size={18} />
                                     {tab.label}
-                                </button>
+                                </Link>
                             ))}
                         </nav>
 
