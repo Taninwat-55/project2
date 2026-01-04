@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Mail } from "lucide-react";
 import SiteHeader from "@/app/components/SiteHeader";
+import { forgotPassword } from "../actions";
 
 export default function ForgotPasswordPage() {
     return (
@@ -27,15 +28,17 @@ export default function ForgotPasswordPage() {
                             </p>
                         </div>
 
-                        <form className="space-y-6 relative z-10">
+                        <form className="space-y-6 relative z-10" action={forgotPassword}>
                             <div className="space-y-2">
                                 <label className="text-xs font-semibold text-gray-300 ml-1">Email Address</label>
                                 <div className="relative group">
                                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5 group-focus-within:text-[var(--color-accent)] transition-colors" />
                                     <input
+                                        name="email"
                                         type="email"
                                         placeholder="you@nexus.fit"
                                         className="w-full bg-[#1c1c1e] text-white text-sm rounded-xl py-3.5 pl-12 pr-4 border border-zinc-800 outline-none focus:border-[var(--color-accent)] focus:ring-1 focus:ring-[var(--color-accent)] transition-all placeholder:text-zinc-600"
+                                        required
                                     />
                                 </div>
                             </div>
