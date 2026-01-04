@@ -21,6 +21,7 @@ import {
     RotateCcw,
 } from "lucide-react";
 import { signOut } from "@/app/(auth)/actions";
+import { useTheme } from "@/app/components/ThemeProvider";
 
 const sidebarTabs = [
     { id: "account", label: "Account", icon: UserIcon, href: "/settings" },
@@ -57,8 +58,10 @@ export default function DisplayPage() {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
 
+    // Use global theme context
+    const { theme, setTheme } = useTheme();
+
     // Display settings states
-    const [theme, setTheme] = useState<"light" | "dark" | "system">("dark");
     const [fontSize, setFontSize] = useState(16);
     const [reduceMotion, setReduceMotion] = useState(false);
     const [highContrast, setHighContrast] = useState(false);
@@ -92,29 +95,31 @@ export default function DisplayPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-black flex items-center justify-center">
-                <div className="text-gray-400">Loading...</div>
+            <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
+                <div className="text-[var(--muted-foreground)]">Loading...</div>
             </div>
         );
     }
 
     const displayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "User";
 
+
     return (
-        <div className="min-h-screen bg-black text-white">
+        <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
             <main className="max-w-[1400px] mx-auto px-6 md:px-12 py-8">
                 <div className="flex gap-8">
                     {/* Sidebar */}
                     <div className="w-64 flex-shrink-0">
                         {/* User Card */}
-                        <div className="bg-[#0c0c0e] border border-white/5 rounded-2xl p-4 mb-6">
+                        <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 mb-6">
+
                             <div className="flex items-center gap-3">
                                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-white font-bold text-lg">
                                     {displayName.charAt(0).toUpperCase()}
                                 </div>
                                 <div>
                                     <div className="font-bold text-sm">{displayName}</div>
-                                    <div className="text-xs text-gray-500">Pro Member</div>
+                                    <div className="text-xs text-[var(--muted-foreground)]">Pro Member</div>
                                 </div>
                             </div>
                         </div>
@@ -126,8 +131,8 @@ export default function DisplayPage() {
                                     key={tab.id}
                                     href={tab.href}
                                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${tab.id === "display"
-                                            ? "bg-[var(--color-accent)] text-white"
-                                            : "text-gray-400 hover:bg-zinc-900 hover:text-white"
+                                        ? "bg-[var(--color-accent)] text-white"
+                                        : "text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
                                         }`}
                                 >
                                     <tab.icon size={18} />
@@ -136,17 +141,17 @@ export default function DisplayPage() {
                             ))}
                         </nav>
 
-                        <div className="border-t border-zinc-800 pt-4 space-y-1">
+                        <div className="border-t border-[var(--border)] pt-4 space-y-1">
                             <Link
                                 href="/support"
-                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:bg-zinc-900 hover:text-white transition-colors"
+                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
                             >
                                 <HelpCircle size={18} />
                                 Help & Support
                             </Link>
                             <button
                                 onClick={handleSignOut}
-                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[var(--color-accent)] hover:bg-zinc-900 transition-colors"
+                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[var(--color-accent)] hover:bg-[var(--muted)] transition-colors"
                             >
                                 <LogOut size={18} />
                                 Sign out
@@ -159,7 +164,7 @@ export default function DisplayPage() {
                         {/* Title */}
                         <div className="mb-8">
                             <h1 className="text-3xl font-bold mb-2">Display Setting</h1>
-                            <p className="text-gray-400 text-sm">Customize your visual experience, accessibility preferences and dashboard layout.</p>
+                            <p className="text-[var(--muted-foreground)] text-sm">Customize your visual experience, accessibility preferences and dashboard layout.</p>
                         </div>
 
                         {/* Appearance */}
@@ -184,16 +189,16 @@ export default function DisplayPage() {
                                         key={option.id}
                                         onClick={() => setTheme(option.id as "light" | "dark" | "system")}
                                         className={`p-6 rounded-2xl text-center transition-all ${theme === option.id
-                                                ? "bg-[#0c0c0e] border-2 border-[var(--color-accent)]"
-                                                : "bg-[#0c0c0e] border border-white/5 hover:border-zinc-700"
+                                            ? "bg-[var(--card)] border-2 border-[var(--color-accent)]"
+                                            : "bg-[var(--card)] border border-[var(--border)] hover:border-[var(--muted-foreground)]"
                                             }`}
                                     >
                                         <option.icon
                                             size={28}
-                                            className={`mx-auto mb-3 ${theme === option.id ? "text-[var(--color-accent)]" : "text-gray-400"
+                                            className={`mx-auto mb-3 ${theme === option.id ? "text-[var(--color-accent)]" : "text-[var(--muted-foreground)]"
                                                 }`}
                                         />
-                                        <span className={`text-sm font-medium ${theme === option.id ? "text-[var(--color-accent)]" : "text-gray-400"
+                                        <span className={`text-sm font-medium ${theme === option.id ? "text-[var(--color-accent)]" : "text-[var(--muted-foreground)]"
                                             }`}>
                                             {option.label}
                                         </span>
@@ -209,7 +214,7 @@ export default function DisplayPage() {
                                 <h2 className="text-xl font-bold">Typography</h2>
                             </div>
 
-                            <div className="bg-[#0c0c0e] border border-white/5 rounded-2xl p-6">
+                            <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6">
                                 <div className="flex justify-between items-center mb-4">
                                     <span className="text-sm font-medium flex items-center gap-1">
                                         <span className="text-xs">A</span>
@@ -221,21 +226,21 @@ export default function DisplayPage() {
                                 </div>
 
                                 <div className="flex items-center gap-4 mb-6">
-                                    <span className="text-xs text-gray-500">A</span>
+                                    <span className="text-xs text-[var(--muted-foreground)]">A</span>
                                     <input
                                         type="range"
                                         min="12"
                                         max="20"
                                         value={fontSize}
                                         onChange={(e) => setFontSize(Number(e.target.value))}
-                                        className="flex-1 h-2 bg-zinc-800 rounded-full appearance-none cursor-pointer accent-[var(--color-accent)]"
+                                        className="flex-1 h-2 bg-[var(--muted)] rounded-full appearance-none cursor-pointer accent-[var(--color-accent)]"
                                     />
-                                    <span className="text-lg text-gray-500">A</span>
+                                    <span className="text-lg text-[var(--muted-foreground)]">A</span>
                                 </div>
 
-                                <div className="border-t border-zinc-800 pt-4">
-                                    <span className="text-xs text-gray-500 uppercase tracking-wider block mb-2">Preview</span>
-                                    <p className="text-gray-400" style={{ fontSize: `${fontSize}px` }}>
+                                <div className="border-t border-[var(--border)] pt-4">
+                                    <span className="text-xs text-[var(--muted-foreground)] uppercase tracking-wider block mb-2">Preview</span>
+                                    <p className="text-[var(--muted-foreground)]" style={{ fontSize: `${fontSize}px` }}>
                                         Success isn&apos;t always about greatness. It&apos;s about consistency hard work gains successes. Greatness will come.
                                     </p>
                                 </div>
@@ -249,11 +254,11 @@ export default function DisplayPage() {
                                 <h2 className="text-xl font-bold">Accessibility</h2>
                             </div>
 
-                            <div className="bg-[#0c0c0e] border border-white/5 rounded-2xl p-6 space-y-4">
+                            <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 space-y-4">
                                 <div className="flex items-center justify-between py-2">
                                     <div>
                                         <h3 className="font-bold text-sm">Reduce Motion</h3>
-                                        <p className="text-xs text-gray-500">Minimize animations and movement</p>
+                                        <p className="text-xs text-[var(--muted-foreground)]">Minimize animations and movement</p>
                                     </div>
                                     <ToggleSwitch enabled={reduceMotion} onChange={setReduceMotion} />
                                 </div>
@@ -261,7 +266,7 @@ export default function DisplayPage() {
                                 <div className="flex items-center justify-between py-2">
                                     <div>
                                         <h3 className="font-bold text-sm">High Contrast</h3>
-                                        <p className="text-xs text-gray-500">Increase contrast for better legibility</p>
+                                        <p className="text-xs text-[var(--muted-foreground)]">Increase contrast for better legibility</p>
                                     </div>
                                     <ToggleSwitch enabled={highContrast} onChange={setHighContrast} />
                                 </div>
@@ -269,8 +274,8 @@ export default function DisplayPage() {
                         </div>
 
                         {/* Action Buttons */}
-                        <div className="flex justify-end gap-4 pt-4 border-t border-zinc-800">
-                            <button className="px-6 py-3 border border-zinc-700 rounded-full text-sm font-medium hover:bg-zinc-800 transition-colors">
+                        <div className="flex justify-end gap-4 pt-4 border-t border-[var(--border)]">
+                            <button className="px-6 py-3 border border-[var(--border)] rounded-full text-sm font-medium hover:bg-[var(--muted)] transition-colors">
                                 Cancel
                             </button>
                             <button className="px-6 py-3 bg-[var(--color-accent)] rounded-full text-sm font-bold hover:bg-orange-600 transition-colors">

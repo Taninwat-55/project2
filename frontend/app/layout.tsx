@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { ThemeProvider } from "./components/ThemeProvider";
 
 
 export const metadata: Metadata = {
@@ -13,13 +14,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className="antialiased min-h-screen flex flex-col">
-        {/* Nav removed - moved to (main)/layout.tsx */}
+        <ThemeProvider>
+          {/* Nav removed - moved to (main)/layout.tsx */}
 
-        <main className="flex-1">
-          {children}
-        </main>
+          <main className="flex-1">
+            {children}
+          </main>
+        </ThemeProvider>
       </body>
     </html>
   );

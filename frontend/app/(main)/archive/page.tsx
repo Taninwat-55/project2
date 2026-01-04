@@ -92,12 +92,12 @@ export default async function ArchivePage() {
     }
 
     return (
-        <div className="min-h-screen bg-black text-white">
+        <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
             <main className="max-w-[1400px] mx-auto px-6 md:px-12 py-8">
                 {/* Title Section */}
                 <div className="mb-8">
                     <h1 className="text-3xl md:text-4xl font-bold mb-2">Workout Archives</h1>
-                    <p className="text-gray-400 text-sm">Browse your past training history, completed plans, and milestones</p>
+                    <p className="text-[var(--muted-foreground)] text-sm">Browse your past training history, completed plans, and milestones</p>
                 </div>
 
                 {/* Stats Row */}
@@ -105,16 +105,16 @@ export default async function ArchivePage() {
                     {statsData.map((stat) => (
                         <div
                             key={stat.label}
-                            className="bg-[#0c0c0e] border border-white/5 rounded-2xl p-5 flex items-center justify-between"
+                            className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5 flex items-center justify-between"
                         >
                             <div>
-                                <div className="text-xs text-gray-500 uppercase tracking-wider mb-2">{stat.label}</div>
+                                <div className="text-xs text-[var(--muted-foreground)] uppercase tracking-wider mb-2">{stat.label}</div>
                                 <div className="flex items-baseline gap-2">
                                     <span className="text-3xl font-bold text-[var(--color-accent)]">{stat.value}</span>
-                                    <span className="text-sm text-gray-500">{stat.unit}</span>
+                                    <span className="text-sm text-[var(--muted-foreground)]">{stat.unit}</span>
                                 </div>
                             </div>
-                            <div className="w-10 h-10 rounded-full border border-zinc-700 flex items-center justify-center text-[var(--color-accent)]">
+                            <div className="w-10 h-10 rounded-full border border-[var(--border)] flex items-center justify-center text-[var(--color-accent)]">
                                 <stat.icon size={20} />
                             </div>
                         </div>
@@ -126,7 +126,7 @@ export default async function ArchivePage() {
                     {archivedWorkouts.map((workout, index) => (
                         <div
                             key={index}
-                            className="bg-[#0c0c0e] border border-white/5 rounded-2xl overflow-hidden hover:border-zinc-700 transition-colors cursor-pointer group"
+                            className="bg-[var(--card)] border border-[var(--border)] rounded-2xl overflow-hidden hover:border-[var(--muted-foreground)] transition-colors cursor-pointer group"
                         >
                             {/* Image */}
                             <div className="relative h-48 overflow-hidden">
@@ -148,8 +148,8 @@ export default async function ArchivePage() {
                             {/* Content */}
                             <div className="p-5">
                                 <h3 className="text-lg font-bold mb-2">{workout.title}</h3>
-                                <p className="text-sm text-gray-500 mb-4 line-clamp-2">{workout.description}</p>
-                                <div className="flex items-center gap-4 text-xs text-gray-500">
+                                <p className="text-sm text-[var(--muted-foreground)] mb-4 line-clamp-2">{workout.description}</p>
+                                <div className="flex items-center gap-4 text-xs text-[var(--muted-foreground)]">
                                     <div className="flex items-center gap-1">
                                         <Clock size={12} />
                                         {workout.duration}
@@ -166,54 +166,54 @@ export default async function ArchivePage() {
 
                 {/* Pagination */}
                 <div className="flex justify-center items-center gap-2">
-                    <button className="w-10 h-10 rounded-lg border border-zinc-700 flex items-center justify-center text-gray-400 hover:bg-zinc-800 hover:text-white transition-colors">
+                    <button className="w-10 h-10 rounded-lg border border-[var(--border)] flex items-center justify-center text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)] transition-colors">
                         <ChevronLeft size={18} />
                     </button>
                     <button className="w-10 h-10 rounded-lg bg-[var(--color-accent)] flex items-center justify-center text-white font-medium">
                         1
                     </button>
-                    <button className="w-10 h-10 rounded-lg border border-zinc-700 flex items-center justify-center text-gray-400 hover:bg-zinc-800 hover:text-white transition-colors">
+                    <button className="w-10 h-10 rounded-lg border border-[var(--border)] flex items-center justify-center text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)] transition-colors">
                         2
                     </button>
-                    <button className="w-10 h-10 rounded-lg border border-zinc-700 flex items-center justify-center text-gray-400 hover:bg-zinc-800 hover:text-white transition-colors">
+                    <button className="w-10 h-10 rounded-lg border border-[var(--border)] flex items-center justify-center text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)] transition-colors">
                         3
                     </button>
-                    <span className="text-gray-500 px-2">...</span>
-                    <button className="w-10 h-10 rounded-lg border border-zinc-700 flex items-center justify-center text-gray-400 hover:bg-zinc-800 hover:text-white transition-colors">
+                    <span className="text-[var(--muted-foreground)] px-2">...</span>
+                    <button className="w-10 h-10 rounded-lg border border-[var(--border)] flex items-center justify-center text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)] transition-colors">
                         8
                     </button>
-                    <button className="w-10 h-10 rounded-lg border border-zinc-700 flex items-center justify-center text-gray-400 hover:bg-zinc-800 hover:text-white transition-colors">
+                    <button className="w-10 h-10 rounded-lg border border-[var(--border)] flex items-center justify-center text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)] transition-colors">
                         <ChevronRight size={18} />
                     </button>
                 </div>
             </main>
 
             {/* Footer */}
-            <footer className="py-16 px-6 border-t border-white/5 bg-black mt-12">
+            <footer className="py-16 px-6 border-t border-[var(--border)] bg-[var(--background)] mt-12">
                 <div className="max-w-[1400px] mx-auto grid md:grid-cols-4 gap-12">
                     <div>
                         <Link href="/" className="flex items-center gap-2 mb-6">
                             <div className="w-8 h-8 rounded-full border-2 border-[var(--color-accent)] flex items-center justify-center text-[var(--color-accent)] font-bold text-sm">
                                 N
                             </div>
-                            <span className="font-bold text-lg tracking-wide text-white">Nexus</span>
+                            <span className="font-bold text-lg tracking-wide text-[var(--foreground)]">Nexus</span>
                         </Link>
-                        <p className="text-gray-500 text-sm leading-relaxed max-w-xs">
+                        <p className="text-[var(--muted-foreground)] text-sm leading-relaxed max-w-xs">
                             Empowering athletes everywhere to reach their peak performance through data and discipline.
                         </p>
                     </div>
 
                     <div>
-                        <h4 className="font-bold text-white mb-6">Product</h4>
-                        <ul className="space-y-4 text-sm text-gray-500">
+                        <h4 className="font-bold text-[var(--foreground)] mb-6">Product</h4>
+                        <ul className="space-y-4 text-sm text-[var(--muted-foreground)]">
                             <li><Link href="#" className="hover:text-[var(--color-accent)] transition-colors">Features</Link></li>
                             <li><Link href="#" className="hover:text-[var(--color-accent)] transition-colors">Testimonials</Link></li>
                         </ul>
                     </div>
 
                     <div>
-                        <h4 className="font-bold text-white mb-6">Company</h4>
-                        <ul className="space-y-4 text-sm text-gray-500">
+                        <h4 className="font-bold text-[var(--foreground)] mb-6">Company</h4>
+                        <ul className="space-y-4 text-sm text-[var(--muted-foreground)]">
                             <li><Link href="#" className="hover:text-[var(--color-accent)] transition-colors">About Us</Link></li>
                             <li><Link href="#" className="hover:text-[var(--color-accent)] transition-colors">Careers</Link></li>
                             <li><Link href="#" className="hover:text-[var(--color-accent)] transition-colors">Privacy Policy</Link></li>
@@ -222,15 +222,15 @@ export default async function ArchivePage() {
                     </div>
 
                     <div>
-                        <h4 className="font-bold text-white mb-6">Support</h4>
-                        <ul className="space-y-4 text-sm text-gray-500">
+                        <h4 className="font-bold text-[var(--foreground)] mb-6">Support</h4>
+                        <ul className="space-y-4 text-sm text-[var(--muted-foreground)]">
                             <li><Link href="#" className="hover:text-[var(--color-accent)] transition-colors">Help Center</Link></li>
                             <li><Link href="#" className="hover:text-[var(--color-accent)] transition-colors">Contact Us</Link></li>
                             <li><Link href="#" className="hover:text-[var(--color-accent)] transition-colors">Status</Link></li>
                         </ul>
                     </div>
                 </div>
-                <div className="max-w-[1400px] mx-auto mt-16 pt-8 border-t border-white/5 text-center text-sm text-gray-600">
+                <div className="max-w-[1400px] mx-auto mt-16 pt-8 border-t border-[var(--border)] text-center text-sm text-[var(--muted-foreground)]">
                     © {new Date().getFullYear()} Nexus Fitness App. All rights reserved.
                 </div>
             </footer>
