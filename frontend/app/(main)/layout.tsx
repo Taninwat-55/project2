@@ -1,4 +1,4 @@
-import Nav from "@/app/components/Nav";
+import SiteHeader from "@/app/components/SiteHeader";
 
 export default function MainLayout({
     children,
@@ -7,7 +7,7 @@ export default function MainLayout({
 }>) {
     return (
         <>
-            <Nav />
+            <SiteHeader />
             {children}
         </>
     );
