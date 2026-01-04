@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { Mail, Lock, Check } from "lucide-react";
-import Image from "next/image";
+import { Mail, Lock } from "lucide-react";
 
 export default function LoginPage() {
   return (
@@ -122,7 +121,7 @@ export default function LoginPage() {
 
             <div className="mt-8 text-center">
               <p className="text-sm text-gray-400">
-                Don't have an account? <Link href="/signup" className="text-[var(--color-accent)] font-semibold hover:underline">Sign up for free</Link>
+                Don&apos;t have an account? <Link href="/signup" className="text-[var(--color-accent)] font-semibold hover:underline">Sign up for free</Link>
               </p>
             </div>
 

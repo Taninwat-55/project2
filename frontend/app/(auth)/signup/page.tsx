@@ -68,7 +68,7 @@ export default function SignupPage() {
 
                         <div className="mb-8">
                             <h1 className="text-3xl font-bold text-white mb-2">Join Nexus Join Movment</h1>
-                            <p className="text-gray-500 text-sm">Start your fitness journey today. It's free!</p>
+                            <p className="text-gray-500 text-sm">Start your fitness journey today. It&apos;s free!</p>
                         </div>
 
                         <form className="space-y-5">

@@ -128,7 +128,7 @@ export default function LandingPage() {
                         </div>
                         <h3 className="text-2xl font-bold text-white mb-3">Food Logging</h3>
                         <p className="text-zinc-500 leading-relaxed">
-                            Keep track of your nutrition with our extensive database. Scan barcodes, log meals, and monitor your macro intake to ensure you're fueling your body correctly.
+                            Keep track of your nutrition with our extensive database. Scan barcodes, log meals, and monitor your macro intake to ensure you&apos;re fueling your body correctly.
                         </p>
                     </div>
 
@@ -207,7 +207,7 @@ export default function LandingPage() {
                             <span className="text-[var(--color-accent)]">Performance</span>
                         </h2>
                         <p className="text-gray-400 mb-8 leading-relaxed">
-                            Stop guessing and start improving. Nexus transforms your raw data into actionable insights. Whether you're a beginner or an elite athlete, knowing your numbers is the key to breaking plateaus.
+                            Stop guessing and start improving. Nexus transforms your raw data into actionable insights. Whether you&apos;re a beginner or an elite athlete, knowing your numbers is the key to breaking plateaus.
                         </p>
 
                         <div className="space-y-6">
