@@ -69,8 +69,8 @@ export default function FitnessPreferencesPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-black flex items-center justify-center">
-                <div className="text-gray-400">Loading...</div>
+            <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
+                <div className="text-[var(--muted-foreground)]">Loading...</div>
             </div>
         );
     }
@@ -78,20 +78,20 @@ export default function FitnessPreferencesPage() {
     const displayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "User";
 
     return (
-        <div className="min-h-screen bg-black text-white">
+        <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
             <main className="max-w-[1400px] mx-auto px-6 md:px-12 py-8">
                 <div className="flex gap-8">
                     {/* Sidebar */}
                     <div className="w-64 flex-shrink-0">
                         {/* User Card */}
-                        <div className="bg-[#0c0c0e] border border-white/5 rounded-2xl p-4 mb-6">
+                        <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 mb-6">
                             <div className="flex items-center gap-3">
                                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-white font-bold text-lg">
                                     {displayName.charAt(0).toUpperCase()}
                                 </div>
                                 <div>
                                     <div className="font-bold text-sm">{displayName}</div>
-                                    <div className="text-xs text-gray-500">Pro Member</div>
+                                    <div className="text-xs text-[var(--muted-foreground)]">Pro Member</div>
                                 </div>
                             </div>
                         </div>
@@ -103,8 +103,8 @@ export default function FitnessPreferencesPage() {
                                     key={tab.id}
                                     href={tab.href}
                                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${tab.id === "fitness"
-                                            ? "bg-[var(--color-accent)] text-white"
-                                            : "text-gray-400 hover:bg-zinc-900 hover:text-white"
+                                        ? "bg-[var(--color-accent)] text-white"
+                                        : "text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
                                         }`}
                                 >
                                     <tab.icon size={18} />
@@ -113,17 +113,17 @@ export default function FitnessPreferencesPage() {
                             ))}
                         </nav>
 
-                        <div className="border-t border-zinc-800 pt-4 space-y-1">
+                        <div className="border-t border-[var(--border)] pt-4 space-y-1">
                             <Link
                                 href="/support"
-                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:bg-zinc-900 hover:text-white transition-colors"
+                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
                             >
                                 <HelpCircle size={18} />
                                 Help & Support
                             </Link>
                             <button
                                 onClick={handleSignOut}
-                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[var(--color-accent)] hover:bg-zinc-900 transition-colors"
+                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[var(--color-accent)] hover:bg-[var(--muted)] transition-colors"
                             >
                                 <LogOut size={18} />
                                 Sign out
@@ -136,24 +136,24 @@ export default function FitnessPreferencesPage() {
                         {/* Title */}
                         <div className="mb-8">
                             <h1 className="text-3xl font-bold mb-2">Fitness Preferences</h1>
-                            <p className="text-gray-400 text-sm">Customize your tracking units, goals, and daily habits to fit your lifestyle.</p>
+                            <p className="text-[var(--muted-foreground)] text-sm">Customize your tracking units, goals, and daily habits to fit your lifestyle.</p>
                         </div>
 
                         {/* Measurement Units */}
                         <div className="mb-8">
                             <h2 className="text-xl font-bold mb-2">Measurement Units</h2>
-                            <p className="text-gray-400 text-sm mb-6">Choose how you want to measure your progress.</p>
+                            <p className="text-[var(--muted-foreground)] text-sm mb-6">Choose how you want to measure your progress.</p>
 
                             <div className="grid md:grid-cols-3 gap-6">
                                 {/* Distance */}
                                 <div>
-                                    <label className="text-sm text-gray-400 mb-3 block">Distance</label>
-                                    <div className="flex bg-zinc-900 rounded-xl p-1">
+                                    <label className="text-sm text-[var(--muted-foreground)] mb-3 block">Distance</label>
+                                    <div className="flex bg-[var(--muted)] rounded-xl p-1">
                                         <button
                                             onClick={() => setDistanceUnit("kilometers")}
                                             className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${distanceUnit === "kilometers"
-                                                    ? "bg-[var(--color-accent)] text-white"
-                                                    : "text-gray-400 hover:text-white"
+                                                ? "bg-[var(--color-accent)] text-white"
+                                                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                                                 }`}
                                         >
                                             Kilometers
@@ -161,8 +161,8 @@ export default function FitnessPreferencesPage() {
                                         <button
                                             onClick={() => setDistanceUnit("miles")}
                                             className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${distanceUnit === "miles"
-                                                    ? "bg-[var(--color-accent)] text-white"
-                                                    : "text-gray-400 hover:text-white"
+                                                ? "bg-[var(--color-accent)] text-white"
+                                                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                                                 }`}
                                         >
                                             Miles
@@ -172,13 +172,13 @@ export default function FitnessPreferencesPage() {
 
                                 {/* Weight */}
                                 <div>
-                                    <label className="text-sm text-gray-400 mb-3 block">weight</label>
-                                    <div className="flex bg-zinc-900 rounded-xl p-1">
+                                    <label className="text-sm text-[var(--muted-foreground)] mb-3 block">weight</label>
+                                    <div className="flex bg-[var(--muted)] rounded-xl p-1">
                                         <button
                                             onClick={() => setWeightUnit("kilograms")}
                                             className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${weightUnit === "kilograms"
-                                                    ? "bg-[var(--color-accent)] text-white"
-                                                    : "text-gray-400 hover:text-white"
+                                                ? "bg-[var(--color-accent)] text-white"
+                                                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                                                 }`}
                                         >
                                             Kilograms
@@ -186,8 +186,8 @@ export default function FitnessPreferencesPage() {
                                         <button
                                             onClick={() => setWeightUnit("pounds")}
                                             className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${weightUnit === "pounds"
-                                                    ? "bg-[var(--color-accent)] text-white"
-                                                    : "text-gray-400 hover:text-white"
+                                                ? "bg-[var(--color-accent)] text-white"
+                                                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                                                 }`}
                                         >
                                             Pounds
@@ -197,13 +197,13 @@ export default function FitnessPreferencesPage() {
 
                                 {/* Energy */}
                                 <div>
-                                    <label className="text-sm text-gray-400 mb-3 block">Energy</label>
-                                    <div className="flex bg-zinc-900 rounded-xl p-1">
+                                    <label className="text-sm text-[var(--muted-foreground)] mb-3 block">Energy</label>
+                                    <div className="flex bg-[var(--muted)] rounded-xl p-1">
                                         <button
                                             onClick={() => setEnergyUnit("calories")}
                                             className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${energyUnit === "calories"
-                                                    ? "bg-[var(--color-accent)] text-white"
-                                                    : "text-gray-400 hover:text-white"
+                                                ? "bg-[var(--color-accent)] text-white"
+                                                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                                                 }`}
                                         >
                                             Calories
@@ -211,8 +211,8 @@ export default function FitnessPreferencesPage() {
                                         <button
                                             onClick={() => setEnergyUnit("kilojoules")}
                                             className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${energyUnit === "kilojoules"
-                                                    ? "bg-[var(--color-accent)] text-white"
-                                                    : "text-gray-400 hover:text-white"
+                                                ? "bg-[var(--color-accent)] text-white"
+                                                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
                                                 }`}
                                         >
                                             Kilojoules
@@ -223,23 +223,23 @@ export default function FitnessPreferencesPage() {
                         </div>
 
                         {/* Personal Goals */}
-                        <div className="bg-[#0c0c0e] border border-white/5 rounded-2xl p-6 mb-8">
+                        <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 mb-8">
                             <div className="flex items-center gap-3 mb-2">
                                 <div className="w-8 h-8 bg-[var(--color-accent)]/20 rounded-lg flex items-center justify-center">
                                     <Target size={18} className="text-[var(--color-accent)]" />
                                 </div>
                                 <h2 className="text-xl font-bold">Personal Goals</h2>
                             </div>
-                            <p className="text-gray-400 text-sm mb-6">Set your target to help us personalize your plan.</p>
+                            <p className="text-[var(--muted-foreground)] text-sm mb-6">Set your target to help us personalize your plan.</p>
 
                             <div className="grid md:grid-cols-2 gap-6">
                                 {/* Primary Focus */}
                                 <div>
-                                    <label className="text-sm text-gray-400 mb-2 block">Primary Focus</label>
+                                    <label className="text-sm text-[var(--muted-foreground)] mb-2 block">Primary Focus</label>
                                     <select
                                         value={primaryFocus}
                                         onChange={(e) => setPrimaryFocus(e.target.value)}
-                                        className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 px-4 text-sm text-white outline-none focus:border-[var(--color-accent)] transition-colors appearance-none cursor-pointer"
+                                        className="w-full bg-[var(--muted)] border border-[var(--border)] rounded-xl py-3 px-4 text-sm text-[var(--foreground)] outline-none focus:border-[var(--color-accent)] transition-colors appearance-none cursor-pointer"
                                     >
                                         <option value="weight_loss">Weight Loss</option>
                                         <option value="muscle_gain">Muscle Gain</option>
@@ -252,7 +252,7 @@ export default function FitnessPreferencesPage() {
                                 {/* Weekly Workout Goal */}
                                 <div>
                                     <div className="flex justify-between items-center mb-2">
-                                        <label className="text-sm text-gray-400">Weekly Workout Goal</label>
+                                        <label className="text-sm text-[var(--muted-foreground)]">Weekly Workout Goal</label>
                                         <span className="text-sm text-[var(--color-accent)] font-medium">{weeklyGoal} days</span>
                                     </div>
                                     <input
@@ -261,7 +261,7 @@ export default function FitnessPreferencesPage() {
                                         max="7"
                                         value={weeklyGoal}
                                         onChange={(e) => setWeeklyGoal(Number(e.target.value))}
-                                        className="w-full h-2 bg-zinc-800 rounded-full appearance-none cursor-pointer accent-[var(--color-accent)]"
+                                        className="w-full h-2 bg-[var(--muted)] rounded-full appearance-none cursor-pointer accent-[var(--color-accent)]"
                                     />
                                     <div className="flex justify-between text-xs text-[var(--color-accent)] mt-1">
                                         <span>1 day</span>
@@ -274,7 +274,7 @@ export default function FitnessPreferencesPage() {
                         {/* Activity Level */}
                         <div className="mb-8">
                             <h2 className="text-xl font-bold mb-2">Activity Level</h2>
-                            <p className="text-gray-400 text-sm mb-6">How active are you on a typical day?</p>
+                            <p className="text-[var(--muted-foreground)] text-sm mb-6">How active are you on a typical day?</p>
 
                             <div className="grid md:grid-cols-3 gap-4">
                                 {activityLevels.map((level) => (
@@ -282,26 +282,26 @@ export default function FitnessPreferencesPage() {
                                         key={level.id}
                                         onClick={() => setActivityLevel(level.id)}
                                         className={`p-5 rounded-2xl text-left transition-all ${activityLevel === level.id
-                                                ? "bg-[var(--color-accent)]/20 border-2 border-[var(--color-accent)]"
-                                                : "bg-[#0c0c0e] border border-white/5 hover:border-zinc-700"
+                                            ? "bg-[var(--color-accent)]/20 border-2 border-[var(--color-accent)]"
+                                            : "bg-[var(--card)] border border-[var(--border)] hover:border-[var(--muted-foreground)]"
                                             }`}
                                     >
                                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${activityLevel === level.id
-                                                ? "bg-[var(--color-accent)] text-white"
-                                                : "bg-zinc-800 text-gray-400"
+                                            ? "bg-[var(--color-accent)] text-white"
+                                            : "bg-[var(--muted)] text-[var(--muted-foreground)]"
                                             }`}>
                                             <level.icon size={20} />
                                         </div>
                                         <h3 className="font-bold text-sm mb-1">{level.label}</h3>
-                                        <p className="text-xs text-gray-500">{level.description}</p>
+                                        <p className="text-xs text-[var(--muted-foreground)]">{level.description}</p>
                                     </button>
                                 ))}
                             </div>
                         </div>
 
                         {/* Action Buttons */}
-                        <div className="flex justify-end gap-4 pt-4 border-t border-zinc-800">
-                            <button className="px-6 py-3 border border-zinc-700 rounded-full text-sm font-medium hover:bg-zinc-800 transition-colors">
+                        <div className="flex justify-end gap-4 pt-4 border-t border-[var(--border)]">
+                            <button className="px-6 py-3 border border-[var(--border)] rounded-full text-sm font-medium hover:bg-[var(--muted)] transition-colors">
                                 Cancel
                             </button>
                             <button className="px-6 py-3 bg-[var(--color-accent)] rounded-full text-sm font-bold hover:bg-orange-600 transition-colors">

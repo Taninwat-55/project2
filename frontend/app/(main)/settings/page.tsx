@@ -79,8 +79,8 @@ export default function SettingsPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-black flex items-center justify-center">
-                <div className="text-gray-400">Loading...</div>
+            <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
+                <div className="text-[var(--muted-foreground)]">Loading...</div>
             </div>
         );
     }
@@ -88,20 +88,20 @@ export default function SettingsPage() {
     const displayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "User";
 
     return (
-        <div className="min-h-screen bg-black text-white">
+        <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
             <main className="max-w-[1400px] mx-auto px-6 md:px-12 py-8">
                 <div className="flex gap-8">
                     {/* Sidebar */}
                     <div className="w-64 flex-shrink-0">
                         {/* User Card */}
-                        <div className="bg-[#0c0c0e] border border-white/5 rounded-2xl p-4 mb-6">
+                        <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 mb-6">
                             <div className="flex items-center gap-3">
                                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-white font-bold text-lg">
                                     {displayName.charAt(0).toUpperCase()}
                                 </div>
                                 <div>
                                     <div className="font-bold text-sm">{displayName}</div>
-                                    <div className="text-xs text-gray-500">Pro Member</div>
+                                    <div className="text-xs text-[var(--muted-foreground)]">Pro Member</div>
                                 </div>
                             </div>
                         </div>
@@ -114,7 +114,7 @@ export default function SettingsPage() {
                                     href={tab.href}
                                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${tab.id === "account"
                                         ? "bg-[var(--color-accent)] text-white"
-                                        : "text-gray-400 hover:bg-zinc-900 hover:text-white"
+                                        : "text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
                                         }`}
                                 >
                                     <tab.icon size={18} />
@@ -123,17 +123,17 @@ export default function SettingsPage() {
                             ))}
                         </nav>
 
-                        <div className="border-t border-zinc-800 pt-4 space-y-1">
+                        <div className="border-t border-[var(--border)] pt-4 space-y-1">
                             <Link
                                 href="/support"
-                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:bg-zinc-900 hover:text-white transition-colors"
+                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
                             >
                                 <HelpCircle size={18} />
                                 Help & Support
                             </Link>
                             <button
                                 onClick={handleSignOut}
-                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[var(--color-accent)] hover:bg-zinc-900 transition-colors"
+                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[var(--color-accent)] hover:bg-[var(--muted)] transition-colors"
                             >
                                 <LogOut size={18} />
                                 Sign out
@@ -146,11 +146,11 @@ export default function SettingsPage() {
                         {/* Title */}
                         <div className="mb-8">
                             <h1 className="text-3xl font-bold mb-2">Account Setting</h1>
-                            <p className="text-gray-400 text-sm">Manage your personal details and subscriptions</p>
+                            <p className="text-[var(--muted-foreground)] text-sm">Manage your personal details and subscriptions</p>
                         </div>
 
                         {/* Profile Card */}
-                        <div className="bg-[#0c0c0e] border border-white/5 rounded-2xl p-6 mb-6">
+                        <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 mb-6">
                             <div className="flex items-center gap-4">
                                 <div className="relative">
                                     <div className="w-20 h-20 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-white font-bold text-2xl">
@@ -162,7 +162,7 @@ export default function SettingsPage() {
                                 </div>
                                 <div className="flex-1">
                                     <h2 className="text-2xl font-bold">{formData.firstName} {formData.lastName}</h2>
-                                    <div className="flex items-center gap-4 text-sm text-gray-400 mt-1">
+                                    <div className="flex items-center gap-4 text-sm text-[var(--muted-foreground)] mt-1">
                                         <span className="flex items-center gap-1">
                                             <CalendarDays size={14} />
                                             Member since 2021
@@ -180,7 +180,7 @@ export default function SettingsPage() {
                         </div>
 
                         {/* Personal Information */}
-                        <div className="bg-[#0c0c0e] border border-white/5 rounded-2xl p-6 mb-6">
+                        <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 mb-6">
                             <div className="flex justify-between items-center mb-6">
                                 <h3 className="text-xl font-bold">Personal Information</h3>
                                 <button className="text-sm text-[var(--color-accent)] hover:underline">Edit</button>
@@ -188,80 +188,80 @@ export default function SettingsPage() {
 
                             <div className="grid md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <label className="text-xs text-gray-400">First Name</label>
+                                    <label className="text-xs text-[var(--muted-foreground)]">First Name</label>
                                     <input
                                         type="text"
                                         name="firstName"
                                         value={formData.firstName}
                                         onChange={handleInputChange}
-                                        className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 px-4 text-sm text-white outline-none focus:border-[var(--color-accent)] transition-colors"
+                                        className="w-full bg-[var(--muted)] border border-[var(--border)] rounded-xl py-3 px-4 text-sm text-[var(--foreground)] outline-none focus:border-[var(--color-accent)] transition-colors"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-xs text-gray-400">Last Name</label>
+                                    <label className="text-xs text-[var(--muted-foreground)]">Last Name</label>
                                     <input
                                         type="text"
                                         name="lastName"
                                         value={formData.lastName}
                                         onChange={handleInputChange}
-                                        className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 px-4 text-sm text-white outline-none focus:border-[var(--color-accent)] transition-colors"
+                                        className="w-full bg-[var(--muted)] border border-[var(--border)] rounded-xl py-3 px-4 text-sm text-[var(--foreground)] outline-none focus:border-[var(--color-accent)] transition-colors"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-xs text-gray-400">Email Address</label>
+                                    <label className="text-xs text-[var(--muted-foreground)]">Email Address</label>
                                     <input
                                         type="email"
                                         name="email"
                                         value={formData.email}
                                         onChange={handleInputChange}
-                                        className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 px-4 text-sm text-white outline-none focus:border-[var(--color-accent)] transition-colors"
+                                        className="w-full bg-[var(--muted)] border border-[var(--border)] rounded-xl py-3 px-4 text-sm text-[var(--foreground)] outline-none focus:border-[var(--color-accent)] transition-colors"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-xs text-gray-400">Password</label>
+                                    <label className="text-xs text-[var(--muted-foreground)]">Password</label>
                                     <input
                                         type="password"
                                         name="password"
                                         value={formData.password}
                                         onChange={handleInputChange}
-                                        className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 px-4 text-sm text-white outline-none focus:border-[var(--color-accent)] transition-colors"
+                                        className="w-full bg-[var(--muted)] border border-[var(--border)] rounded-xl py-3 px-4 text-sm text-[var(--foreground)] outline-none focus:border-[var(--color-accent)] transition-colors"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-xs text-gray-400">Phone Number</label>
+                                    <label className="text-xs text-[var(--muted-foreground)]">Phone Number</label>
                                     <input
                                         type="tel"
                                         name="phone"
                                         value={formData.phone}
                                         onChange={handleInputChange}
-                                        className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 px-4 text-sm text-white outline-none focus:border-[var(--color-accent)] transition-colors"
+                                        className="w-full bg-[var(--muted)] border border-[var(--border)] rounded-xl py-3 px-4 text-sm text-[var(--foreground)] outline-none focus:border-[var(--color-accent)] transition-colors"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-xs text-gray-400">Location</label>
+                                    <label className="text-xs text-[var(--muted-foreground)]">Location</label>
                                     <input
                                         type="text"
                                         name="location"
                                         value={formData.location}
                                         onChange={handleInputChange}
-                                        className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 px-4 text-sm text-white outline-none focus:border-[var(--color-accent)] transition-colors"
+                                        className="w-full bg-[var(--muted)] border border-[var(--border)] rounded-xl py-3 px-4 text-sm text-[var(--foreground)] outline-none focus:border-[var(--color-accent)] transition-colors"
                                     />
                                 </div>
                             </div>
                         </div>
 
                         {/* Regional Settings */}
-                        <div className="bg-[#0c0c0e] border border-white/5 rounded-2xl p-6 mb-6">
+                        <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 mb-6">
                             <h3 className="text-xl font-bold mb-6">Regional Setting</h3>
 
                             <div className="grid md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <label className="text-xs text-gray-400">Language</label>
+                                    <label className="text-xs text-[var(--muted-foreground)]">Language</label>
                                     <select
                                         name="language"
                                         value={formData.language}
                                         onChange={handleInputChange}
-                                        className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 px-4 text-sm text-white outline-none focus:border-[var(--color-accent)] transition-colors appearance-none cursor-pointer"
+                                        className="w-full bg-[var(--muted)] border border-[var(--border)] rounded-xl py-3 px-4 text-sm text-[var(--foreground)] outline-none focus:border-[var(--color-accent)] transition-colors appearance-none cursor-pointer"
                                     >
                                         <option>English (US)</option>
                                         <option>English (UK)</option>
@@ -271,12 +271,12 @@ export default function SettingsPage() {
                                     </select>
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-xs text-gray-400">Time Zone</label>
+                                    <label className="text-xs text-[var(--muted-foreground)]">Time Zone</label>
                                     <select
                                         name="timezone"
                                         value={formData.timezone}
                                         onChange={handleInputChange}
-                                        className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 px-4 text-sm text-white outline-none focus:border-[var(--color-accent)] transition-colors appearance-none cursor-pointer"
+                                        className="w-full bg-[var(--muted)] border border-[var(--border)] rounded-xl py-3 px-4 text-sm text-[var(--foreground)] outline-none focus:border-[var(--color-accent)] transition-colors appearance-none cursor-pointer"
                                     >
                                         <option>(GMT-8:00) Pacific Time (USA & Canada)</option>
                                         <option>(GMT-5:00) Eastern Time (USA & Canada)</option>
@@ -289,7 +289,7 @@ export default function SettingsPage() {
 
                         {/* Action Buttons */}
                         <div className="flex justify-end gap-4 mb-8">
-                            <button className="px-6 py-3 border border-zinc-700 rounded-full text-sm font-medium hover:bg-zinc-800 transition-colors">
+                            <button className="px-6 py-3 border border-[var(--border)] rounded-full text-sm font-medium hover:bg-[var(--muted)] transition-colors">
                                 Cancel
                             </button>
                             <button className="px-6 py-3 bg-[var(--color-accent)] rounded-full text-sm font-bold hover:bg-orange-600 transition-colors">
@@ -302,7 +302,7 @@ export default function SettingsPage() {
                             <div className="flex items-center justify-between">
                                 <div>
                                     <h3 className="text-xl font-bold text-red-500 mb-1">Delete Account</h3>
-                                    <p className="text-sm text-gray-500">Once you delete your account, there is no going back. Please be certain.</p>
+                                    <p className="text-sm text-[var(--muted-foreground)]">Once you delete your account, there is no going back. Please be certain.</p>
                                 </div>
                                 <button className="px-5 py-2.5 border border-red-500 text-red-500 rounded-full text-sm font-medium hover:bg-red-500/10 transition-colors">
                                     Delete your account

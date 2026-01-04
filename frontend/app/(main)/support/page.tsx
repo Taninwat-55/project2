@@ -98,8 +98,8 @@ export default function SupportPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-black flex items-center justify-center">
-                <div className="text-gray-400">Loading...</div>
+            <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
+                <div className="text-[var(--muted-foreground)]">Loading...</div>
             </div>
         );
     }
@@ -107,20 +107,20 @@ export default function SupportPage() {
     const displayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "User";
 
     return (
-        <div className="min-h-screen bg-black text-white">
+        <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
             <main className="max-w-[1400px] mx-auto px-6 md:px-12 py-8">
                 <div className="flex gap-8">
                     {/* Sidebar */}
                     <div className="w-64 flex-shrink-0">
                         {/* User Card */}
-                        <div className="bg-[#0c0c0e] border border-white/5 rounded-2xl p-4 mb-6">
+                        <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 mb-6">
                             <div className="flex items-center gap-3">
                                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-white font-bold text-lg">
                                     {displayName.charAt(0).toUpperCase()}
                                 </div>
                                 <div>
                                     <div className="font-bold text-sm">{displayName}</div>
-                                    <div className="text-xs text-gray-500">Pro Member</div>
+                                    <div className="text-xs text-[var(--muted-foreground)]">Pro Member</div>
                                 </div>
                             </div>
                         </div>
@@ -131,7 +131,7 @@ export default function SupportPage() {
                                 <Link
                                     key={tab.id}
                                     href={tab.href}
-                                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:bg-zinc-900 hover:text-white transition-colors"
+                                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
                                 >
                                     <tab.icon size={18} />
                                     {tab.label}
@@ -139,7 +139,7 @@ export default function SupportPage() {
                             ))}
                         </nav>
 
-                        <div className="border-t border-zinc-800 pt-4 space-y-1">
+                        <div className="border-t border-[var(--border)] pt-4 space-y-1">
                             <Link
                                 href="/support"
                                 className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium bg-[var(--color-accent)] text-white transition-colors"
@@ -149,7 +149,7 @@ export default function SupportPage() {
                             </Link>
                             <button
                                 onClick={handleSignOut}
-                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[var(--color-accent)] hover:bg-zinc-900 transition-colors"
+                                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[var(--color-accent)] hover:bg-[var(--muted)] transition-colors"
                             >
                                 <LogOut size={18} />
                                 Sign out
@@ -164,17 +164,17 @@ export default function SupportPage() {
                             <>
                                 <div className="mb-8">
                                     <h1 className="text-3xl font-bold mb-2">Get in touch</h1>
-                                    <p className="text-gray-400 text-sm">
+                                    <p className="text-[var(--muted-foreground)] text-sm">
                                         Have a question about your workout plan or need technical support?
                                         <br />
                                         We&apos;re here to help you hit your fitness goals. Drop us a message below.
                                     </p>
                                 </div>
 
-                                <form onSubmit={handleContactSubmit} className="bg-[#0c0c0e] border border-white/5 rounded-2xl p-8">
+                                <form onSubmit={handleContactSubmit} className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-8">
                                     <div className="grid md:grid-cols-2 gap-6 mb-6">
                                         <div>
-                                            <label className="text-sm text-gray-400 mb-2 block">Your Name</label>
+                                            <label className="text-sm text-[var(--muted-foreground)] mb-2 block">Your Name</label>
                                             <div className="relative">
                                                 <UserIcon size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
                                                 <input
@@ -182,12 +182,12 @@ export default function SupportPage() {
                                                     placeholder="Enter your name"
                                                     value={contactForm.name}
                                                     onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
-                                                    className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 pl-12 pr-4 text-sm text-white outline-none focus:border-[var(--color-accent)] transition-colors"
+                                                    className="w-full bg-[var(--muted)] border border-[var(--border)] rounded-xl py-3 pl-12 pr-4 text-sm text-[var(--foreground)] outline-none focus:border-[var(--color-accent)] transition-colors"
                                                 />
                                             </div>
                                         </div>
                                         <div>
-                                            <label className="text-sm text-gray-400 mb-2 block">Your Email</label>
+                                            <label className="text-sm text-[var(--muted-foreground)] mb-2 block">Your Email</label>
                                             <div className="relative">
                                                 <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
                                                 <input
@@ -195,31 +195,31 @@ export default function SupportPage() {
                                                     placeholder="name@example.com"
                                                     value={contactForm.email}
                                                     onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
-                                                    className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 pl-12 pr-4 text-sm text-white outline-none focus:border-[var(--color-accent)] transition-colors"
+                                                    className="w-full bg-[var(--muted)] border border-[var(--border)] rounded-xl py-3 pl-12 pr-4 text-sm text-[var(--foreground)] outline-none focus:border-[var(--color-accent)] transition-colors"
                                                 />
                                             </div>
                                         </div>
                                     </div>
 
                                     <div className="mb-6">
-                                        <label className="text-sm text-gray-400 mb-2 block">Subjects</label>
+                                        <label className="text-sm text-[var(--muted-foreground)] mb-2 block">Subjects</label>
                                         <input
                                             type="text"
                                             placeholder="What is this regarding?"
                                             value={contactForm.subject}
                                             onChange={(e) => setContactForm({ ...contactForm, subject: e.target.value })}
-                                            className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 px-4 text-sm text-white outline-none focus:border-[var(--color-accent)] transition-colors"
+                                            className="w-full bg-[var(--muted)] border border-[var(--border)] rounded-xl py-3 px-4 text-sm text-[var(--foreground)] outline-none focus:border-[var(--color-accent)] transition-colors"
                                         />
                                     </div>
 
                                     <div className="mb-6">
-                                        <label className="text-sm text-gray-400 mb-2 block">Message</label>
+                                        <label className="text-sm text-[var(--muted-foreground)] mb-2 block">Message</label>
                                         <textarea
                                             placeholder="Type your message here...tell us how we can help with your tracking or workouts."
                                             value={contactForm.message}
                                             onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
                                             rows={6}
-                                            className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 px-4 text-sm text-white outline-none focus:border-[var(--color-accent)] transition-colors resize-none"
+                                            className="w-full bg-[var(--muted)] border border-[var(--border)] rounded-xl py-3 px-4 text-sm text-[var(--foreground)] outline-none focus:border-[var(--color-accent)] transition-colors resize-none"
                                         />
                                     </div>
 
@@ -227,7 +227,7 @@ export default function SupportPage() {
                                         <button
                                             type="button"
                                             onClick={() => setShowContactForm(false)}
-                                            className="px-6 py-3 border border-zinc-700 rounded-full text-sm font-medium hover:bg-zinc-800 transition-colors"
+                                            className="px-6 py-3 border border-[var(--border)] rounded-full text-sm font-medium hover:bg-[var(--muted)] transition-colors"
                                         >
                                             Cancel
                                         </button>
@@ -248,7 +248,7 @@ export default function SupportPage() {
                                     <h1 className="text-3xl font-bold mb-2">
                                         How can we help you <span className="text-[var(--color-accent)]">crush your goals?</span>
                                     </h1>
-                                    <p className="text-gray-400 text-sm">Find answers, guides and support for your fitness journey. We&apos;re here to keep you moving.</p>
+                                    <p className="text-[var(--muted-foreground)] text-sm">Find answers, guides and support for your fitness journey. We&apos;re here to keep you moving.</p>
                                 </div>
 
                                 {/* Browse by Category */}
@@ -258,22 +258,22 @@ export default function SupportPage() {
                                         {categories.map((category) => (
                                             <button
                                                 key={category.id}
-                                                className="bg-[#0c0c0e] border border-white/5 rounded-2xl p-5 text-left hover:border-zinc-700 transition-colors"
+                                                className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5 text-left hover:border-[var(--muted-foreground)] transition-colors"
                                             >
                                                 <div className="w-10 h-10 bg-orange-500/20 rounded-xl flex items-center justify-center mb-3">
                                                     <category.icon size={20} className="text-[var(--color-accent)]" />
                                                 </div>
                                                 <h3 className="font-bold text-sm mb-1">{category.label}</h3>
-                                                <p className="text-xs text-gray-500">{category.description}</p>
+                                                <p className="text-xs text-[var(--muted-foreground)]">{category.description}</p>
                                             </button>
                                         ))}
                                     </div>
                                 </div>
 
                                 {/* Popular Questions */}
-                                <div className="mb-10 pt-6 border-t border-zinc-800">
+                                <div className="mb-10 pt-6 border-t border-[var(--border)]">
                                     <h2 className="text-2xl font-bold mb-2">Popular Questions</h2>
-                                    <p className="text-gray-400 text-sm mb-6">
+                                    <p className="text-[var(--muted-foreground)] text-sm mb-6">
                                         Can&apos;t find what you&apos;re looking for? check out our{" "}
                                         <Link href="#" className="text-[var(--color-accent)] hover:underline">
                                             full documentation
@@ -285,7 +285,7 @@ export default function SupportPage() {
                                         {faqs.map((faq, index) => (
                                             <div
                                                 key={index}
-                                                className="bg-[#0c0c0e] border border-white/5 rounded-2xl overflow-hidden"
+                                                className="bg-[var(--card)] border border-[var(--border)] rounded-2xl overflow-hidden"
                                             >
                                                 <button
                                                     onClick={() => setOpenFaq(openFaq === index ? null : index)}
@@ -299,7 +299,7 @@ export default function SupportPage() {
                                                     />
                                                 </button>
                                                 {openFaq === index && (
-                                                    <div className="px-5 pb-5 text-sm text-gray-400">
+                                                    <div className="px-5 pb-5 text-sm text-[var(--muted-foreground)]">
                                                         {faq.answer}
                                                     </div>
                                                 )}
@@ -309,9 +309,9 @@ export default function SupportPage() {
                                 </div>
 
                                 {/* Contact Support */}
-                                <div className="pt-6 border-t border-zinc-800">
+                                <div className="pt-6 border-t border-[var(--border)]">
                                     <h2 className="text-2xl font-bold mb-2">Still need a spotter?</h2>
-                                    <p className="text-gray-400 text-sm mb-6">
+                                    <p className="text-[var(--muted-foreground)] text-sm mb-6">
                                         Our support team is available Mon-Fri, 9am-6pm EST to help you get back on track.
                                     </p>
                                     <button

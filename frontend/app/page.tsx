@@ -16,7 +16,7 @@ import {
 
 export default function LandingPage() {
     return (
-        <div className="min-h-screen bg-black text-white font-sans overflow-x-hidden">
+        <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-sans overflow-x-hidden">
 
             {/* --- HEADER --- */}
             <SiteHeader fixed={true} />
@@ -33,14 +33,14 @@ export default function LandingPage() {
                             Workout & Meal <br />
                             <span className="text-[var(--color-accent)]">Tracking</span>
                         </h1>
-                        <p className="text-gray-400 text-lg md:text-xl max-w-xl leading-relaxed">
+                        <p className="text-[var(--muted-foreground)] text-lg md:text-xl max-w-xl leading-relaxed">
                             Track your fitness journey with precision. Monitor workouts, analyze meal nutrition, and visualize your progress in real-time.
                         </p>
                         <div className="flex flex-wrap gap-4">
                             <Link href="/signup" className="px-8 py-4 bg-[var(--color-accent)] text-white font-bold rounded-full hover:bg-orange-600 transition-all shadow-lg shadow-orange-900/20 active:scale-95 flex items-center gap-2">
                                 Get Started <ChevronRight size={20} />
                             </Link>
-                            <Link href="#features" className="px-8 py-4 bg-zinc-900 border border-zinc-800 text-white font-bold rounded-full hover:bg-zinc-800 transition-all flex items-center gap-2">
+                            <Link href="#features" className="px-8 py-4 bg-[var(--card)] border border-[var(--border)] text-[var(--foreground)] font-bold rounded-full hover:bg-[var(--muted)] transition-all flex items-center gap-2">
                                 Learn More
                             </Link>
                         </div>
@@ -56,7 +56,7 @@ export default function LandingPage() {
 
                     <div className="relative">
                         {/* Hero Image Component */}
-                        <div className="relative aspect-[4/5] md:aspect-square rounded-[40px] overflow-hidden border border-white/5 bg-zinc-900">
+                        <div className="relative aspect-[4/5] md:aspect-square rounded-[40px] overflow-hidden border border-[var(--border)] bg-[var(--card)]">
                             <div
                                 className="absolute inset-0 bg-cover bg-center"
                                 style={{ backgroundImage: "url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=2670&auto=format&fit=crop')" }}
@@ -66,13 +66,13 @@ export default function LandingPage() {
                         </div>
 
                         {/* Floating Card Decorative */}
-                        <div className="absolute -bottom-6 -left-6 bg-zinc-900/90 backdrop-blur-md p-4 rounded-2xl border border-white/10 shadow-2xl flex items-center gap-4 animate-bounce-slow">
+                        <div className="absolute -bottom-6 -left-6 bg-[var(--card)]/90 backdrop-blur-md p-4 rounded-2xl border border-[var(--border)] shadow-2xl flex items-center gap-4 animate-bounce-slow">
                             <div className="w-12 h-12 bg-[var(--color-accent)] rounded-full flex items-center justify-center text-white">
                                 <Activity size={24} />
                             </div>
                             <div>
-                                <div className="text-xs text-gray-400">Calories Burned</div>
-                                <div className="text-xl font-bold text-white">480 kcal</div>
+                                <div className="text-xs text-[var(--muted-foreground)]">Calories Burned</div>
+                                <div className="text-xl font-bold text-[var(--foreground)]">480 kcal</div>
                             </div>
                         </div>
                     </div>
@@ -81,10 +81,10 @@ export default function LandingPage() {
 
 
             {/* --- FUNCTIONS SECTION --- */}
-            <section id="features" className="py-24 px-6 bg-zinc-950 border-t border-white/5 relative">
+            <section id="features" className="py-24 px-6 bg-[var(--card)] border-t border-[var(--border)] relative">
                 <div className="max-w-[1400px] mx-auto text-center mb-16">
                     <h2 className="text-4xl md:text-5xl font-bold mb-4">Our <span className="text-[var(--color-accent)]">Functions</span></h2>
-                    <p className="text-gray-400 max-w-2xl mx-auto">
+                    <p className="text-[var(--muted-foreground)] max-w-2xl mx-auto">
                         Discover the powerful tools that make your fitness journey seamless and effective.
                     </p>
                 </div>
@@ -92,45 +92,45 @@ export default function LandingPage() {
                 <div className="max-w-[1400px] mx-auto grid md:grid-cols-2 gap-6">
 
                     {/* Card 1 */}
-                    <div className="bg-[#0c0c0e] hover:bg-zinc-900 border border-white/5 p-8 rounded-[32px] transition-colors group">
-                        <div className="w-14 h-14 bg-zinc-800 rounded-2xl flex items-center justify-center text-[var(--color-accent)] mb-6 group-hover:scale-110 transition-transform">
+                    <div className="bg-[var(--card)] hover:bg-[var(--muted)] border border-[var(--border)] p-8 rounded-[32px] transition-colors group">
+                        <div className="w-14 h-14 bg-[var(--muted)] rounded-2xl flex items-center justify-center text-[var(--color-accent)] mb-6 group-hover:scale-110 transition-transform">
                             <Watch size={28} />
                         </div>
-                        <h3 className="text-2xl font-bold text-white mb-3">Connect Devices</h3>
-                        <p className="text-zinc-500 leading-relaxed">
+                        <h3 className="text-2xl font-bold text-[var(--foreground)] mb-3">Connect Devices</h3>
+                        <p className="text-[var(--muted-foreground)] leading-relaxed">
                             Seamlessly sync with your Apple Watch, Fitbit, or Garmin. Track your heart rate, steps, and workout intensity in real-time directly within the app interface.
                         </p>
                     </div>
 
                     {/* Card 2 */}
-                    <div className="bg-[#0c0c0e] hover:bg-zinc-900 border border-white/5 p-8 rounded-[32px] transition-colors group">
-                        <div className="w-14 h-14 bg-zinc-800 rounded-2xl flex items-center justify-center text-[var(--color-accent)] mb-6 group-hover:scale-110 transition-transform">
+                    <div className="bg-[var(--card)] hover:bg-[var(--muted)] border border-[var(--border)] p-8 rounded-[32px] transition-colors group">
+                        <div className="w-14 h-14 bg-[var(--muted)] rounded-2xl flex items-center justify-center text-[var(--color-accent)] mb-6 group-hover:scale-110 transition-transform">
                             <Utensils size={28} />
                         </div>
-                        <h3 className="text-2xl font-bold text-white mb-3">Food Logging</h3>
-                        <p className="text-zinc-500 leading-relaxed">
+                        <h3 className="text-2xl font-bold text-[var(--foreground)] mb-3">Food Logging</h3>
+                        <p className="text-[var(--muted-foreground)] leading-relaxed">
                             Keep track of your nutrition with our extensive database. Scan barcodes, log meals, and monitor your macro intake to ensure you&apos;re fueling your body correctly.
                         </p>
                     </div>
 
                     {/* Card 3 */}
-                    <div className="bg-[#0c0c0e] hover:bg-zinc-900 border border-white/5 p-8 rounded-[32px] transition-colors group">
-                        <div className="w-14 h-14 bg-zinc-800 rounded-2xl flex items-center justify-center text-[var(--color-accent)] mb-6 group-hover:scale-110 transition-transform">
+                    <div className="bg-[var(--card)] hover:bg-[var(--muted)] border border-[var(--border)] p-8 rounded-[32px] transition-colors group">
+                        <div className="w-14 h-14 bg-[var(--muted)] rounded-2xl flex items-center justify-center text-[var(--color-accent)] mb-6 group-hover:scale-110 transition-transform">
                             <BarChart2 size={28} />
                         </div>
-                        <h3 className="text-2xl font-bold text-white mb-3">Performance Analytics</h3>
-                        <p className="text-zinc-500 leading-relaxed">
+                        <h3 className="text-2xl font-bold text-[var(--foreground)] mb-3">Performance Analytics</h3>
+                        <p className="text-[var(--muted-foreground)] leading-relaxed">
                             Visualize your progress with detailed charts. Analyze your strength gains, endurance improvements, and consistency over time to stay motivated.
                         </p>
                     </div>
 
                     {/* Card 4 */}
-                    <div className="bg-[#0c0c0e] hover:bg-zinc-900 border border-white/5 p-8 rounded-[32px] transition-colors group">
-                        <div className="w-14 h-14 bg-zinc-800 rounded-2xl flex items-center justify-center text-[var(--color-accent)] mb-6 group-hover:scale-110 transition-transform">
+                    <div className="bg-[var(--card)] hover:bg-[var(--muted)] border border-[var(--border)] p-8 rounded-[32px] transition-colors group">
+                        <div className="w-14 h-14 bg-[var(--muted)] rounded-2xl flex items-center justify-center text-[var(--color-accent)] mb-6 group-hover:scale-110 transition-transform">
                             <Users size={28} />
                         </div>
-                        <h3 className="text-2xl font-bold text-white mb-3">Community Support</h3>
-                        <p className="text-zinc-500 leading-relaxed">
+                        <h3 className="text-2xl font-bold text-[var(--foreground)] mb-3">Community Support</h3>
+                        <p className="text-[var(--muted-foreground)] leading-relaxed">
                             Join challenges and share your achievements. Connect with friends and find workout partners to keep you accountable on your fitness journey.
                         </p>
                     </div>
@@ -146,32 +146,32 @@ export default function LandingPage() {
                     <div className="text-center mb-16">
                         <p className="text-[var(--color-accent)] font-bold text-sm tracking-uppercase mb-2">WHY CHOOSE NEXUS</p>
                         <h2 className="text-4xl md:text-5xl font-bold mb-4">Everything you need to <span className="text-[var(--color-accent)]">succeed</span></h2>
-                        <p className="text-gray-400 max-w-2xl mx-auto">
+                        <p className="text-[var(--muted-foreground)] max-w-2xl mx-auto">
                             We provide the tools, you bring the sweat. Our platform is designed to handle every aspect of your fitness journey.
                         </p>
                     </div>
 
                     <div className="grid md:grid-cols-3 gap-8">
-                        <div className="bg-[#121214] p-8 rounded-[32px] border border-white/5 text-center hover:-translate-y-2 transition-transform duration-300">
-                            <div className="w-16 h-16 mx-auto bg-zinc-800 rounded-full flex items-center justify-center text-[var(--color-accent)] mb-6">
+                        <div className="bg-[var(--card)] p-8 rounded-[32px] border border-[var(--border)] text-center hover:-translate-y-2 transition-transform duration-300">
+                            <div className="w-16 h-16 mx-auto bg-[var(--muted)] rounded-full flex items-center justify-center text-[var(--color-accent)] mb-6">
                                 <Dumbbell size={32} />
                             </div>
                             <h3 className="text-xl font-bold mb-3">Smart Workout Tracking</h3>
-                            <p className="text-sm text-gray-500">Log sets, reps, and weights with ease. Our intelligent systems learns your routine and suggests progressive overload targets.</p>
+                            <p className="text-sm text-[var(--muted-foreground)]">Log sets, reps, and weights with ease. Our intelligent systems learns your routine and suggests progressive overload targets.</p>
                         </div>
-                        <div className="bg-[#121214] p-8 rounded-[32px] border border-white/5 text-center hover:-translate-y-2 transition-transform duration-300">
-                            <div className="w-16 h-16 mx-auto bg-zinc-800 rounded-full flex items-center justify-center text-[var(--color-accent)] mb-6">
+                        <div className="bg-[var(--card)] p-8 rounded-[32px] border border-[var(--border)] text-center hover:-translate-y-2 transition-transform duration-300">
+                            <div className="w-16 h-16 mx-auto bg-[var(--muted)] rounded-full flex items-center justify-center text-[var(--color-accent)] mb-6">
                                 <Utensils size={32} />
                             </div>
                             <h3 className="text-xl font-bold mb-3">Precision Nutrition</h3>
-                            <p className="text-sm text-gray-500">Track macros and calories effortlessly. Access thousands of healthy recipes tailored to your dietary preferences and goals.</p>
+                            <p className="text-sm text-[var(--muted-foreground)]">Track macros and calories effortlessly. Access thousands of healthy recipes tailored to your dietary preferences and goals.</p>
                         </div>
-                        <div className="bg-[#121214] p-8 rounded-[32px] border border-white/5 text-center hover:-translate-y-2 transition-transform duration-300">
-                            <div className="w-16 h-16 mx-auto bg-zinc-800 rounded-full flex items-center justify-center text-[var(--color-accent)] mb-6">
+                        <div className="bg-[var(--card)] p-8 rounded-[32px] border border-[var(--border)] text-center hover:-translate-y-2 transition-transform duration-300">
+                            <div className="w-16 h-16 mx-auto bg-[var(--muted)] rounded-full flex items-center justify-center text-[var(--color-accent)] mb-6">
                                 <BarChart2 size={32} />
                             </div>
                             <h3 className="text-xl font-bold mb-3">Visual Analytics</h3>
-                            <p className="text-sm text-gray-500">See your progress come to life. Detailed charts and graphs help you understand your performance trends over time.</p>
+                            <p className="text-sm text-[var(--muted-foreground)]">See your progress come to life. Detailed charts and graphs help you understand your performance trends over time.</p>
                         </div>
                     </div>
                 </div>
@@ -179,7 +179,7 @@ export default function LandingPage() {
 
 
             {/* --- DATA DRIVEN SECTION --- */}
-            <section className="py-24 px-6 bg-black border-t border-white/5">
+            <section className="py-24 px-6 bg-[var(--background)] border-t border-[var(--border)]">
                 <div className="max-w-[1400px] mx-auto grid md:grid-cols-2 gap-16 items-center">
 
                     <div>
@@ -187,7 +187,7 @@ export default function LandingPage() {
                             Data-Driven <br />
                             <span className="text-[var(--color-accent)]">Performance</span>
                         </h2>
-                        <p className="text-gray-400 mb-8 leading-relaxed">
+                        <p className="text-[var(--muted-foreground)] mb-8 leading-relaxed">
                             Stop guessing and start improving. Nexus transforms your raw data into actionable insights. Whether you&apos;re a beginner or an elite athlete, knowing your numbers is the key to breaking plateaus.
                         </p>
 
@@ -197,8 +197,8 @@ export default function LandingPage() {
                                     <CheckCircle2 size={14} strokeWidth={3} />
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-white">Real-time Heart Rate Monitoring</h4>
-                                    <p className="text-sm text-gray-500">Connect seamlessly with Apple Watch, Garmin, and Fitbit.</p>
+                                    <h4 className="font-bold text-[var(--foreground)]">Real-time Heart Rate Monitoring</h4>
+                                    <p className="text-sm text-[var(--muted-foreground)]">Connect seamlessly with Apple Watch, Garmin, and Fitbit.</p>
                                 </div>
                             </div>
                             <div className="flex gap-4">
@@ -206,8 +206,8 @@ export default function LandingPage() {
                                     <CheckCircle2 size={14} strokeWidth={3} />
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-white">Personalized AI Coaching</h4>
-                                    <p className="text-sm text-gray-500">Get daily adjustments to your plan based on your recovery.</p>
+                                    <h4 className="font-bold text-[var(--foreground)]">Personalized AI Coaching</h4>
+                                    <p className="text-sm text-[var(--muted-foreground)]">Get daily adjustments to your plan based on your recovery.</p>
                                 </div>
                             </div>
                             <div className="flex gap-4">
@@ -215,8 +215,8 @@ export default function LandingPage() {
                                     <CheckCircle2 size={14} strokeWidth={3} />
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-white">Community Challenges</h4>
-                                    <p className="text-sm text-gray-500">Compete with friends and stay motivated.</p>
+                                    <h4 className="font-bold text-[var(--foreground)]">Community Challenges</h4>
+                                    <p className="text-sm text-[var(--muted-foreground)]">Compete with friends and stay motivated.</p>
                                 </div>
                             </div>
                         </div>
@@ -224,11 +224,11 @@ export default function LandingPage() {
 
                     <div className="relative">
                         {/* Simulated Dashboard UI */}
-                        <div className="relative bg-[#0c0c0e] rounded-[32px] border border-white/5 p-8 shadow-2xl">
+                        <div className="relative bg-[var(--card)] rounded-[32px] border border-[var(--border)] p-8 shadow-2xl">
                             <div className="flex justify-between items-center mb-8">
                                 <div>
                                     <h4 className="font-bold">Weekly Activity</h4>
-                                    <p className="text-xs text-gray-500">High intensity focus</p>
+                                    <p className="text-xs text-[var(--muted-foreground)]">High intensity focus</p>
                                 </div>
                                 <div className="w-10 h-10 bg-orange-900/20 rounded-lg flex items-center justify-center text-[var(--color-accent)]">
                                     <Zap size={20} fill="currentColor" />
@@ -237,29 +237,29 @@ export default function LandingPage() {
 
                             {/* Bar Chart Bars */}
                             <div className="flex items-end gap-3 h-48 mb-6">
-                                <div className="w-full bg-zinc-800/50 rounded-t-lg h-[40%]" />
-                                <div className="w-full bg-zinc-800/50 rounded-t-lg h-[60%]" />
+                                <div className="w-full bg-[var(--muted)]/50 rounded-t-lg h-[40%]" />
+                                <div className="w-full bg-[var(--muted)]/50 rounded-t-lg h-[60%]" />
                                 <div className="w-full bg-[var(--color-accent)] rounded-t-lg h-[85%] shadow-[0_0_20px_rgba(249,86,16,0.3)]" />
-                                <div className="w-full bg-zinc-800/50 rounded-t-lg h-[50%]" />
-                                <div className="w-full bg-slate-700/50 rounded-t-lg h-[75%]" />
-                                <div className="w-full bg-slate-700/50 rounded-t-lg h-[45%]" />
+                                <div className="w-full bg-[var(--muted)]/50 rounded-t-lg h-[50%]" />
+                                <div className="w-full bg-[var(--muted)]/50 rounded-t-lg h-[75%]" />
+                                <div className="w-full bg-[var(--muted)]/50 rounded-t-lg h-[45%]" />
                             </div>
 
                             {/* Bottom Stat */}
-                            <div className="bg-black rounded-full p-4 flex items-center justify-between border border-white/5">
+                            <div className="bg-[var(--background)] rounded-full p-4 flex items-center justify-between border border-[var(--border)]">
                                 <div className="flex items-center gap-3">
                                     <div className="w-8 h-8 rounded-full bg-green-500/20 text-green-500 flex items-center justify-center">
                                         <Utensils size={14} />
                                     </div>
                                     <div className="text-xs">
-                                        <span className="text-gray-400">Post-Workout Meal</span>
-                                        <div className="w-24 h-1.5 bg-zinc-800 rounded-full mt-1 overflow-hidden">
+                                        <span className="text-[var(--muted-foreground)]">Post-Workout Meal</span>
+                                        <div className="w-24 h-1.5 bg-[var(--muted)] rounded-full mt-1 overflow-hidden">
                                             <div className="bg-green-500 h-full w-[80%]" />
                                         </div>
                                     </div>
                                 </div>
                                 <div className="text-xs font-mono font-bold">
-                                    650 <span className="text-gray-500 font-sans font-normal">kCal</span>
+                                    650 <span className="text-[var(--muted-foreground)] font-sans font-normal">kCal</span>
                                 </div>
                             </div>
 
@@ -270,7 +270,7 @@ export default function LandingPage() {
             </section>
 
             {/* --- FOOTER --- */}
-            <footer className="py-20 px-6 border-t border-white/5 bg-black">
+            <footer className="py-20 px-6 border-t border-[var(--border)] bg-[var(--background)]">
                 <div className="max-w-[1400px] mx-auto grid md:grid-cols-4 gap-12">
 
                     <div>
@@ -278,16 +278,16 @@ export default function LandingPage() {
                             <div className="w-8 h-8 rounded-full border-2 border-[var(--color-accent)] flex items-center justify-center text-[var(--color-accent)] font-bold text-sm">
                                 N
                             </div>
-                            <span className="font-bold text-lg tracking-wide text-white">Nexus</span>
+                            <span className="font-bold text-lg tracking-wide text-[var(--foreground)]">Nexus</span>
                         </Link>
-                        <p className="text-gray-500 text-sm leading-relaxed max-w-xs">
+                        <p className="text-[var(--muted-foreground)] text-sm leading-relaxed max-w-xs">
                             Empowering athletes everywhere to reach their peak performance through data and discipline.
                         </p>
                     </div>
 
                     <div>
-                        <h4 className="font-bold text-white mb-6">Product</h4>
-                        <ul className="space-y-4 text-sm text-gray-500">
+                        <h4 className="font-bold text-[var(--foreground)] mb-6">Product</h4>
+                        <ul className="space-y-4 text-sm text-[var(--muted-foreground)]">
                             <li><Link href="#" className="hover:text-[var(--color-accent)] transition-colors">Features</Link></li>
                             <li><Link href="#" className="hover:text-[var(--color-accent)] transition-colors">Testimonials</Link></li>
                             <li><Link href="#" className="hover:text-[var(--color-accent)] transition-colors">Integration</Link></li>
@@ -296,8 +296,8 @@ export default function LandingPage() {
                     </div>
 
                     <div>
-                        <h4 className="font-bold text-white mb-6">Company</h4>
-                        <ul className="space-y-4 text-sm text-gray-500">
+                        <h4 className="font-bold text-[var(--foreground)] mb-6">Company</h4>
+                        <ul className="space-y-4 text-sm text-[var(--muted-foreground)]">
                             <li><Link href="#" className="hover:text-[var(--color-accent)] transition-colors">About Us</Link></li>
                             <li><Link href="#" className="hover:text-[var(--color-accent)] transition-colors">Careers</Link></li>
                             <li><Link href="#" className="hover:text-[var(--color-accent)] transition-colors">Privacy Policy</Link></li>
@@ -306,8 +306,8 @@ export default function LandingPage() {
                     </div>
 
                     <div>
-                        <h4 className="font-bold text-white mb-6">Support</h4>
-                        <ul className="space-y-4 text-sm text-gray-500">
+                        <h4 className="font-bold text-[var(--foreground)] mb-6">Support</h4>
+                        <ul className="space-y-4 text-sm text-[var(--muted-foreground)]">
                             <li><Link href="#" className="hover:text-[var(--color-accent)] transition-colors">Help Center</Link></li>
                             <li><Link href="#" className="hover:text-[var(--color-accent)] transition-colors">Contact Us</Link></li>
                             <li><Link href="#" className="hover:text-[var(--color-accent)] transition-colors">Status</Link></li>
@@ -315,7 +315,7 @@ export default function LandingPage() {
                     </div>
 
                 </div>
-                <div className="max-w-[1400px] mx-auto mt-20 pt-8 border-t border-white/5 text-center text-sm text-gray-600">
+                <div className="max-w-[1400px] mx-auto mt-20 pt-8 border-t border-[var(--border)] text-center text-sm text-[var(--muted-foreground)]">
                     &copy; {new Date().getFullYear()} Nexus Fitness App. All rights reserved.
                 </div>
             </footer>
