@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Nav from "./components/Nav"; 
+
 
 export const metadata: Metadata = {
   title: "Fitness App",
@@ -15,7 +15,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased min-h-screen flex flex-col">
-        <Nav /> {/* <--- Lägg till Nav här högst upp */}
+        {/* Nav removed - moved to (main)/layout.tsx */}
+
         <main className="flex-1">
           {children}
         </main>
