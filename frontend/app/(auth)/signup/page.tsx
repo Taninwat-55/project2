@@ -100,9 +100,11 @@ export default function SignupPage() {
                                 <label className="text-xs font-semibold text-gray-300 ml-1">Confirm password</label>
                                 <div className="relative group">
                                     <input
+                                        name="confirmPassword"
                                         type={showConfirmPassword ? "text" : "password"}
                                         placeholder="Repeat your password"
                                         className="w-full bg-[#1c1c1e] text-white text-sm rounded-xl py-3.5 pl-4 pr-12 border border-zinc-800 outline-none focus:border-[var(--color-accent)] focus:ring-1 focus:ring-[var(--color-accent)] transition-all placeholder:text-zinc-600"
+                                        required
                                     />
                                     <button
                                         type="button"

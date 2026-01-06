@@ -34,3 +34,14 @@ export const ProfileSchema = z.object({
     "extra_active",
   ]),
 });
+
+// 4. Signup Schema
+export const SignupSchema = z.object({
+  fullName: z.string().min(2, "Name is too short"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  confirmPassword: z.string()
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
+});
