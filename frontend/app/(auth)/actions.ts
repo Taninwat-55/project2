@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
+import { SignupSchema } from "@/lib/schemas";
 
 export async function login(formData: FormData) {
     const supabase = await createClient();
@@ -26,10 +27,19 @@ export async function login(formData: FormData) {
 export async function signup(formData: FormData) {
     const supabase = await createClient();
 
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-    const fullName = formData.get("fullName") as string;
-    // TODO: Save fullName to a profile table after signup if needed
+    // 1. Get the data from the form
+    const data = Object.fromEntries(formData.entries());
+
+    // 2. Validate with Zod
+    const validatedFields = SignupSchema.safeParse(data);
+
+    if (!validatedFields.success) {
+        // If there is an error (like passwords don't match), send the user back with a message
+        const errorMessage = validatedFields.error.issues[0].message;
+        return redirect(`/signup?message=${encodeURIComponent(errorMessage)}`);
+    }
+
+    const { email, password, fullName } = validatedFields.data;
 
     const { error } = await supabase.auth.signUp({
         email,
@@ -43,7 +53,7 @@ export async function signup(formData: FormData) {
     });
 
     if (error) {
-        return redirect("/login?message=Could not authenticate user");
+        return redirect(`/signup?message=${encodeURIComponent(error.message)}`);
     }
 
     revalidatePath("/", "layout");
