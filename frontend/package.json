@@ -13,6 +13,7 @@
   "dependencies": {
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.87.3",
+    "framer-motion": "^12.24.8",
     "lucide-react": "^0.562.0",
     "next": "16.0.8",
     "react": "19.2.1",
