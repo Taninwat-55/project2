@@ -24,7 +24,12 @@ export async function login(formData: FormData) {
     redirect("/dashboard");
 }
 
-export async function signup(formData: FormData) {
+export type AuthActionState = {
+    success: boolean;
+    error?: string;
+};
+
+export async function signup(prevState: AuthActionState, formData: FormData) {
     const supabase = await createClient();
 
     // 1. Get the data from the form
@@ -36,7 +41,7 @@ export async function signup(formData: FormData) {
     if (!validatedFields.success) {
         // If there is an error (like passwords don't match), send the user back with a message
         const errorMessage = validatedFields.error.issues[0].message;
-        return redirect(`/signup?message=${encodeURIComponent(errorMessage)}`);
+        return { success: false, error: errorMessage };
     }
 
     const { email, password, fullName } = validatedFields.data;
@@ -53,11 +58,10 @@ export async function signup(formData: FormData) {
     });
 
     if (error) {
-        return redirect(`/signup?message=${encodeURIComponent(error.message)}`);
+        return { success: false, error: error.message };
     }
 
-    revalidatePath("/", "layout");
-    redirect("/login?message=Check email to continue sign in process");
+    return { success: true };
 }
 
 export async function signOut() {
