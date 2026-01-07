@@ -1,6 +1,6 @@
 import { ContactForm } from "@/app/components/contact-form";
 import { ContactInfo } from "@/app/components/contact-info";
-import PageTransition from "@/components/page-transition"; // [1] Import the wrapper
+import PageTransition from "@/app/components/page-transition"; // [1] Import the wrapper
 
 export default function ContactPage() {
   return (
