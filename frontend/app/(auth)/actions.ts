@@ -24,7 +24,12 @@ export async function login(formData: FormData) {
     redirect("/dashboard");
 }
 
-export async function signup(prevState: any, formData: FormData) {
+export type AuthActionState = {
+    success: boolean;
+    error?: string;
+};
+
+export async function signup(prevState: AuthActionState, formData: FormData) {
     const supabase = await createClient();
 
     // 1. Get the data from the form
