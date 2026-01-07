@@ -21,56 +21,56 @@ export default function NutritionTemplate() {
   };
 
   // Helper to generate chart data
-const createMacroData = (current: number, goal: number, color: string) => ({
-  datasets: [
-    {
-      data: [current, Math.max(0, goal - current)],
-      backgroundColor: [color, '#18181b'],
-      borderWidth: 0,
-      borderRadius: 20, 
-      circumference: 360,
-    },
-  ],
-});
+  const createMacroData = (current: number, goal: number, color: string) => ({
+    datasets: [
+      {
+        data: [current, Math.max(0, goal - current)],
+        backgroundColor: [color, '#18181b'],
+        borderWidth: 0,
+        borderRadius: 20,
+        circumference: 360,
+      },
+    ],
+  });
 
-const macroCards = [
-  {
-    label: 'Daily Calories',
-    val: 1840,
-    goal: 2500,
-    unit: 'kcal',
-    color: '#f97316',
-    footerLabel: 'Remaining',
-    footerVal: '660',
-  },
-  {
-    label: 'Protein',
-    val: 125,
-    goal: 180,
-    unit: 'g',
-    color: '#206A9E',
-    footerLabel: 'Status',
-    footerVal: 'High',
-  },
-  {
-    label: 'Carbs',
-    val: 210,
-    goal: 250,
-    unit: 'g',
-    color: '#51A255',
-    footerLabel: 'Target',
-    footerVal: 'Near',
-  },
-  {
-    label: 'Fats',
-    val: 45,
-    goal: 65,
-    unit: 'g',
-    color: '#C7831F',
-    footerLabel: 'Balance',
-    footerVal: 'Good',
-  },
-];
+  const macroCards = [
+    {
+      label: 'Daily Calories',
+      val: 1840,
+      goal: 2500,
+      unit: 'kcal',
+      color: '#f97316',
+      footerLabel: 'Remaining',
+      footerVal: '660',
+    },
+    {
+      label: 'Protein',
+      val: 125,
+      goal: 180,
+      unit: 'g',
+      color: '#206A9E',
+      footerLabel: 'Status',
+      footerVal: 'High',
+    },
+    {
+      label: 'Carbs',
+      val: 210,
+      goal: 250,
+      unit: 'g',
+      color: '#51A255',
+      footerLabel: 'Target',
+      footerVal: 'Near',
+    },
+    {
+      label: 'Fats',
+      val: 45,
+      goal: 65,
+      unit: 'g',
+      color: '#C7831F',
+      footerLabel: 'Balance',
+      footerVal: 'Good',
+    },
+  ];
 
   return (
     <div className="bg-black min-h-screen text-white font-sans selection:bg-orange-500/30">
@@ -207,7 +207,7 @@ const macroCards = [
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
           <div className="lg:col-span-2 bg-zinc-900/40 p-8 rounded-[2.5rem] border border-zinc-800/50">
             <div className="flex justify-between items-center mb-8">
-              <h2 className="text-2xl font-bold">Today's Log</h2>
+              <h2 className="text-2xl font-bold">Today&apos;s Log</h2>
               <div className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest">
                 <span className="text-white text-base mr-1">1,840</span> kcal
                 consumed
