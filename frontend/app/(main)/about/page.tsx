@@ -13,7 +13,6 @@ import {
   ChevronRight
 } from "lucide-react";
 // Path points to your SiteHeader.tsx file in app/components
-import SiteHeader from "@/app/components/SiteHeader"; 
 
 export default function AboutPage() {
   const stats = [
@@ -59,8 +58,7 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-orange-500/30 overflow-x-hidden">
-      <SiteHeader fixed={true} />
-
+      
       {/* --- HERO SECTION --- */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 px-6 text-center">
         {/* Background Image Container with your requested photo */}
