@@ -90,7 +90,6 @@ export default function LandingPage() {
                 </div>
 
                 <div className="max-w-[1400px] mx-auto grid md:grid-cols-2 gap-6">
-
                     {/* Card 1 */}
                     <div className="bg-[var(--card)] hover:bg-[var(--muted)] border border-[var(--border)] p-8 rounded-[32px] transition-colors group">
                         <div className="w-14 h-14 bg-[var(--muted)] rounded-2xl flex items-center justify-center text-[var(--color-accent)] mb-6 group-hover:scale-110 transition-transform">
@@ -134,7 +133,6 @@ export default function LandingPage() {
                             Join challenges and share your achievements. Connect with friends and find workout partners to keep you accountable on your fitness journey.
                         </p>
                     </div>
-
                 </div>
             </section>
 
