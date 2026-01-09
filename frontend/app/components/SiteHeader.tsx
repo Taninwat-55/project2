@@ -135,89 +135,88 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
 
               {/* Profile Avatar & Dropdown */}
               <div className="relative" ref={dropdownRef}>
-                <button
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="w-10 h-10 rounded-full border-2 border-[var(--border)] hover:border-[var(--muted-foreground)] flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors bg-[var(--card)] cursor-pointer"
-                >
-                  <UserIcon size={20} />
-                </button>
+  <button
+    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+    className="w-10 h-10 rounded-full border-2 border-zinc-800 hover:border-zinc-600 flex items-center justify-center text-zinc-400 hover:text-white transition-colors bg-zinc-900 cursor-pointer overflow-hidden"
+  >
+    <UserIcon size={20} />
+  </button>
 
-                {/* Dropdown Menu */}
-                {isDropdownOpen && (
-                  <div className="absolute right-0 mt-3 w-56 bg-[var(--card)] border border-[var(--border)] rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                    <div className="px-4 py-3 border-b border-[var(--border)]">
-                      <p className="text-sm font-semibold text-[var(--foreground)] truncate">
-                        {displayName}
-                      </p>
-                    </div>
+  {/* Dropdown Menu */}
+  <AnimatePresence>
+  {isDropdownOpen && (
+    <motion.div
+      // 1. Start much smaller and higher up, growing from the top right
+      initial={{ opacity: 0, scale: 0.85, y: -20, transformOrigin: 'top right' }}
+      // 2. Animate to full size and correct position
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      // 3. Exit quickly by shrinking
+      exit={{ opacity: 0, scale: 0.9, y: -10, transition: { duration: 0.15, ease: "easeOut" } }}
+      // 4. The Bubbly Spring Physics configuration
+      transition={{
+        type: "spring",
+        bounce: 0.55, // Adjust between 0.4 (subtle) and 0.7 (very bouncy). 0.55 is very "Apple-like".
+        duration: 0.5
+      }}
+      className="absolute right-0 mt-3 w-52 bg-zinc-900/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 p-1.5"
+    >
+        {/* User Header - Compact Pill */}
+        <div className="px-3 py-2 mb-1 border-b border-white/5">
+          <p className="text-[11px] font-black text-zinc-500 uppercase tracking-widest">Account</p>
+          <p className="text-sm font-bold text-white truncate">{displayName}</p>
+        </div>
 
-                    <div className="py-2">
-                      <Link
-                        href="/dashboard"
-                        onClick={() => setIsDropdownOpen(false)}
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
-                      >
-                        <LayoutDashboard size={18} />
-                        Dashboard
-                      </Link>
-                      <Link
-                        href="/workouts"
-                        onClick={() => setIsDropdownOpen(false)}
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
-                      >
-                        <Dumbbell size={18} />
-                        Workouts
-                      </Link>
-                      <Link
-                        href="/nutrition"
-                        onClick={() => setIsDropdownOpen(false)}
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
-                      >
-                        <UtensilsCrossed size={18} />
-                        Nutrition
-                      </Link>
-                      <Link
-                        href="/archive"
-                        onClick={() => setIsDropdownOpen(false)}
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
-                      >
-                        <Archive size={18} />
-                        Archive
-                      </Link>
-                    </div>
+        <div className="space-y-0.5">
+          {[
+            { name: 'Dashboard', icon: <LayoutDashboard size={16} />, href: '/dashboard' },
+            { name: 'Workouts', icon: <Dumbbell size={16} />, href: '/workouts' },
+            { name: 'Nutrition', icon: <UtensilsCrossed size={16} />, href: '/nutrition' },
+            { name: 'Archive', icon: <Archive size={16} />, href: '/archive' },
+          ].map((item) => (
+            <Link key={item.name} href={item.href} onClick={() => setIsDropdownOpen(false)}>
+              <motion.div
+                whileTap={{ scale: 0.96 }}
+                className="flex items-center gap-3 px-3 py-2 rounded-xl text-zinc-400 hover:text-white hover:bg-white/10 transition-colors group cursor-pointer"
+              >
+                <span className="group-hover:text-orange-500 transition-colors">{item.icon}</span>
+                <span className="text-sm font-medium">{item.name}</span>
+              </motion.div>
+            </Link>
+          ))}
+        </div>
 
-                    <div className="border-t border-[var(--border)]"></div>
+        <div className="my-1.5 border-t border-white/5" />
 
-                    <div className="py-2">
-                      <Link
-                        href="/settings"
-                        onClick={() => setIsDropdownOpen(false)}
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
-                      >
-                        <Settings size={18} />
-                        Setting
-                      </Link>
-                      <Link
-                        href="/support"
-                        onClick={() => setIsDropdownOpen(false)}
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
-                      >
-                        <HelpCircle size={18} />
-                        Support
-                      </Link>
-                      <button
-                        onClick={handleSignOut}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
-                      >
-                        <LogOut size={18} />
-                        Log out
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </>
-          ) : (
+        <div className="space-y-0.5">
+          {[
+            { name: 'Settings', icon: <Settings size={16} />, href: '/settings' },
+            { name: 'Support', icon: <HelpCircle size={16} />, href: '/support' },
+          ].map((item) => (
+            <Link key={item.name} href={item.href} onClick={() => setIsDropdownOpen(false)}>
+              <motion.div
+                whileTap={{ scale: 0.96 }}
+                className="flex items-center gap-3 px-3 py-2 rounded-xl text-zinc-400 hover:text-white hover:bg-white/10 transition-colors group cursor-pointer"
+              >
+                <span className="group-hover:text-orange-500 transition-colors">{item.icon}</span>
+                <span className="text-sm font-medium">{item.name}</span>
+              </motion.div>
+            </Link>
+          ))}
+
+          <motion.button
+            whileTap={{ scale: 0.96 }}
+            onClick={handleSignOut}
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-zinc-400 hover:text-red-400 hover:bg-red-500/10 transition-colors group cursor-pointer"
+          >
+            <LogOut size={16} />
+            <span className="text-sm font-medium">Log out</span>
+          </motion.button>
+        </div>
+      </motion.div>
+    )}
+  </AnimatePresence>
+</div> 
+            </> ) : (
             <>
               <Link
                 href="/login"
