@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { createBrowserClient } from "@supabase/ssr";
@@ -18,6 +19,7 @@ import {
 } from "lucide-react";
 import { signOut } from "@/app/(auth)/actions";
 import { updateProfile, updateEmail, updatePassword } from "@/app/actions/profile";
+import { ActivityLevel, Gender } from "@/types/database";
 
 const sidebarTabs = [
     { id: "account", label: "Account", icon: UserIcon, href: "/settings" },
@@ -129,15 +131,15 @@ export default function SettingsPage() {
                 lastName: formData.lastName,
                 height: formData.height,
                 weight: formData.weight,
-                gender: formData.gender as any,
+                gender: formData.gender as Gender,
                 dateOfBirth: formData.dateOfBirth,
-                activityLevel: formData.activityLevel as any,
+                activityLevel: formData.activityLevel as ActivityLevel,
                 location: formData.location,
                 phone: formData.phone,
                 avatarUrl: data.publicUrl
             });
 
-        } catch (error: any) {
+        } catch {
             setMsg({ type: "error", text: "Error uploading image" });
         }
     };
@@ -152,9 +154,9 @@ export default function SettingsPage() {
                 lastName: formData.lastName,
                 height: formData.height,
                 weight: formData.weight,
-                gender: formData.gender as any,
+                gender: formData.gender as Gender,
                 dateOfBirth: formData.dateOfBirth,
-                activityLevel: formData.activityLevel as any,
+                activityLevel: formData.activityLevel as ActivityLevel,
                 location: formData.location,
                 phone: formData.phone,
                 avatarUrl: formData.avatarUrl
@@ -177,8 +179,8 @@ export default function SettingsPage() {
 
             if (!msg) setMsg({ type: "success", text: "Changes saved successfully." });
 
-        } catch (error: any) {
-            setMsg({ type: "error", text: error.message });
+        } catch (error) {
+            setMsg({ type: "error", text: (error as Error).message });
         } finally {
             setSaving(false);
         }
@@ -207,9 +209,9 @@ export default function SettingsPage() {
                         {/* User Card */}
                         <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 mb-6">
                             <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-white font-bold text-lg overflow-hidden">
+                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-white font-bold text-lg overflow-hidden relative">
                                     {formData.avatarUrl ? (
-                                        <img src={formData.avatarUrl} alt="User" className="w-full h-full object-cover" />
+                                        <Image src={formData.avatarUrl} alt="User" fill className="object-cover" />
                                     ) : (
                                         displayName.charAt(0).toUpperCase()
                                     )}
@@ -268,14 +270,14 @@ export default function SettingsPage() {
                         <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 mb-6">
                             <div className="flex items-center gap-4">
                                 <div className="relative group cursor-pointer" onClick={handleAvatarClick}>
-                                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-white font-bold text-2xl overflow-hidden border-2 border-transparent group-hover:border-[var(--color-accent)] transition-all">
+                                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-white font-bold text-2xl overflow-hidden border-2 border-transparent group-hover:border-[var(--color-accent)] transition-all relative">
                                         {formData.avatarUrl ? (
-                                            <img src={formData.avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+                                            <Image src={formData.avatarUrl} alt="Profile" fill className="object-cover" />
                                         ) : (
                                             displayName.charAt(0).toUpperCase()
                                         )}
                                     </div>
-                                    <button className="absolute bottom-0 right-0 w-6 h-6 bg-[var(--color-accent)] rounded-full flex items-center justify-center text-white text-xs shadow-md">
+                                    <button className="absolute bottom-0 right-0 w-6 h-6 bg-[var(--color-accent)] rounded-full flex items-center justify-center text-white text-xs shadow-md z-10">
                                         📷
                                     </button>
                                     <input
