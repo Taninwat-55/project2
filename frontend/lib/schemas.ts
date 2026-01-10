@@ -23,9 +23,7 @@ export const ProfileSchema = z.object({
   gender: z.enum(["male", "female", "other"]),
   weight: z.number().positive("Weight must be positive"),
   height: z.number().positive("Height must be positive"),
-  dateOfBirth: z.string().refine((date) => !isNaN(Date.parse(date)), {
-    message: "Invalid date format",
-  }),
+  dateOfBirth: z.string().optional().or(z.literal("")),
   activityLevel: z.enum([
     "sedentary",
     "lightly_active",
@@ -33,6 +31,9 @@ export const ProfileSchema = z.object({
     "very_active",
     "extra_active",
   ]),
+  location: z.string().optional(),
+  phone: z.string().optional(),
+  avatarUrl: z.string().optional(),
 });
 
 // 4. Signup Schema
