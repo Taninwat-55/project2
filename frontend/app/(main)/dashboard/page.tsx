@@ -15,43 +15,91 @@ import {
   ArrowRight,
 } from "lucide-react";
 
-// Placeholder data - replace with real data later
-const statsData = [
-  { label: "Total Distance", value: "142", unit: "Km", change: "+9%", up: true, icon: MapPin, color: "text-orange-500" },
-  { label: "Calories", value: "2.5", unit: "K", change: "+5%", up: true, icon: Flame, color: "text-red-500" },
-  { label: "Active Time", value: "1,820", unit: "min", change: "-2%", up: false, icon: Clock, color: "text-green-500" },
-  { label: "Streak", value: "12", unit: "days", change: "+1 day", up: true, icon: Zap, color: "text-blue-500" },
-];
+// Helper to format duration
+function formatDuration(minutes: number) {
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  if (hours > 0) {
+    return `${hours}h ${mins}m`;
+  }
+  return `${mins}m`;
+}
 
-const weeklyGoals = [
-  { label: "Running", current: 35, target: 45, unit: "km", color: "bg-orange-500" },
-  { label: "Strength", current: 3, target: 5, unit: "days", color: "bg-blue-500" },
-  { label: "Mindfulness", current: 10, target: 60, unit: "min", color: "bg-purple-500" },
-];
+// Helper to format date relative or absolute
+function formatDate(dateString: string) {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffTime = Math.abs(now.getTime() - date.getTime());
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-const weeklyRecords = [
-  { label: "Fastest 5k", value: "24:32 min", subtext: "Tuesday", icon: Trophy },
-  { label: "Max Deadlift", value: "185 kg", subtext: "Yesterday", icon: Dumbbell },
-];
+  if (diffDays === 1 && now.getDate() === date.getDate()) {
+    return "Today, " + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
 
-const activityData = [
-  { day: "Mon", value: 30 },
-  { day: "Tue", value: 45 },
-  { day: "Wed", value: 60 },
-  { day: "Thu", value: 100 },
-  { day: "Fri", value: 40 },
-  { day: "Sat", value: 55 },
-  { day: "Sun", value: 35 },
-];
+  // Check for yesterday
+  const yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
+  if (date.toDateString() === yesterday.toDateString()) {
+    return "Yesterday, " + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
 
-const recentHistory = [
-  { activity: "Morning Run", location: "Central Park loop", date: "Today, 7:30 AM", duration: "45m 12s", calories: "480 Kcal", status: "Completed" },
-  { activity: "Upper Body", location: "Gym Session", date: "Yesterday, 6:00 PM", duration: "1h 15m", calories: "320 Kcal", status: "Completed" },
-  { activity: "Vinyasa Flow", location: "Home Workout", date: "Oct 24, 8:00 PM", duration: "30m 00s", calories: "120 Kcal", status: "Completed" },
-  { activity: "Cycling", location: "Interval Training", date: "Oct 22, 5:45 PM", duration: "45m 00s", calories: "560 Kcal", status: "Completed" },
-];
+  return date.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ", " + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
 
-const filterTabs = ["All Activities", "Running", "Cycling", "Weight lifting", "Yoga"];
+// Helper to calculate streak
+function calculateStreak(dates: Date[]) {
+  if (dates.length === 0) return 0;
+
+  // Sort dates descending
+  const sortedDates = dates.sort((a, b) => b.getTime() - a.getTime());
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // Check if there's activity today or yesterday to keep streak alive
+  const lastActivity = new Date(sortedDates[0]);
+  lastActivity.setHours(0, 0, 0, 0);
+
+  const diffTime = Math.abs(today.getTime() - lastActivity.getTime());
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays > 1) return 0; // Streak broken
+
+  let streak = 1;
+  let currentDate = lastActivity;
+
+  // Simple streak logic: check consecutive days
+  // We need to filter unique days first to avoid counting same day multiple workouts as streak
+  const uniqueDays = new Set<number>();
+  uniqueDays.add(currentDate.getTime());
+
+  const distinctDates = [currentDate];
+
+  for (const d of sortedDates) {
+    const dNorm = new Date(d);
+    dNorm.setHours(0, 0, 0, 0);
+    if (!uniqueDays.has(dNorm.getTime())) {
+      uniqueDays.add(dNorm.getTime());
+      distinctDates.push(dNorm);
+    }
+  }
+
+  // Check consecutiveness
+  for (let i = 0; i < distinctDates.length - 1; i++) {
+    const current = distinctDates[i];
+    const next = distinctDates[i + 1];
+
+    const diff = Math.abs(current.getTime() - next.getTime());
+    const daysDiff = Math.round(diff / (1000 * 60 * 60 * 24));
+
+    if (daysDiff === 1) {
+      streak++;
+    } else {
+      break;
+    }
+  }
+
+  return streak;
+}
 
 export default async function Dashboard() {
   const supabase = await createClient();
@@ -65,7 +113,100 @@ export default async function Dashboard() {
     redirect("/login");
   }
 
-  const maxActivityValue = Math.max(...activityData.map((d) => d.value));
+  // Fetch Workouts
+  const { data: workouts } = await supabase
+    .from("workouts")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("performed_at", { ascending: false });
+
+  const recentWorkouts = workouts || [];
+
+  // Calculate Stats
+  const totalWorkouts = recentWorkouts.length;
+  const totalDurationMinutes = recentWorkouts.reduce((acc, curr) => acc + (curr.duration_minutes || 0), 0);
+  const totalCaloriesBurned = recentWorkouts.reduce((acc, curr) => acc + (curr.calories_burned || 0), 0);
+
+  // Prepare dates for streak calculation
+  const workoutDates = recentWorkouts.map(w => new Date(w.performed_at));
+  const currentStreak = calculateStreak(workoutDates);
+
+  // Stats Data
+  const statsData = [
+    {
+      label: "Total Workouts",
+      value: totalWorkouts.toString(),
+      unit: "sessions",
+      change: "All time",
+      up: true,
+      icon: Dumbbell,
+      color: "text-orange-500"
+    },
+    {
+      label: "Calories Burned",
+      value: totalCaloriesBurned > 1000 ? `${(totalCaloriesBurned / 1000).toFixed(1)}K` : totalCaloriesBurned.toString(),
+      unit: totalCaloriesBurned > 1000 ? "" : "kcal",
+      change: "All time",
+      up: true,
+      icon: Flame,
+      color: "text-red-500"
+    },
+    {
+      label: "Active Time",
+      value: totalDurationMinutes > 60 ? Math.floor(totalDurationMinutes / 60).toString() : totalDurationMinutes.toString(),
+      unit: totalDurationMinutes > 60 ? "hours" : "min",
+      change: "All time",
+      up: true,
+      icon: Clock,
+      color: "text-green-500"
+    },
+    {
+      label: "Current Streak",
+      value: currentStreak.toString(),
+      unit: "days",
+      change: "Keep it up!",
+      up: true,
+      icon: Zap,
+      color: "text-blue-500"
+    },
+  ];
+
+  // Activity Data (Last 7 days)
+  const last7Days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i)); // 6 days ago to today
+    return d;
+  });
+
+  const activityData = last7Days.map(date => {
+    const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
+    const dayWorkouts = recentWorkouts.filter(w => w.performed_at.startsWith(dateStr));
+    const value = dayWorkouts.reduce((acc, w) => acc + (w.duration_minutes || 0), 0);
+    return {
+      day: date.toLocaleDateString('en-US', { weekday: 'short' }), // Mon, Tue...
+      fullDate: dateStr,
+      value: value
+    };
+  });
+
+  const maxVal = Math.max(...activityData.map((d) => d.value));
+  const maxActivityValue = maxVal > 60 ? maxVal : 60; // Minimum scale unless zero
+
+  // Placeholder for Goals and Records (These require more complex schema/backend logic not present yet)
+  const weeklyGoals = [
+    { label: "Running", current: 35, target: 45, unit: "km", color: "bg-orange-500" },
+    { label: "Strength", current: 3, target: 5, unit: "days", color: "bg-blue-500" },
+    { label: "Mindfulness", current: 10, target: 60, unit: "min", color: "bg-purple-500" },
+  ];
+
+  // Weekly Records (Placeholder for now)
+  const weeklyRecords = [
+    { label: "Longest Run", value: "24:32 min", subtext: "Tuesday", icon: Trophy },
+    { label: "Max Volume", value: "1850 kg", subtext: "Yesterday", icon: Dumbbell },
+  ];
+
+  // Filter tabs
+  const filterTabs = ["All Activities", "Running", "Cycling", "Weight lifting", "Yoga"];
 
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
@@ -79,7 +220,7 @@ export default async function Dashboard() {
           <p className="text-[var(--muted-foreground)] text-sm">Deep dive into your fitness metrics and progress.</p>
         </div>
 
-        {/* Filter Tabs */}
+        {/* Filter Tabs (Visual only for now) */}
         <div className="flex flex-wrap gap-3 mb-8">
           {filterTabs.map((tab, index) => (
             <button
@@ -109,8 +250,8 @@ export default async function Dashboard() {
                 <span className="text-3xl font-bold">{stat.value}</span>
                 <span className="text-[var(--muted-foreground)] text-sm">{stat.unit}</span>
               </div>
-              <div className={`flex items-center gap-1 text-xs ${stat.up ? "text-green-500" : "text-red-500"}`}>
-                {stat.up ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+              <div className={`flex items-center gap-1 text-xs ${stat.up ? "text-green-500" : "text-green-500"}`}>
+                <TrendingUp size={14} />
                 {stat.change}
               </div>
             </div>
@@ -122,13 +263,10 @@ export default async function Dashboard() {
           {/* Activity Volume Chart - Takes 2 columns */}
           <div className="md:col-span-2 bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold">Activity Volume</h2>
+              <h2 className="text-xl font-bold">Activity Volume (Last 7 Days)</h2>
               <div className="flex gap-2">
                 <button className="p-2 bg-[var(--muted)] rounded-lg text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
                   <BarChart3 size={18} />
-                </button>
-                <button className="p-2 bg-[var(--card)] rounded-lg text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
-                  <LineChart size={18} />
                 </button>
               </div>
             </div>
@@ -138,16 +276,13 @@ export default async function Dashboard() {
               {activityData.map((item, index) => (
                 <div key={item.day} className="flex-1 flex flex-col items-center gap-2">
                   <div className="w-full flex justify-center">
-                    {index === 3 && (
-                      <span className="text-xs text-[var(--color-accent)] font-medium mb-1">
-                        890 cal
-                      </span>
-                    )}
+                    {/* Optional numeric label could go here */}
                   </div>
                   <div
-                    className={`w-full rounded-t-lg transition-all ${index === 3 ? "bg-[var(--color-accent)]" : "bg-[var(--muted)]/50"
+                    className={`w-full rounded-t-lg transition-all ${index === 6 ? "bg-[var(--color-accent)]" : "bg-[var(--muted)]/50"
                       }`}
-                    style={{ height: `${(item.value / maxActivityValue) * 100}%` }}
+                    style={{ height: `${maxActivityValue > 0 ? (item.value / maxActivityValue) * 100 : 0}%` }}
+                    title={`${item.value} mins`}
                   />
                 </div>
               ))}
@@ -158,7 +293,7 @@ export default async function Dashboard() {
               {activityData.map((item, index) => (
                 <span
                   key={item.day}
-                  className={`text-xs flex-1 text-center ${index === 3 ? "text-[var(--foreground)] font-medium" : "text-[var(--muted-foreground)]"
+                  className={`text-xs flex-1 text-center ${index === 6 ? "text-[var(--foreground)] font-medium" : "text-[var(--muted-foreground)]"
                     }`}
                 >
                   {item.day}
@@ -169,7 +304,7 @@ export default async function Dashboard() {
 
           {/* Right Column */}
           <div className="space-y-6">
-            {/* Weekly Goals */}
+            {/* Weekly Goals - Placeholder for now as we don't have user goals table yet */}
             <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5">
               <h3 className="text-lg font-bold mb-4">Weekly Goals</h3>
               <div className="space-y-4">
@@ -195,7 +330,7 @@ export default async function Dashboard() {
               </div>
             </div>
 
-            {/* Weekly Records */}
+            {/* Weekly Records - Placeholder */}
             <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5">
               <h3 className="text-lg font-bold mb-4">Weekly Records</h3>
               <div className="space-y-4">
@@ -222,7 +357,7 @@ export default async function Dashboard() {
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-bold">Recent History</h2>
             <Link
-              href="/history"
+              href="/workouts"
               className="flex items-center gap-1 text-sm text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
             >
               see more <ArrowRight size={16} />
@@ -242,27 +377,40 @@ export default async function Dashboard() {
                 </tr>
               </thead>
               <tbody>
-                {recentHistory.map((item, index) => (
-                  <tr key={index} className="border-b border-[var(--border)]/50 last:border-0">
+                {recentWorkouts.slice(0, 5).map((workout) => (
+                  <tr key={workout.id} className="border-b border-[var(--border)]/50 last:border-0 hover:bg-[var(--muted)]/20 transition-colors">
                     <td className="py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 bg-[var(--color-accent)]/20 rounded-lg flex items-center justify-center text-[var(--color-accent)]">
                           <Zap size={16} />
                         </div>
                         <div>
-                          <div className="text-sm font-medium">{item.activity}</div>
-                          <div className="text-xs text-[var(--muted-foreground)]">{item.location}</div>
+                          <div className="text-sm font-medium">{workout.name}</div>
+                          <div className="text-xs text-[var(--muted-foreground)]">Workout</div>
                         </div>
                       </div>
                     </td>
-                    <td className="py-4 text-sm text-[var(--muted-foreground)]">{item.date}</td>
-                    <td className="py-4 text-sm text-[var(--muted-foreground)]">{item.duration}</td>
-                    <td className="py-4 text-sm text-[var(--muted-foreground)]">{item.calories}</td>
+                    <td className="py-4 text-sm text-[var(--muted-foreground)]">
+                      {formatDate(workout.performed_at)}
+                    </td>
+                    <td className="py-4 text-sm text-[var(--muted-foreground)]">
+                      {formatDuration(workout.duration_minutes || 0)}
+                    </td>
+                    <td className="py-4 text-sm text-[var(--muted-foreground)]">
+                      {workout.calories_burned} Kcal
+                    </td>
                     <td className="py-4">
-                      <span className="text-sm text-[var(--color-accent)]">{item.status}</span>
+                      <span className="text-sm text-[var(--color-accent)] capitalize">{workout.status || "Completed"}</span>
                     </td>
                   </tr>
                 ))}
+                {recentWorkouts.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="py-8 text-center text-[var(--muted-foreground)]">
+                      No workouts found. Start logging your activities!
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -270,7 +418,7 @@ export default async function Dashboard() {
       </main>
 
       {/* Footer */}
-      <footer className="py-16 px-6 border-t border-[var(--border)] bg-[var(--background)] mt-12">
+      <footer className="py-16 px-6 border-t border-[var(--border)] bg-[var(--background)] mt-12 w-full">
         <div className="max-w-[1400px] mx-auto grid md:grid-cols-4 gap-12">
           <div>
             <Link href="/" className="flex items-center gap-2 mb-6">
