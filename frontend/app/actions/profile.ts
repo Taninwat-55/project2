@@ -24,7 +24,11 @@ export async function updateProfile(data: ProfileData) {
   } = await supabase.auth.getUser();
   if (!user) return { success: false, error: "Unauthorized" };
 
-  const age = calculateAge(data.dateOfBirth);
+  let age = 25; // Default age if not provided
+  if (data.dateOfBirth && !isNaN(Date.parse(data.dateOfBirth))) {
+    age = calculateAge(data.dateOfBirth);
+  }
+
   const calculatedGoal = calculateDailyCalories(
     data.weight,
     data.height,
@@ -41,9 +45,12 @@ export async function updateProfile(data: ProfileData) {
       gender: data.gender,
       weight_kg: data.weight,
       height_cm: data.height,
-      date_of_birth: data.dateOfBirth,
+      date_of_birth: data.dateOfBirth ? data.dateOfBirth : null,
       activity_level: data.activityLevel,
       daily_calorie_goal: calculatedGoal,
+      location: data.location,
+      phone: data.phone,
+      avatar_url: data.avatarUrl,
       updated_at: new Date().toISOString(),
     })
     .eq("id", user.id);
@@ -53,5 +60,28 @@ export async function updateProfile(data: ProfileData) {
   }
 
   revalidatePath("/dashboard");
+  revalidatePath("/settings");
+  return { success: true };
+}
+
+export async function updateEmail(email: string) {
+  const supabase = await createClient();
+  const { error } = await supabase.auth.updateUser({ email });
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  return { success: true };
+}
+
+export async function updatePassword(password: string) {
+  const supabase = await createClient();
+  const { error } = await supabase.auth.updateUser({ password });
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
   return { success: true };
 }
