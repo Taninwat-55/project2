@@ -172,7 +172,7 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
                           { name: 'Workouts', icon: <Dumbbell size={16} />, href: '/workouts' },
                           { name: 'Nutrition', icon: <UtensilsCrossed size={16} />, href: '/nutrition' },
                           { name: 'Archive', icon: <Archive size={16} />, href: '/archive' },
-                          { name: 'History', icon: <Settings size={16} />, href: '/History' },
+                          { name: 'History', icon: <Settings size={16} />, href: '/history' },
                         ].map((item) => (
                           <Link key={item.name} href={item.href} onClick={() => setIsDropdownOpen(false)}>
                             <motion.div
