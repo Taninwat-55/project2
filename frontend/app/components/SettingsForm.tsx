@@ -7,9 +7,11 @@ import { z } from "zod";
 import { updateProfile } from "@/app/actions/profile";
 import { createClient } from "@/utils/supabase/client";
 
+import { Profile } from "@/types/database";
+
 type ProfileData = z.infer<typeof ProfileSchema>;
 
-export default function SettingsForm({ initialData }: { initialData: Record<string, any> }) {
+export default function SettingsForm({ initialData }: { initialData: Profile }) {
     const [isPending, startTransition] = useTransition();
     const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
     const [avatarUrl, setAvatarUrl] = useState<string | null>(initialData?.avatar_url || null);
