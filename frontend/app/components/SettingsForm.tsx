@@ -1,5 +1,4 @@
-"use client";
-
+import Image from "next/image";
 import { useTransition, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,7 +9,7 @@ import { createClient } from "@/utils/supabase/client";
 
 type ProfileData = z.infer<typeof ProfileSchema>;
 
-export default function SettingsForm({ initialData }: { initialData: any }) {
+export default function SettingsForm({ initialData }: { initialData: Record<string, any> }) {
     const [isPending, startTransition] = useTransition();
     const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
     const [avatarUrl, setAvatarUrl] = useState<string | null>(initialData?.avatar_url || null);
@@ -58,8 +57,8 @@ export default function SettingsForm({ initialData }: { initialData: any }) {
 
             setAvatarUrl(data.publicUrl);
             form.setValue("avatarUrl", data.publicUrl);
-        } catch (error: any) {
-            alert(error.message);
+        } catch (error) {
+            alert((error as Error).message);
         } finally {
             setUploading(false);
         }
@@ -84,7 +83,7 @@ export default function SettingsForm({ initialData }: { initialData: any }) {
             <div className="flex flex-col items-center space-y-4 mb-8">
                 <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-zinc-100 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-800">
                     {avatarUrl ? (
-                        <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                        <Image src={avatarUrl} alt="Avatar" fill className="object-cover" />
                     ) : (
                         <div className="w-full h-full flex items-center justify-center text-zinc-400">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-12 h-12">
