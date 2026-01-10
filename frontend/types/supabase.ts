@@ -91,6 +91,7 @@ export type Database = {
           activity_level?:
           | Database["public"]["Enums"]["activity_level_enum"]
           | null
+          avatar_url?: string | null
           created_at?: string
           daily_calorie_goal?: number | null
           date_of_birth?: string | null
@@ -108,6 +109,7 @@ export type Database = {
           activity_level?:
           | Database["public"]["Enums"]["activity_level_enum"]
           | null
+          avatar_url?: string | null
           created_at?: string
           daily_calorie_goal?: number | null
           date_of_birth?: string | null
