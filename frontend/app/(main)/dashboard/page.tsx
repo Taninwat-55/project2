@@ -2,14 +2,11 @@ import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import {
-  MapPin,
   Flame,
   Clock,
   Zap,
   TrendingUp,
-  TrendingDown,
   BarChart3,
-  LineChart,
   Trophy,
   Dumbbell,
   ArrowRight,
@@ -65,7 +62,7 @@ function calculateStreak(dates: Date[]) {
   if (diffDays > 1) return 0; // Streak broken
 
   let streak = 1;
-  let currentDate = lastActivity;
+  const currentDate = lastActivity;
 
   // Simple streak logic: check consecutive days
   // We need to filter unique days first to avoid counting same day multiple workouts as streak
