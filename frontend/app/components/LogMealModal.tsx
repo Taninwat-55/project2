@@ -1,36 +1,76 @@
 'use client';
 
-import React from 'react';
-import { Plus } from 'lucide-react';
+import React, { useState } from 'react';
+import { Plus, Star, Utensils } from 'lucide-react'; // Tog bort X härifrån
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
+// Definiera exakt vad ett FoodItem är för att slippa "any"-felet
+interface FoodItem {
+  name: string;
+  type: string;
+  amount: string;
+  kcal: number;
+  p: string;
+  c: string;
+  f: string;
+}
+
 interface Props {
   isOpen: boolean;
   onClose: () => void;
+  onAdd: (item: FoodItem) => void; // Ändrade från any till FoodItem
 }
 
-export default function LogMealModal({ isOpen, onClose }: Props) {
+export default function LogMealModal({ isOpen, onClose, onAdd }: Props) {
+  const [saveAsFavorite, setSaveAsFavorite] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    serving: '100',
+    kcal: '',
+    p: '',
+    c: '',
+    f: '',
+  });
+
   if (!isOpen) return null;
 
   const chartData = {
     datasets: [{
-      data: [33, 33, 34], // Example split
+      data: [Number(formData.p) || 1, Number(formData.c) || 1, Number(formData.f) || 1],
       backgroundColor: ['#206A9E', '#51A255', '#C7831F'],
       borderWidth: 0,
       cutout: '80%',
     }],
   };
 
+  const handleAdd = () => {
+    if (!formData.name || !formData.kcal) return;
+    
+    // Skapa objektet enligt FoodItem-interfacet
+    const newItem: FoodItem = {
+      name: formData.name,
+      type: saveAsFavorite ? 'TEMPLATE' : 'MANUAL',
+      amount: `${formData.serving}g`,
+      kcal: Number(formData.kcal),
+      p: `${formData.p || 0}g`,
+      c: `${formData.c || 0}g`,
+      f: `${formData.f || 0}g`,
+    };
+
+    onAdd(newItem);
+    onClose();
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
       <div className="relative w-full max-w-4xl bg-zinc-900/90 border border-zinc-800 rounded-[3rem] p-12 overflow-hidden shadow-2xl">
-
+        
         {/* Header */}
         <div className="text-center mb-10">
-          <h2 className="text-4xl font-extrabold tracking-tight">
+          <h2 className="text-4xl font-extrabold tracking-tight text-white">
             Add New <span className="text-orange-500">Food Item</span>
           </h2>
           <p className="text-zinc-500 text-sm mt-2 font-medium">
@@ -41,21 +81,32 @@ export default function LogMealModal({ isOpen, onClose }: Props) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Left Column: Inputs */}
           <div className="space-y-8">
-            {/* Basic Info */}
             <div className="bg-black/20 p-6 rounded-3xl border border-zinc-800/50">
-              <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-400 mb-4">Basic Information</h3>
-              <div className="space-y-4">
+              <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-4">Basic Information</h3>
+              <div className="space-y-4 text-white">
                 <div>
-                  <label className="text-[10px] font-bold text-zinc-500 uppercase mb-2 block">Food Item Name</label>
-                  <input type="text" placeholder="e.g., Grilled Chicken Breast with Herbs" className="w-full bg-zinc-800/50 border border-zinc-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition" />
+                  <label className="text-[10px] font-black text-zinc-500 uppercase mb-2 block tracking-widest">Food Item Name</label>
+                  <input 
+                    type="text" 
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    placeholder="e.g., Grilled Chicken Breast" 
+                    className="w-full bg-zinc-800/50 border border-zinc-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition" 
+                  />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-[10px] font-bold text-zinc-500 uppercase mb-2 block">Serving Size</label>
-                    <input type="text" placeholder="e.g., 100" className="w-full bg-zinc-800/50 border border-zinc-700 rounded-xl px-4 py-3 text-sm focus:outline-none" />
+                    <label className="text-[10px] font-black text-zinc-500 uppercase mb-2 block tracking-widest">Serving Size</label>
+                    <input 
+                      type="text" 
+                      value={formData.serving}
+                      onChange={(e) => setFormData({...formData, serving: e.target.value})}
+                      placeholder="100" 
+                      className="w-full bg-zinc-800/50 border border-zinc-700 rounded-xl px-4 py-3 text-sm focus:outline-none" 
+                    />
                   </div>
                   <div>
-                    <label className="text-[10px] font-bold text-zinc-500 uppercase mb-2 block">Unit</label>
+                    <label className="text-[10px] font-black text-zinc-500 uppercase mb-2 block tracking-widest">Unit</label>
                     <select className="w-full bg-zinc-800/50 border border-zinc-700 rounded-xl px-4 py-3 text-sm focus:outline-none appearance-none">
                       <option>Grams (g)</option>
                     </select>
@@ -64,72 +115,111 @@ export default function LogMealModal({ isOpen, onClose }: Props) {
               </div>
             </div>
 
-            {/* Macro Nutrients */}
             <div className="bg-black/20 p-6 rounded-3xl border border-zinc-800/50">
-              <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-400 mb-4">Macro Nutrients</h3>
-              <div className="space-y-4">
+              <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-4">Macro Nutrients</h3>
+              <div className="space-y-4 text-white">
                 <div>
-                  <label className="text-[10px] font-bold text-zinc-500 uppercase mb-2 block">Calories (kcal)</label>
-                  <input type="number" placeholder="0" className="w-full bg-zinc-800/50 border border-zinc-700 rounded-xl px-4 py-3 text-sm" />
+                  <label className="text-[10px] font-black text-zinc-500 uppercase mb-2 block tracking-widest">Calories (kcal)</label>
+                  <input 
+                    type="number" 
+                    value={formData.kcal}
+                    onChange={(e) => setFormData({...formData, kcal: e.target.value})}
+                    placeholder="0" 
+                    className="w-full bg-zinc-800/50 border border-zinc-700 rounded-xl px-4 py-3 text-sm focus:border-orange-500 outline-none" 
+                  />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-[10px] font-bold text-zinc-500 uppercase mb-2 block flex items-center gap-2">
+                    <label className="text-[10px] font-black text-zinc-500 uppercase mb-2 block flex items-center gap-2 tracking-widest italic">
                       <div className="w-2 h-2 rounded-full bg-blue-500" /> Protein
                     </label>
-                    <input type="number" placeholder="0" className="w-full bg-zinc-800/50 border border-zinc-700 rounded-xl px-4 py-3 text-sm" />
+                    <input 
+                      type="number" 
+                      value={formData.p}
+                      onChange={(e) => setFormData({...formData, p: e.target.value})} 
+                      placeholder="0" 
+                      className="w-full bg-zinc-800/50 border border-zinc-700 rounded-xl px-4 py-3 text-sm outline-none" 
+                    />
                   </div>
                   <div>
-                    <label className="text-[10px] font-bold text-zinc-500 uppercase mb-2 block flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-green-500" /> Carbohydrates
+                    <label className="text-[10px] font-black text-zinc-500 uppercase mb-2 block flex items-center gap-2 tracking-widest italic">
+                      <div className="w-2 h-2 rounded-full bg-green-500" /> Carbs
                     </label>
-                    <input type="number" placeholder="0" className="w-full bg-zinc-800/50 border border-zinc-700 rounded-xl px-4 py-3 text-sm" />
+                    <input 
+                      type="number" 
+                      value={formData.c}
+                      onChange={(e) => setFormData({...formData, c: e.target.value})} 
+                      placeholder="0" 
+                      className="w-full bg-zinc-800/50 border border-zinc-700 rounded-xl px-4 py-3 text-sm outline-none" 
+                    />
                   </div>
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold text-zinc-500 uppercase mb-2 block flex items-center gap-2">
+                  <label className="text-[10px] font-black text-zinc-500 uppercase mb-2 block flex items-center gap-2 tracking-widest italic">
                     <div className="w-2 h-2 rounded-full bg-yellow-600" /> Fats
                   </label>
-                  <input type="number" placeholder="0" className="w-full bg-zinc-800/50 border border-zinc-700 rounded-xl px-4 py-3 text-sm w-1/2" />
+                  <input 
+                    type="number" 
+                    value={formData.f}
+                    onChange={(e) => setFormData({...formData, f: e.target.value})} 
+                    placeholder="0" 
+                    className="w-full bg-zinc-800/50 border border-zinc-700 rounded-xl px-4 py-3 text-sm w-1/2 outline-none" 
+                  />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Right Column: Preview */}
+          {/* Right Column: Preview & Template Button */}
           <div className="flex flex-col">
             <div className="bg-black/20 p-8 rounded-3xl border border-zinc-800/50 flex-grow flex flex-col items-center justify-center relative">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-400 absolute top-8">Item Preview</h3>
-              <div className="relative w-48 h-48 my-8">
+              <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 absolute top-8">Item Preview</h3>
+              
+              <div className="relative w-44 h-44 my-6">
                 <Doughnut data={chartData} options={{ plugins: { legend: { display: false } } }} />
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-4xl font-black">0</span>
+                  <span className="text-4xl font-black text-white">{formData.kcal || 0}</span>
                   <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-1">KCAL</span>
                 </div>
               </div>
-              <div className="w-full space-y-3">
-                <div className="flex justify-between text-[11px] font-bold uppercase tracking-widest p-3 bg-zinc-800/30 rounded-xl border border-zinc-700/50">
-                  <span className="text-blue-400 flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-blue-500" /> Protein</span>
-                  <span>0%</span>
+
+              <button 
+                type="button"
+                onClick={() => setSaveAsFavorite(!saveAsFavorite)}
+                className={`flex items-center gap-3 px-6 py-3 rounded-2xl border transition-all mb-8 w-full justify-center group ${
+                  saveAsFavorite 
+                  ? 'bg-orange-600 border-orange-500 text-white shadow-lg shadow-orange-900/40' 
+                  : 'bg-zinc-800/40 border-zinc-700 text-zinc-400 hover:border-orange-500/50'
+                }`}
+              >
+                {saveAsFavorite ? <Star size={16} fill="white" /> : <Star size={16} className="group-hover:text-orange-500 transition-colors" />}
+                <span className="text-[10px] font-black uppercase tracking-[0.2em]">
+                  {saveAsFavorite ? 'Saved as Template' : 'Add to Meal Template'}
+                </span>
+              </button>
+
+              <div className="w-full space-y-2">
+                <div className="flex justify-between text-[10px] font-black uppercase tracking-widest p-4 bg-zinc-800/30 rounded-2xl border border-zinc-700/50 text-white">
+                  <span className="text-blue-400">Protein</span>
+                  <span>{formData.p || 0}g</span>
                 </div>
-                <div className="flex justify-between text-[11px] font-bold uppercase tracking-widest p-3 bg-zinc-800/30 rounded-xl border border-zinc-700/50">
-                  <span className="text-green-500 flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-green-500" /> Carbs</span>
-                  <span>0%</span>
+                <div className="flex justify-between text-[10px] font-black uppercase tracking-widest p-4 bg-zinc-800/30 rounded-2xl border border-zinc-700/50 text-white">
+                  <span className="text-green-500">Carbs</span>
+                  <span>{formData.c || 0}g</span>
                 </div>
-                <div className="flex justify-between text-[11px] font-bold uppercase tracking-widest p-3 bg-zinc-800/30 rounded-xl border border-zinc-700/50">
-                  <span className="text-yellow-600 flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-yellow-600" /> Fats</span>
-                  <span>0%</span>
+                <div className="flex justify-between text-[10px] font-black uppercase tracking-widest p-4 bg-zinc-800/30 rounded-2xl border border-zinc-700/50 text-white">
+                  <span className="text-yellow-600">Fats</span>
+                  <span>{formData.f || 0}g</span>
                 </div>
               </div>
             </div>
 
-            {/* Quick Tip */}
             <div className="mt-6 bg-orange-950/20 border border-orange-900/30 p-6 rounded-3xl">
-              <h4 className="text-orange-500 text-xs font-black uppercase tracking-widest flex items-center gap-2 mb-2">
-                💡 Quick Tip
+              <h4 className="text-orange-500 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 mb-2 italic">
+                <Utensils size={14} /> Quick Tip
               </h4>
-              <p className="text-orange-200/60 text-[11px] leading-relaxed">
-                Accurate tracking requires measuring your food raw when possible. Oils and sauces can add significant calories!
+              <p className="text-orange-200/60 text-[11px] leading-relaxed font-medium">
+                Templates allow you to log this exact meal combination with one click from your nutrition dashboard.
               </p>
             </div>
           </div>
@@ -137,10 +227,14 @@ export default function LogMealModal({ isOpen, onClose }: Props) {
 
         {/* Footer Buttons */}
         <div className="flex justify-center gap-4 mt-12">
-          <button onClick={onClose} className="px-12 py-4 bg-zinc-800 hover:bg-zinc-700 rounded-full font-bold text-sm transition">
+          <button type="button" onClick={onClose} className="px-12 py-4 bg-zinc-800 hover:bg-zinc-700 rounded-full font-black text-[10px] uppercase tracking-[0.2em] transition text-zinc-400">
             Cancel
           </button>
-          <button className="px-12 py-4 bg-orange-600 hover:bg-orange-500 rounded-full font-bold text-sm transition flex items-center gap-2">
+          <button 
+            type="button"
+            onClick={handleAdd}
+            className="px-12 py-4 bg-orange-600 hover:bg-orange-500 rounded-full font-black text-[10px] uppercase tracking-[0.2em] transition text-white flex items-center gap-2 shadow-xl shadow-orange-900/20"
+          >
             <Plus size={18} /> Add Item
           </button>
         </div>
