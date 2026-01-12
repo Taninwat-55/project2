@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react'; // Added useState
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { 
   ChevronLeft, 
@@ -11,16 +11,20 @@ import {
 } from 'lucide-react';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
-// Import the modal component you created
-import LogMealModal from '@/app/components/LogMealModal'; 
+
+// Import av dina modaler
+import LogMealModal from '@/app/components/LogMealModal';
+import EditMealModal from '@/app/components/EditMealModal';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 export default function DinnerDetailsPage() {
-  // --- MODAL STATE ---
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // STATE FÖR MODALER
+  const [isLogOpen, setIsLogOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
 
-  // Shared Chart Options
+  // Inställningar för grafer
   const macroOptions = {
     plugins: { tooltip: { enabled: false }, legend: { display: false } },
     responsive: true,
@@ -28,7 +32,6 @@ export default function DinnerDetailsPage() {
     cutout: '80%',
   };
 
-  // Helper to generate chart data
   const createMacroData = (current: number, goal: number, color: string) => ({
     datasets: [
       {
@@ -47,6 +50,19 @@ export default function DinnerDetailsPage() {
     { label: 'Carbs', val: 80, goal: 177, unit: 'g', color: '#51A255', footerLabel: 'Target', footerVal: 'Near' },
     { label: 'Fats', val: 25, goal: 83, unit: 'g', color: '#C7831F', footerLabel: 'Balance', footerVal: 'Good' },
   ];
+
+  // Data för listan 
+  const loggedItems = [
+    { name: 'Grilled Salmon', type: 'HOMEMADE', amount: '1 fillet (200g)', kcal: 412, p: '40g', c: '0g', f: '28g' },
+    { name: 'Quinoa Salad', type: 'SIDE DISH', amount: '1 cup', kcal: 220, p: '8g', c: '40g', f: '4g' },
+    { name: 'Steamed Broccoli', type: 'SIDE DISH', amount: '1 cup', kcal: 220, p: '8g', c: '40g', f: '4g' },
+  ];
+
+  // Funktion för att öppna redigering
+  const handleEditClick = (item: any) => {
+    setSelectedItem(item);
+    setIsEditOpen(true);
+  };
 
   return (
     <div className="bg-black min-h-screen text-white font-sans selection:bg-orange-500/30">
@@ -69,9 +85,8 @@ export default function DinnerDetailsPage() {
             <button className="px-8 py-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-xs font-bold uppercase tracking-widest hover:bg-zinc-800 transition">
               Change Date
             </button>
-            {/* TRIGGER: Log Meal Button */}
             <button 
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => setIsLogOpen(true)}
               className="px-8 py-3 bg-orange-600 rounded-2xl text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-orange-500 transition active:scale-95"
             >
               <Plus size={16} /> Log Meal
@@ -127,21 +142,23 @@ export default function DinnerDetailsPage() {
           </div>
         </div>
 
-        {/* Logged Items */}
+        {/* Logged Items Section */}
         <h2 className="text-2xl font-bold mb-8">Logged Items</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            { name: 'Grilled Salmon', type: 'HOMEMADE', amount: '1 fillet (200g)', kcal: 412, p: '40g', c: '0g', f: '28g' },
-            { name: 'Quinoa Salad', type: 'SIDE DISH', amount: '1 cup', kcal: 220, p: '8g', c: '40g', f: '4g' },
-            { name: 'Steamed Broccoli', type: 'SIDE DISH', amount: '1 cup', kcal: 220, p: '8g', c: '40g', f: '4g' },
-          ].map((item) => (
+          {loggedItems.map((item) => (
             <div key={item.name} className="bg-zinc-900/40 border border-zinc-800/50 rounded-[2.5rem] p-8 hover:bg-zinc-800/30 transition group">
               <div className="flex justify-between items-start mb-6">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <h4 className="font-bold text-lg">{item.name}</h4>
-                    <Pencil size={18} className="text-zinc-600 hover:text-white cursor-pointer" />
-                    <Trash2 size={18} className="text-zinc-600 hover:text-red-500 cursor-pointer" />
+
+                    {/* EDIT BUTTON */}
+                    <button onClick={() => handleEditClick(item)} className="hover:text-orange-500 transition-colors">
+                      <Pencil size={18} className="text-zinc-600" />
+                    </button>
+                    <button className="hover:text-red-500 transition-colors">
+                      <Trash2 size={18} className="text-zinc-600" />
+                    </button>
                   </div>
                   <span className="text-[10px] font-black tracking-widest text-zinc-500 block">{item.type}</span>
                   <span className="text-xs text-zinc-400">{item.amount}</span>
@@ -168,9 +185,9 @@ export default function DinnerDetailsPage() {
             </div>
           ))}
           
-          {/* TRIGGER: Quick Add Item Card */}
+          {/* QUICK ADD BUTTON */}
           <button 
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => setIsLogOpen(true)}
             className="border-2 border-dashed border-zinc-800 rounded-[2.5rem] p-8 flex flex-col items-center justify-center text-zinc-500 hover:text-white hover:border-zinc-700 transition group min-h-[220px]"
           >
             <div className="w-12 h-12 rounded-full bg-zinc-900 flex items-center justify-center mb-3 group-hover:scale-110 transition">
@@ -181,10 +198,16 @@ export default function DinnerDetailsPage() {
         </div>
       </main>
 
-      {/* MODAL COMPONENT */}
+      {/* MODALER */}
       <LogMealModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+        isOpen={isLogOpen} 
+        onClose={() => setIsLogOpen(false)} 
+      />
+
+      <EditMealModal 
+        isOpen={isEditOpen} 
+        onClose={() => setIsEditOpen(false)} 
+        itemData={selectedItem}
       />
     </div>
   );
