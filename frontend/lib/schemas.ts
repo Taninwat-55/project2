@@ -10,10 +10,19 @@ export const MealSchema = z.object({
 
 // 2. Workout Schema
 export const WorkoutSchema = z.object({
+  // Basic info
   name: z.string().min(1, "Name is required"),
-  duration: z.number().int().positive("Duration must be a positive number"),
-  calories: z.number().int().positive("Calories must be a positive number"),
-  status: z.enum(["planned", "completed"]),
+  duration: z.number().int().nonnegative().optional().nullable(),
+  calories: z.number().int().nonnegative("Calories must be a positive number").optional().or(z.literal(0)),
+  status: z.enum(["planned", "completed"]).optional().default("completed"),
+
+  // New Metrics
+  type: z.enum(["strength", "cardio", "flexibility", "other"]).optional().default("strength"),
+  reps: z.number().int().nonnegative().optional().nullable(),
+  sets: z.number().int().nonnegative().optional().nullable(),
+  weight: z.number().nonnegative().optional().nullable(),
+  distance: z.number().nonnegative().optional().nullable(),
+  notes: z.string().optional().nullable(),
 });
 
 // 3. Profile Schema (Complex validation made easy!)
