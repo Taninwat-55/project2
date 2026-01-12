@@ -4,40 +4,69 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, X, Dumbbell, Timer, Flame, ChevronRight, AlertCircle, CheckCircle2 } from 'lucide-react';
 
+import { logWorkout } from '@/app/actions/workouts';
+
 export default function AddWorkoutModal() {
     const [isOpen, setIsOpen] = useState(false);
     const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
-    
+    const [errorMessage, setErrorMessage] = useState('');
+
     // --- NEW: Form State ---
     const [workoutName, setWorkoutName] = useState('');
     const [duration, setDuration] = useState('');
     const [calories, setCalories] = useState('');
+    const [type, setType] = useState<'strength' | 'cardio'>('strength');
+    const [sets, setSets] = useState('');
+    const [reps, setReps] = useState('');
+    const [weight, setWeight] = useState('');
+    const [distance, setDistance] = useState('');
 
-    const handleSave = () => {
+    const handleSave = async () => {
         // --- NEW: Validation Check ---
-        if (!workoutName.trim() || !duration.trim()) {
+        if (!workoutName.trim()) {
             setStatus('error');
+            setErrorMessage('Please fill in Name');
             // Reset error after 3 seconds
             setTimeout(() => setStatus('idle'), 3000);
             return;
         }
 
-        // If validation passes
-        setStatus('success');
+        const result = await logWorkout({
+            name: workoutName,
+            duration: duration ? parseInt(duration) : undefined,
+            calories: parseInt(calories) || 0,
+            status: 'completed',
+            type: type,
+            sets: parseInt(sets) || undefined,
+            reps: parseInt(reps) || undefined,
+            weight: parseFloat(weight) || undefined,
+            distance: parseFloat(distance) || undefined
+        });
 
-        setTimeout(() => {
-            setStatus('idle');
-            setIsOpen(false);
-            // Clear inputs after successful save
-            setWorkoutName('');
-            setDuration('');
-            setCalories('');
-        }, 2000);
+        if (result.success) {
+            setStatus('success');
+            setTimeout(() => {
+                setStatus('idle');
+                setIsOpen(false);
+                // Clear inputs after successful save
+                setWorkoutName('');
+                setDuration('');
+                setCalories('');
+                setSets('');
+                setReps('');
+                setWeight('');
+                setDistance('');
+            }, 2000);
+        } else {
+            setStatus('error');
+            setErrorMessage(result.error || 'Failed to save workout');
+            setTimeout(() => setStatus('idle'), 3000);
+        }
     };
 
     return (
         <>
-            <button 
+            <button
                 onClick={() => setIsOpen(true)}
                 className="flex items-center gap-2 px-4 py-2.5 bg-orange-500 rounded-full text-sm font-bold hover:bg-orange-600 transition-all active:scale-95 shadow-lg shadow-orange-500/20 text-white"
             >
@@ -83,7 +112,7 @@ export default function AddWorkoutModal() {
                                     )}
                                     {status === 'error' && (
                                         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex items-center justify-center gap-2 text-red-500 font-bold text-sm bg-red-500/10 py-3 rounded-xl">
-                                            <AlertCircle size={16} /> Please fill in Name and Duration
+                                            <AlertCircle size={16} /> {errorMessage || 'Something went wrong'}
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
@@ -125,6 +154,46 @@ export default function AddWorkoutModal() {
                                             className="w-full bg-black border border-white/5 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-orange-500/50 text-white"
                                         />
                                     </div>
+                                </div>
+
+                                {/* --- NEW: Type Toggle & Detailed Metrics --- */}
+                                <div className="space-y-4 pt-4 border-t border-white/5">
+                                    <div className="flex bg-black/50 p-1 rounded-xl">
+                                        <button
+                                            onClick={() => setType('strength')}
+                                            className={`flex-1 py-2 text-xs font-bold uppercase rounded-lg transition-all ${type === 'strength' ? 'bg-orange-500 text-white' : 'text-zinc-500 hover:text-white'}`}
+                                        >
+                                            Strength
+                                        </button>
+                                        <button
+                                            onClick={() => setType('cardio')}
+                                            className={`flex-1 py-2 text-xs font-bold uppercase rounded-lg transition-all ${type === 'cardio' ? 'bg-orange-500 text-white' : 'text-zinc-500 hover:text-white'}`}
+                                        >
+                                            Cardio
+                                        </button>
+                                    </div>
+
+                                    {type === 'strength' ? (
+                                        <div className="grid grid-cols-3 gap-3">
+                                            <div>
+                                                <label className="text-[10px] uppercase font-black text-zinc-500 tracking-widest ml-1">Sets</label>
+                                                <input type="number" value={sets} onChange={(e) => setSets(e.target.value)} placeholder="0" className="w-full bg-black border border-white/5 rounded-2xl px-4 py-3 text-white text-sm" />
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] uppercase font-black text-zinc-500 tracking-widest ml-1">Reps</label>
+                                                <input type="number" value={reps} onChange={(e) => setReps(e.target.value)} placeholder="0" className="w-full bg-black border border-white/5 rounded-2xl px-4 py-3 text-white text-sm" />
+                                            </div>
+                                            <div>
+                                                <label className="text-[10px] uppercase font-black text-zinc-500 tracking-widest ml-1">Weight (kg)</label>
+                                                <input type="number" value={weight} onChange={(e) => setWeight(e.target.value)} placeholder="0" className="w-full bg-black border border-white/5 rounded-2xl px-4 py-3 text-white text-sm" />
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div>
+                                            <label className="text-[10px] uppercase font-black text-zinc-500 tracking-widest ml-1">Distance (km)</label>
+                                            <input type="number" value={distance} onChange={(e) => setDistance(e.target.value)} placeholder="0.0" className="w-full bg-black border border-white/5 rounded-2xl px-5 py-4 text-white" />
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
