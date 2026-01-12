@@ -11,7 +11,15 @@ export type HistoryItem = {
     detail: string;
     color: string;
     bg: string;
-    moreInfo: any;
+    moreInfo: {
+        exercises?: string[];
+        intensity?: string;
+        macros?: {
+            p: string;
+            c: string;
+            f: string;
+        };
+    };
 };
 
 export async function getUserHistory() {

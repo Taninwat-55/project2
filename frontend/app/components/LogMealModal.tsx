@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { X, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 
@@ -27,7 +27,7 @@ export default function LogMealModal({ isOpen, onClose }: Props) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
       <div className="relative w-full max-w-4xl bg-zinc-900/90 border border-zinc-800 rounded-[3rem] p-12 overflow-hidden shadow-2xl">
-        
+
         {/* Header */}
         <div className="text-center mb-10">
           <h2 className="text-4xl font-extrabold tracking-tight">
