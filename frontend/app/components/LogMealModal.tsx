@@ -53,9 +53,9 @@ export default function LogMealModal({ isOpen, onClose, onAdd }: Props) {
         '#18181b'  // Bakgrund om tom
       ],
       borderWidth: 0,
-      borderRadius: 20,      // Runda kanter
-      circumference: 360,    // Full cirkel
-      cutout: '80%',         // Smalare ring
+      borderRadius: 20,
+      circumference: 360,
+      cutout: '80%',
     }],
   };
 
@@ -193,7 +193,7 @@ export default function LogMealModal({ isOpen, onClose, onAdd }: Props) {
             </div>
           </div>
 
-          {/* Right Column: Preview */}
+          {/* Right Column: Preview & Template Button */}
           <div className="flex flex-col">
             <div className="bg-black/20 p-8 rounded-3xl border border-zinc-800/50 flex-grow flex flex-col items-center justify-center relative">
               <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 absolute top-8">Item Preview</h3>
