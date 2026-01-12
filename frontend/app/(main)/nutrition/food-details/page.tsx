@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { 
   ChevronLeft, 
@@ -12,10 +12,28 @@ import {
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 
+import LogMealModal from '@/app/components/LogMealModal';
+import EditMealModal from '@/app/components/EditMealModal';
+
 ChartJS.register(ArcElement, Tooltip, Legend);
 
+interface FoodItem {
+  name: string;
+  type: string;
+  amount: string;
+  kcal: number;
+  p: string;
+  c: string;
+  f: string;
+}
+
 export default function DinnerDetailsPage() {
-  // Shared Chart Options - EXACTLY from your Nutrition Template
+  const [isLogOpen, setIsLogOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  
+  // 2. ÄNDRA FRÅN <any> TILL <FoodItem | null>
+  const [selectedItem, setSelectedItem] = useState<FoodItem | null>(null);
+
   const macroOptions = {
     plugins: { tooltip: { enabled: false }, legend: { display: false } },
     responsive: true,
@@ -23,14 +41,13 @@ export default function DinnerDetailsPage() {
     cutout: '80%',
   };
 
-  // Helper to generate chart data - EXACTLY from your Nutrition Template
   const createMacroData = (current: number, goal: number, color: string) => ({
     datasets: [
       {
         data: [current, Math.max(0, goal - current)],
         backgroundColor: [color, '#18181b'],
         borderWidth: 0,
-        borderRadius: 20, // High radius for that "pill" look
+        borderRadius: 20,
         circumference: 360,
       },
     ],
@@ -42,6 +59,19 @@ export default function DinnerDetailsPage() {
     { label: 'Carbs', val: 80, goal: 177, unit: 'g', color: '#51A255', footerLabel: 'Target', footerVal: 'Near' },
     { label: 'Fats', val: 25, goal: 83, unit: 'g', color: '#C7831F', footerLabel: 'Balance', footerVal: 'Good' },
   ];
+
+  // 3. TYPSA LISTAN
+  const loggedItems: FoodItem[] = [
+    { name: 'Grilled Salmon', type: 'HOMEMADE', amount: '1 fillet (200g)', kcal: 412, p: '40g', c: '0g', f: '28g' },
+    { name: 'Quinoa Salad', type: 'SIDE DISH', amount: '1 cup', kcal: 220, p: '8g', c: '40g', f: '4g' },
+    { name: 'Steamed Broccoli', type: 'SIDE DISH', amount: '1 cup', kcal: 220, p: '8g', c: '40g', f: '4g' },
+  ];
+
+  // 4. TYPSA PARAMETERN I FUNKTIONEN
+  const handleEditClick = (item: FoodItem) => {
+    setSelectedItem(item);
+    setIsEditOpen(true);
+  };
 
   return (
     <div className="bg-black min-h-screen text-white font-sans selection:bg-orange-500/30">
@@ -64,13 +94,16 @@ export default function DinnerDetailsPage() {
             <button className="px-8 py-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-xs font-bold uppercase tracking-widest hover:bg-zinc-800 transition">
               Change Date
             </button>
-            <button className="px-8 py-3 bg-orange-600 rounded-2xl text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-orange-500 transition active:scale-95">
+            <button 
+              onClick={() => setIsLogOpen(true)}
+              className="px-8 py-3 bg-orange-600 rounded-2xl text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-orange-500 transition active:scale-95"
+            >
               <Plus size={16} /> Log Meal
             </button>
           </div>
         </div>
 
-        {/* Macro Grid - EXACT styling from image_7087ae.png */}
+        {/* Macro Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {mealMacros.map((m) => (
             <div key={m.label} className="bg-zinc-900/40 p-8 rounded-[2.5rem] border border-zinc-800/50 flex flex-col items-center">
@@ -121,18 +154,18 @@ export default function DinnerDetailsPage() {
         {/* Logged Items */}
         <h2 className="text-2xl font-bold mb-8">Logged Items</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            { name: 'Grilled Salmon', type: 'HOMEMADE', amount: '1 fillet (200g)', kcal: 412, p: '40g', c: '0g', f: '28g' },
-            { name: 'Quinoa Salad', type: 'SIDE DISH', amount: '1 cup', kcal: 220, p: '8g', c: '40g', f: '4g' },
-            { name: 'Steamed Broccoli', type: 'SIDE DISH', amount: '1 cup', kcal: 220, p: '8g', c: '40g', f: '4g' },
-          ].map((item) => (
+          {loggedItems.map((item) => (
             <div key={item.name} className="bg-zinc-900/40 border border-zinc-800/50 rounded-[2.5rem] p-8 hover:bg-zinc-800/30 transition group">
               <div className="flex justify-between items-start mb-6">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <h4 className="font-bold text-lg">{item.name}</h4>
-                    <Pencil size={12} className="text-zinc-600 hover:text-white cursor-pointer" />
-                    <Trash2 size={12} className="text-zinc-600 hover:text-red-500 cursor-pointer" />
+                    <button onClick={() => handleEditClick(item)} className="hover:text-orange-500 transition-colors">
+                      <Pencil size={12} className="text-zinc-600" />
+                    </button>
+                    <button className="hover:text-red-500 transition-colors">
+                      <Trash2 size={12} className="text-zinc-600" />
+                    </button>
                   </div>
                   <span className="text-[10px] font-black tracking-widest text-zinc-500 block">{item.type}</span>
                   <span className="text-xs text-zinc-400">{item.amount}</span>
@@ -159,7 +192,10 @@ export default function DinnerDetailsPage() {
             </div>
           ))}
           
-          <button className="border-2 border-dashed border-zinc-800 rounded-[2.5rem] p-8 flex flex-col items-center justify-center text-zinc-500 hover:text-white hover:border-zinc-700 transition group min-h-[220px]">
+          <button 
+            onClick={() => setIsLogOpen(true)}
+            className="border-2 border-dashed border-zinc-800 rounded-[2.5rem] p-8 flex flex-col items-center justify-center text-zinc-500 hover:text-white hover:border-zinc-700 transition group min-h-[220px]"
+          >
             <div className="w-12 h-12 rounded-full bg-zinc-900 flex items-center justify-center mb-3 group-hover:scale-110 transition">
               <Plus size={24} />
             </div>
@@ -167,6 +203,17 @@ export default function DinnerDetailsPage() {
           </button>
         </div>
       </main>
+
+      <LogMealModal 
+        isOpen={isLogOpen} 
+        onClose={() => setIsLogOpen(false)} 
+      />
+
+      <EditMealModal 
+        isOpen={isEditOpen} 
+        onClose={() => setIsEditOpen(false)} 
+        itemData={selectedItem}
+      />
     </div>
   );
 }

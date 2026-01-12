@@ -2,12 +2,14 @@
 import Link from 'next/link';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
+import { useState, useEffect } from 'react'; // Added useState, useEffect
 import {
   Plus,
   Droplet,
   Flame,
   Clock,
 } from 'lucide-react';
+import { logHydration, getTodayHydration } from '@/app/actions/hydration'; // Import actions
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -71,6 +73,28 @@ export default function NutritionTemplate() {
       footerVal: 'Good',
     },
   ];
+
+  // --- HYDRATION LOGIC ---
+  const [hydration, setHydration] = useState(0);
+  const goal = 2500;
+  const percentage = Math.min(100, Math.round((hydration / goal) * 100));
+
+  useEffect(() => {
+    // Fetch initial hydration
+    getTodayHydration().then(setHydration);
+  }, []);
+
+  const handleAddWater = async (amount: number) => {
+    // Optimistic Update
+    setHydration(prev => prev + amount);
+
+    const result = await logHydration(amount);
+    if (!result.success) {
+      // Revert if failed (optional, but good practice)
+      setHydration(prev => prev - amount);
+      console.error("Failed to log hydration");
+    }
+  };
 
   return (
     <div className="bg-black min-h-screen text-white font-sans selection:bg-orange-500/30">
@@ -291,19 +315,23 @@ export default function NutritionTemplate() {
               </p>
               <div className="h-3 w-full bg-orange-800/40 rounded-full overflow-hidden mb-4">
                 <div
-                  className="h-full bg-white rounded-full shadow-[0_0_15px_rgba(255,255,255,0.8)]"
-                  style={{ width: '65%' }}
+                  className="h-full bg-white rounded-full shadow-[0_0_15px_rgba(255,255,255,0.8)] transition-all duration-1000 ease-out"
+                  style={{ width: `${percentage}%` }}
                 ></div>
               </div>
               <div className="flex justify-between items-center text-xs font-black uppercase tracking-widest text-orange-200">
-                <span>2.5L Daily Goal</span>
-                <span className="text-4xl italic text-white">65%</span>
+                <span>{goal / 1000}L Daily Goal</span>
+                <span className="text-4xl italic text-white">{percentage}%</span>
+              </div>
+              <div className="mt-2 text-orange-100 text-sm font-bold">
+                {hydration} / {goal} ml
               </div>
             </div>
             <div className="flex gap-4">
               {[250, 500].map((amt) => (
                 <button
                   key={amt}
+                  onClick={() => handleAddWater(amt)}
                   className="bg-white/10 hover:bg-white/20 p-6 rounded-3xl flex flex-col items-center gap-2 backdrop-blur-md border border-white/10 transition active:scale-95"
                 >
                   <Droplet className="w-6 h-6" />
