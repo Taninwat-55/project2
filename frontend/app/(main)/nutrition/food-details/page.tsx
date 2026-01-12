@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react'; // Added useState
 import Link from 'next/link';
 import { 
   ChevronLeft, 
@@ -11,11 +11,16 @@ import {
 } from 'lucide-react';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
+// Import the modal component you created
+import LogMealModal from '@/app/components/LogMealModal'; 
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 export default function DinnerDetailsPage() {
-  // Shared Chart Options - EXACTLY from your Nutrition Template
+  // --- MODAL STATE ---
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Shared Chart Options
   const macroOptions = {
     plugins: { tooltip: { enabled: false }, legend: { display: false } },
     responsive: true,
@@ -23,14 +28,14 @@ export default function DinnerDetailsPage() {
     cutout: '80%',
   };
 
-  // Helper to generate chart data - EXACTLY from your Nutrition Template
+  // Helper to generate chart data
   const createMacroData = (current: number, goal: number, color: string) => ({
     datasets: [
       {
         data: [current, Math.max(0, goal - current)],
         backgroundColor: [color, '#18181b'],
         borderWidth: 0,
-        borderRadius: 20, // High radius for that "pill" look
+        borderRadius: 20,
         circumference: 360,
       },
     ],
@@ -64,13 +69,17 @@ export default function DinnerDetailsPage() {
             <button className="px-8 py-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-xs font-bold uppercase tracking-widest hover:bg-zinc-800 transition">
               Change Date
             </button>
-            <button className="px-8 py-3 bg-orange-600 rounded-2xl text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-orange-500 transition active:scale-95">
+            {/* TRIGGER: Log Meal Button */}
+            <button 
+              onClick={() => setIsModalOpen(true)}
+              className="px-8 py-3 bg-orange-600 rounded-2xl text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-orange-500 transition active:scale-95"
+            >
               <Plus size={16} /> Log Meal
             </button>
           </div>
         </div>
 
-        {/* Macro Grid - EXACT styling from image_7087ae.png */}
+        {/* Macro Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {mealMacros.map((m) => (
             <div key={m.label} className="bg-zinc-900/40 p-8 rounded-[2.5rem] border border-zinc-800/50 flex flex-col items-center">
@@ -131,8 +140,8 @@ export default function DinnerDetailsPage() {
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <h4 className="font-bold text-lg">{item.name}</h4>
-                    <Pencil size={12} className="text-zinc-600 hover:text-white cursor-pointer" />
-                    <Trash2 size={12} className="text-zinc-600 hover:text-red-500 cursor-pointer" />
+                    <Pencil size={18} className="text-zinc-600 hover:text-white cursor-pointer" />
+                    <Trash2 size={18} className="text-zinc-600 hover:text-red-500 cursor-pointer" />
                   </div>
                   <span className="text-[10px] font-black tracking-widest text-zinc-500 block">{item.type}</span>
                   <span className="text-xs text-zinc-400">{item.amount}</span>
@@ -159,7 +168,11 @@ export default function DinnerDetailsPage() {
             </div>
           ))}
           
-          <button className="border-2 border-dashed border-zinc-800 rounded-[2.5rem] p-8 flex flex-col items-center justify-center text-zinc-500 hover:text-white hover:border-zinc-700 transition group min-h-[220px]">
+          {/* TRIGGER: Quick Add Item Card */}
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="border-2 border-dashed border-zinc-800 rounded-[2.5rem] p-8 flex flex-col items-center justify-center text-zinc-500 hover:text-white hover:border-zinc-700 transition group min-h-[220px]"
+          >
             <div className="w-12 h-12 rounded-full bg-zinc-900 flex items-center justify-center mb-3 group-hover:scale-110 transition">
               <Plus size={24} />
             </div>
@@ -167,6 +180,12 @@ export default function DinnerDetailsPage() {
           </button>
         </div>
       </main>
+
+      {/* MODAL COMPONENT */}
+      <LogMealModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+      />
     </div>
   );
 }
