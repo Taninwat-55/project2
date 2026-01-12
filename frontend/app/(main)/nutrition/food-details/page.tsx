@@ -12,19 +12,28 @@ import {
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 
-// Import av dina modaler
 import LogMealModal from '@/app/components/LogMealModal';
 import EditMealModal from '@/app/components/EditMealModal';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
+interface FoodItem {
+  name: string;
+  type: string;
+  amount: string;
+  kcal: number;
+  p: string;
+  c: string;
+  f: string;
+}
+
 export default function DinnerDetailsPage() {
-  // STATE FÖR MODALER
   const [isLogOpen, setIsLogOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<any>(null);
+  
+  // 2. ÄNDRA FRÅN <any> TILL <FoodItem | null>
+  const [selectedItem, setSelectedItem] = useState<FoodItem | null>(null);
 
-  // Inställningar för grafer
   const macroOptions = {
     plugins: { tooltip: { enabled: false }, legend: { display: false } },
     responsive: true,
@@ -51,15 +60,15 @@ export default function DinnerDetailsPage() {
     { label: 'Fats', val: 25, goal: 83, unit: 'g', color: '#C7831F', footerLabel: 'Balance', footerVal: 'Good' },
   ];
 
-  // Data för listan 
-  const loggedItems = [
+  // 3. TYPSA LISTAN
+  const loggedItems: FoodItem[] = [
     { name: 'Grilled Salmon', type: 'HOMEMADE', amount: '1 fillet (200g)', kcal: 412, p: '40g', c: '0g', f: '28g' },
     { name: 'Quinoa Salad', type: 'SIDE DISH', amount: '1 cup', kcal: 220, p: '8g', c: '40g', f: '4g' },
     { name: 'Steamed Broccoli', type: 'SIDE DISH', amount: '1 cup', kcal: 220, p: '8g', c: '40g', f: '4g' },
   ];
 
-  // Funktion för att öppna redigering
-  const handleEditClick = (item: any) => {
+  // 4. TYPSA PARAMETERN I FUNKTIONEN
+  const handleEditClick = (item: FoodItem) => {
     setSelectedItem(item);
     setIsEditOpen(true);
   };
@@ -142,7 +151,7 @@ export default function DinnerDetailsPage() {
           </div>
         </div>
 
-        {/* Logged Items Section */}
+        {/* Logged Items */}
         <h2 className="text-2xl font-bold mb-8">Logged Items</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {loggedItems.map((item) => (
@@ -151,13 +160,11 @@ export default function DinnerDetailsPage() {
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <h4 className="font-bold text-lg">{item.name}</h4>
-
-                    {/* EDIT BUTTON */}
                     <button onClick={() => handleEditClick(item)} className="hover:text-orange-500 transition-colors">
-                      <Pencil size={18} className="text-zinc-600" />
+                      <Pencil size={12} className="text-zinc-600" />
                     </button>
                     <button className="hover:text-red-500 transition-colors">
-                      <Trash2 size={18} className="text-zinc-600" />
+                      <Trash2 size={12} className="text-zinc-600" />
                     </button>
                   </div>
                   <span className="text-[10px] font-black tracking-widest text-zinc-500 block">{item.type}</span>
@@ -185,7 +192,6 @@ export default function DinnerDetailsPage() {
             </div>
           ))}
           
-          {/* QUICK ADD BUTTON */}
           <button 
             onClick={() => setIsLogOpen(true)}
             className="border-2 border-dashed border-zinc-800 rounded-[2.5rem] p-8 flex flex-col items-center justify-center text-zinc-500 hover:text-white hover:border-zinc-700 transition group min-h-[220px]"
@@ -198,7 +204,6 @@ export default function DinnerDetailsPage() {
         </div>
       </main>
 
-      {/* MODALER */}
       <LogMealModal 
         isOpen={isLogOpen} 
         onClose={() => setIsLogOpen(false)} 
