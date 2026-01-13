@@ -15,6 +15,16 @@ import ViewTemplateModal from "@/app/components/ViewTemplateModal";
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 // --- INTERFACES ---
+interface FoodItem {
+  name: string;
+  type: string;
+  amount: string;
+  kcal: number;
+  p: string;
+  c: string;
+  f: string;
+}
+
 interface Ingredient {
   name: string;
   kcal: number;
@@ -33,6 +43,17 @@ interface MealTemplate {
     f: number;
   };
   ingredients: Ingredient[];
+}
+
+interface TemplateData {
+  name: string;
+  ingredients: Ingredient[];
+  totals: {
+    kcal: number;
+    p: number;
+    c: number;
+    f: number;
+  };
 }
 
 export default function NutritionPage() {
@@ -61,9 +82,7 @@ export default function NutritionPage() {
     alert(`${mealName} har loggats!`);
   };
 
-  const handleSaveTemplate = (templateData: any) => {
-    // Vi använder any här i parametern för att matcha modalens onSave, 
-    // men loggar det som en template.
+  const handleSaveTemplate = (templateData: TemplateData) => {
     console.log("Sparar ny mall till databasen:", templateData);
     setIsTemplateModalOpen(false);
   };
@@ -80,9 +99,9 @@ export default function NutritionPage() {
 
   // --- CHART SETUP ---
   const macroOptions: ChartOptions<'doughnut'> = {
-    plugins: { 
-      tooltip: { enabled: false }, 
-      legend: { display: false } 
+    plugins: {
+      tooltip: { enabled: false },
+      legend: { display: false }
     },
     responsive: true,
     maintainAspectRatio: true,
@@ -265,13 +284,13 @@ export default function NutritionPage() {
       </footer>
 
       {/* Modals */}
-      <LogMealModal isOpen={isLogModalOpen} onClose={() => setIsLogModalOpen(false)} onAdd={(item: any) => console.log(item)} />
+      <LogMealModal isOpen={isLogModalOpen} onClose={() => setIsLogModalOpen(false)} onAdd={(item: FoodItem) => console.log(item)} />
       <CreateTemplateModal isOpen={isTemplateModalOpen} onClose={() => setIsTemplateModalOpen(false)} onSave={handleSaveTemplate} />
-      <ViewTemplateModal 
-        isOpen={isViewModalOpen} 
-        template={selectedTemplate} 
-        onClose={() => setIsViewModalOpen(false)} 
-        onLog={() => setIsViewModalOpen(false)} 
+      <ViewTemplateModal
+        isOpen={isViewModalOpen}
+        template={selectedTemplate}
+        onClose={() => setIsViewModalOpen(false)}
+        onLog={() => setIsViewModalOpen(false)}
       />
     </div>
   );
