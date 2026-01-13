@@ -5,10 +5,8 @@ import { Doughnut } from "react-chartjs-2";
 import { useState, useEffect } from "react";
 import { Plus, Droplet, Flame, Clock } from "lucide-react";
 
-// Server Actions
 import { logHydration, getTodayHydration } from "@/app/actions/hydration";
 
-// Komponenter
 import LogMealModal from "@/app/components/LogMealModal";
 import CreateTemplateModal from "@/app/components/CreateTemplateModal";
 import ViewTemplateModal from "@/app/components/ViewTemplateModal";
@@ -16,7 +14,6 @@ import ViewTemplateModal from "@/app/components/ViewTemplateModal";
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 export default function NutritionPage() {
-  // --- STATES ---
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const [activeMealType, setActiveMealType] = useState("");
@@ -28,7 +25,7 @@ export default function NutritionPage() {
   const goal = 2500;
   const percentage = Math.min(100, Math.round((hydration / goal) * 100));
 
-  // --- LOGIK FÖR MAT & MALLAR ---
+  // LOGIK FÖR MAT & MALLAR 
 
   const openLogModal = (mealName: string) => {
     setActiveMealType(mealName);
@@ -52,7 +49,7 @@ export default function NutritionPage() {
     setIsTemplateModalOpen(false);
   };
 
-  // --- CHART HELPERS ---
+  // CHART HELPERS
   const macroOptions = {
     plugins: { tooltip: { enabled: false }, legend: { display: false } },
     responsive: true,
@@ -311,7 +308,7 @@ export default function NutritionPage() {
               ].map((t) => (
                 <div
                   key={t.name}
-                  onClick={() => openViewTemplate(t)} // <--- LÄGG TILL DENNA RAD
+                  onClick={() => openViewTemplate(t)} 
                   className="p-5 bg-black/40 rounded-2xl border border-zinc-800 hover:border-zinc-600 transition cursor-pointer active:scale-[0.98]"
                 >
                   <div className="font-bold">{t.name}</div>

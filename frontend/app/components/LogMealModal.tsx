@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Plus, Star, Utensils, X } from 'lucide-react'; 
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, ChartOptions } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -36,7 +36,7 @@ export default function LogMealModal({ isOpen, onClose, onAdd }: Props) {
 
   if (!isOpen) return null;
 
-  // --- UPPDATERAD CHART DESIGN ---
+  // CHART DATA 
   const chartData = {
     datasets: [{
       data: [
@@ -55,14 +55,18 @@ export default function LogMealModal({ isOpen, onClose, onAdd }: Props) {
       borderWidth: 0,
       borderRadius: 20,
       circumference: 360,
-      cutout: '80%',
     }],
   };
 
-  const chartOptions = {
-    plugins: { tooltip: { enabled: false }, legend: { display: false } },
+  // CHART OPTIONS (för att dölja tooltip när alla värden är noll) 
+  const chartOptions: ChartOptions<'doughnut'> = {
+    plugins: { 
+      tooltip: { enabled: false }, 
+      legend: { display: false } 
+    },
     responsive: true,
     maintainAspectRatio: true,
+    cutout: '80%',
   };
 
   const handleAdd = () => {
@@ -86,27 +90,27 @@ export default function LogMealModal({ isOpen, onClose, onAdd }: Props) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
       <div className="relative w-full max-w-4xl bg-zinc-900 border border-zinc-800 rounded-[3rem] p-12 overflow-hidden shadow-2xl">
         
-        {/* Stäng-knapp uppe i hörnet */}
+        {/* Stäng-knapp */}
         <button onClick={onClose} className="absolute top-8 right-10 text-zinc-500 hover:text-white transition">
            <X size={24} />
         </button>
 
         {/* Header */}
         <div className="text-center mb-10">
-          <h2 className="text-4xl font-extrabold tracking-tight text-white">
+          <h2 className="text-4xl font-extrabold tracking-tight text-white uppercase">
             Add New <span className="text-orange-500">Food Item</span>
           </h2>
-          <p className="text-zinc-500 text-sm mt-2 font-medium italic">
+          <p className="text-zinc-500 text-sm mt-2 font-normal italic">
             Enter the nutritional details for your custom food item.
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-          {/* Left Column: Inputs */}
+          {/* Inputs */}
           <div className="space-y-6">
             <div className="bg-black/20 p-6 rounded-3xl border border-zinc-800/50">
               <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-4 px-1">Basic Information</h3>
-              <div className="space-y-4 text-white">
+              <div className="space-y-4 text-white font-bold">
                 <div>
                   <label className="text-[10px] font-black text-zinc-500 uppercase mb-2 block tracking-widest px-1">Food Item Name</label>
                   <input 
@@ -140,7 +144,7 @@ export default function LogMealModal({ isOpen, onClose, onAdd }: Props) {
 
             <div className="bg-black/20 p-6 rounded-3xl border border-zinc-800/50">
               <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-4 px-1">Macro Nutrients</h3>
-              <div className="space-y-4 text-white">
+              <div className="space-y-4 text-white font-bold">
                 <div>
                   <label className="text-[10px] font-black text-zinc-500 uppercase mb-2 block tracking-widest px-1">Calories (kcal)</label>
                   <input 
@@ -153,7 +157,7 @@ export default function LogMealModal({ isOpen, onClose, onAdd }: Props) {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-[10px] font-black text-zinc-500 uppercase mb-2 block flex items-center gap-2 tracking-widest italic px-1">
+                    <label className="text-[10px] font-black text-zinc-500 uppercase mb-2 block flex items-center gap-2 tracking-widest italic px-1 text-blue-400">
                       <div className="w-2 h-2 rounded-full bg-blue-500" /> Protein
                     </label>
                     <input 
@@ -165,7 +169,7 @@ export default function LogMealModal({ isOpen, onClose, onAdd }: Props) {
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] font-black text-zinc-500 uppercase mb-2 block flex items-center gap-2 tracking-widest italic px-1">
+                    <label className="text-[10px] font-black text-zinc-500 uppercase mb-2 block flex items-center gap-2 tracking-widest italic px-1 text-green-500">
                       <div className="w-2 h-2 rounded-full bg-green-500" /> Carbs
                     </label>
                     <input 
@@ -178,7 +182,7 @@ export default function LogMealModal({ isOpen, onClose, onAdd }: Props) {
                   </div>
                 </div>
                 <div>
-                  <label className="text-[10px] font-black text-zinc-500 uppercase mb-2 block flex items-center gap-2 tracking-widest italic px-1">
+                  <label className="text-[10px] font-black text-zinc-500 uppercase mb-2 block flex items-center gap-2 tracking-widest italic px-1 text-yellow-600">
                     <div className="w-2 h-2 rounded-full bg-yellow-600" /> Fats
                   </label>
                   <input 
@@ -193,7 +197,7 @@ export default function LogMealModal({ isOpen, onClose, onAdd }: Props) {
             </div>
           </div>
 
-          {/* Right Column: Preview & Template Button */}
+          {/* Preview */}
           <div className="flex flex-col">
             <div className="bg-black/20 p-8 rounded-3xl border border-zinc-800/50 flex-grow flex flex-col items-center justify-center relative">
               <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 absolute top-8">Item Preview</h3>
@@ -230,7 +234,7 @@ export default function LogMealModal({ isOpen, onClose, onAdd }: Props) {
                   <span className="text-green-500">Carbs</span>
                   <span>{formData.c || 0}g</span>
                 </div>
-                <div className="flex justify-between text-[10px] font-black uppercase tracking-widest p-4 bg-zinc-800/30 rounded-2xl border border-zinc-700/50 text-white">
+                <div className="flex justify-between text-[10px] font-black uppercase tracking-widest p-4 bg-zinc-800/30 rounded-2xl border border-zinc-800/50 text-white">
                   <span className="text-yellow-600">Fats</span>
                   <span>{formData.f || 0}g</span>
                 </div>
@@ -241,14 +245,14 @@ export default function LogMealModal({ isOpen, onClose, onAdd }: Props) {
               <h4 className="text-orange-500 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 mb-2 italic">
                 <Utensils size={14} /> Quick Tip
               </h4>
-              <p className="text-orange-200/60 text-[11px] leading-relaxed font-medium">
+              <p className="text-orange-200/60 text-[11px] leading-relaxed font-normal">
                 Templates allow you to log this exact meal combination with one click from your nutrition dashboard.
               </p>
             </div>
           </div>
         </div>
 
-        {/* Footer Buttons */}
+        {/* Footer */}
         <div className="flex justify-center gap-4 mt-12">
           <button type="button" onClick={onClose} className="px-12 py-4 bg-zinc-800 hover:bg-zinc-700 rounded-full font-black text-[10px] uppercase tracking-[0.2em] transition text-zinc-400">
             Cancel

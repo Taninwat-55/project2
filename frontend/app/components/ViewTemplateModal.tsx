@@ -1,18 +1,38 @@
 'use client';
 
 import React from 'react';
-import { X, Trash2, Utensils, Play } from 'lucide-react';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { X, Trash2, Utensils } from 'lucide-react'; // Tog bort Play härifrån
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, ChartOptions } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
+interface Ingredient {
+  name: string;
+  kcal: number;
+  p: number;
+  c: number;
+  f: number;
+}
+
+interface MealTemplate {
+  id: string;
+  name: string;
+  totals: {
+    kcal: number;
+    p: number;
+    c: number;
+    f: number;
+  };
+  ingredients: Ingredient[];
+}
+
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  template: any;
+  template: MealTemplate | null; // Bytte ut any mot MealTemplate
   onDelete?: (id: string) => void;
-  onLog: (template: any, mealType: string) => void;
+  onLog: (template: MealTemplate, mealType: string) => void;
 }
 
 export default function ViewTemplateModal({ isOpen, onClose, template, onDelete, onLog }: Props) {
@@ -20,13 +40,26 @@ export default function ViewTemplateModal({ isOpen, onClose, template, onDelete,
 
   const chartData = {
     datasets: [{
-      data: [template.totals?.p || 1, template.totals?.c || 1, template.totals?.f || 1],
+      data: [
+        template.totals?.p || 0, 
+        template.totals?.c || 0, 
+        template.totals?.f || 0
+      ],
       backgroundColor: ['#206A9E', '#51A255', '#C7831F'],
       borderWidth: 0,
       borderRadius: 20,
       circumference: 360,
-      cutout: '80%',
     }],
+  };
+
+  const chartOptions: ChartOptions<'doughnut'> = {
+    plugins: {
+      legend: { display: false },
+      tooltip: { enabled: true }
+    },
+    responsive: true,
+    maintainAspectRatio: true,
+    cutout: '80%',
   };
 
   const mealTypes = [
@@ -40,15 +73,17 @@ export default function ViewTemplateModal({ isOpen, onClose, template, onDelete,
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
       <div className="relative w-full max-w-5xl bg-zinc-900 border border-zinc-800 rounded-[3rem] p-12 shadow-2xl overflow-hidden">
         
+        {/* Stäng-knapp */}
         <button onClick={onClose} className="absolute top-8 right-10 text-zinc-500 hover:text-white transition">
            <X size={24} />
         </button>
 
+        {/* Header */}
         <div className="text-center mb-10">
           <h2 className="text-4xl font-extrabold tracking-tight text-white uppercase">
             {template.name}
           </h2>
-          <p className="text-zinc-500 text-sm mt-2 font-medium italic">Review and log your saved meal template.</p>
+          <p className="text-zinc-500 text-sm mt-2 font-normal italic">Review and log your saved meal template.</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
@@ -61,11 +96,11 @@ export default function ViewTemplateModal({ isOpen, onClose, template, onDelete,
               </h3>
               
               <div className="space-y-3 overflow-y-auto pr-2 custom-scrollbar flex-grow">
-                {template.ingredients?.map((ing: any, idx: number) => (
+                {template.ingredients?.map((ing, idx) => (
                   <div key={idx} className="flex justify-between items-center p-4 bg-zinc-800/30 border border-zinc-700/50 rounded-2xl">
                     <div className="text-left">
-                      <div className="text-sm font-bold text-white">{ing.name}</div>
-                      <div className="text-[10px] font-black text-zinc-500 uppercase italic">
+                      <div className="text-sm font-bold text-white uppercase tracking-tight">{ing.name}</div>
+                      <div className="text-[10px] font-bold text-zinc-500 uppercase italic mt-1">
                         {ing.kcal} kcal • P: {ing.p}g C: {ing.c}g F: {ing.f}g
                       </div>
                     </div>
@@ -90,7 +125,7 @@ export default function ViewTemplateModal({ isOpen, onClose, template, onDelete,
               <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 absolute top-8">Macro Distribution</h3>
               
               <div className="relative w-40 h-40 my-6">
-                <Doughnut data={chartData} options={{ plugins: { legend: { display: false } } }} />
+                <Doughnut data={chartData} options={chartOptions} />
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <span className="text-4xl font-black text-white">{template.totals?.kcal}</span>
                   <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-1">KCAL</span>
