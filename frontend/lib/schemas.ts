@@ -2,9 +2,11 @@ import { z } from "zod";
 
 // 1. Meal Schema
 export const MealSchema = z.object({
-  name: z.string().min(1, "Name is required").max(100, "Name is too long"),
-  calories: z.number().int().positive("Calories must be a positive number"),
-  protein: z.number().nonnegative().optional().nullable(), // Optional & can be 0 or null
+  name: z.string().min(1, "Namn krävs"),
+  calories: z.number().int().nonnegative("Kalorier måste vara 0 eller mer"),
+  protein: z.number().nonnegative().default(0),
+  carbs: z.number().nonnegative().default(0), 
+  fat: z.number().nonnegative().default(0),   
   type: z.enum(["breakfast", "lunch", "dinner", "snack"]),
 });
 
@@ -55,3 +57,4 @@ export const SignupSchema = z.object({
   message: "Passwords do not match",
   path: ["confirmPassword"],
 });
+
