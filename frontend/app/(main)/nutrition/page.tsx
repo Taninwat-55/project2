@@ -7,14 +7,12 @@ import { useState, useEffect } from "react";
 import { Plus, Droplet, Flame, Clock } from "lucide-react";
 
 import { logHydration, getTodayHydration } from "@/app/actions/hydration";
-
 import LogMealModal from "@/app/components/LogMealModal";
 import CreateTemplateModal from "@/app/components/CreateTemplateModal";
 import ViewTemplateModal from "@/app/components/ViewTemplateModal";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-// --- INTERFACES ---
 interface FoodItem {
   name: string;
   type: string;
@@ -36,30 +34,15 @@ interface Ingredient {
 interface MealTemplate {
   id: string;
   name: string;
-  totals: {
-    kcal: number;
-    p: number;
-    c: number;
-    f: number;
-  };
+  totals: { kcal: number; p: number; c: number; f: number; };
   ingredients: Ingredient[];
-}
-
-interface TemplateData {
-  name: string;
-  ingredients: Ingredient[];
-  totals: {
-    kcal: number;
-    p: number;
-    c: number;
-    f: number;
-  };
 }
 
 export default function NutritionPage() {
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const [hydration, setHydration] = useState(0);
+  const [activeMealType, setActiveMealType] = useState<"breakfast" | "lunch" | "dinner" | "snack">("breakfast");
 
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<MealTemplate | null>(null);
@@ -67,24 +50,16 @@ export default function NutritionPage() {
   const goal = 2500;
   const percentage = Math.min(100, Math.round((hydration / goal) * 100));
 
-  // --- HANDLERS ---
-  const openLogModal = () => {
+  // HANDLERS 
+  const openLogModal = (mealName: string) => {
+    const typeMap: Record<string, "breakfast" | "lunch" | "dinner" | "snack"> = {
+      "Breakfast": "breakfast",
+      "Lunch": "lunch",
+      "Dinner": "dinner",
+      "Snack": "snack"
+    };
+    setActiveMealType(typeMap[mealName] || "breakfast");
     setIsLogModalOpen(true);
-  };
-
-  const openViewTemplate = (template: MealTemplate) => {
-    setSelectedTemplate(template);
-    setIsViewModalOpen(true);
-  };
-
-  const handleQuickLog = (mealName: string, kcal: number) => {
-    console.log(`Loggar direkt: ${mealName} (${kcal} kcal)`);
-    alert(`${mealName} har loggats!`);
-  };
-
-  const handleSaveTemplate = (templateData: TemplateData) => {
-    console.log("Sparar ny mall till databasen:", templateData);
-    setIsTemplateModalOpen(false);
   };
 
   const handleAddWater = async (amount: number) => {
@@ -97,27 +72,21 @@ export default function NutritionPage() {
     getTodayHydration().then(setHydration);
   }, []);
 
-  // --- CHART SETUP ---
   const macroOptions: ChartOptions<'doughnut'> = {
-    plugins: {
-      tooltip: { enabled: false },
-      legend: { display: false }
-    },
+    plugins: { tooltip: { enabled: false }, legend: { display: false } },
     responsive: true,
     maintainAspectRatio: true,
     cutout: "80%",
   };
 
   const createMacroData = (current: number, target: number, color: string) => ({
-    datasets: [
-      {
+    datasets: [{
         data: [current, Math.max(0, target - current)],
         backgroundColor: [color, "#18181b"],
         borderWidth: 0,
         borderRadius: 20,
         circumference: 360,
-      },
-    ],
+    }],
   });
 
   const macroCards = [
@@ -130,7 +99,6 @@ export default function NutritionPage() {
   return (
     <div className="bg-black min-h-screen text-white font-sans selection:bg-orange-500/30">
       <main className="max-w-6xl mx-auto p-8">
-        {/* Header */}
         <div className="mb-10">
           <h1 className="text-5xl font-extrabold mb-2 tracking-tight">
             Your <span className="text-orange-500">Nutrition</span>
@@ -138,7 +106,6 @@ export default function NutritionPage() {
           <p className="text-zinc-500">Track your progress and push your limits.</p>
         </div>
 
-        {/* Macros Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {macroCards.map((m) => (
             <div key={m.label} className="bg-zinc-900/40 p-8 rounded-[2.5rem] border border-zinc-800/50 flex flex-col items-center">
@@ -164,7 +131,6 @@ export default function NutritionPage() {
           ))}
         </div>
 
-        {/* Next Up Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
           <div className="lg:col-span-2 bg-zinc-900/40 p-8 rounded-[2.5rem] border border-zinc-800/50">
             <div className="flex justify-between items-center mb-6">
@@ -180,7 +146,7 @@ export default function NutritionPage() {
               <h3 className="text-3xl font-bold mb-3">Grilled Salmon Bowl</h3>
               <p className="text-zinc-400 text-sm mb-8 max-w-md">Rich in omega-3 fatty acids and high quality protein.</p>
               <div className="flex gap-4">
-                <button onClick={() => handleQuickLog("Grilled Salmon Bowl", 580)} className="bg-orange-600 px-8 py-3 rounded-2xl font-bold text-sm active:scale-95 transition">Log Meal</button>
+                <button className="bg-orange-600 px-8 py-3 rounded-2xl font-bold text-sm active:scale-95 transition">Log Meal</button>
                 <button className="bg-zinc-800 px-8 py-3 rounded-2xl font-bold text-sm border border-zinc-700">Recipe</button>
               </div>
             </div>
@@ -198,7 +164,6 @@ export default function NutritionPage() {
           </div>
         </div>
 
-        {/* Log & Templates Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
           <div className="lg:col-span-2 bg-zinc-900/40 p-8 rounded-[2.5rem] border border-zinc-800/50">
             <div className="flex justify-between items-center mb-8">
@@ -222,7 +187,7 @@ export default function NutritionPage() {
                       <p className="text-zinc-500 text-xs">{meal.desc}</p>
                     </div>
                   </div>
-                  <button onClick={openLogModal} className="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center hover:bg-orange-600 transition">
+                  <button onClick={() => openLogModal(meal.name)} className="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center hover:bg-orange-600 transition">
                     <Plus size={20} className="text-zinc-400 group-hover:text-white" />
                   </button>
                 </div>
@@ -233,37 +198,27 @@ export default function NutritionPage() {
           <div className="bg-zinc-900/40 p-8 rounded-[2.5rem] border border-zinc-800/50 flex flex-col">
             <h2 className="text-xl font-bold mb-8">Meal Templates</h2>
             <div className="space-y-4 mb-6">
-              {[
-                {
-                  id: "1",
-                  name: "High Protein Day",
-                  totals: { kcal: 2400, p: 220, c: 180, f: 60 },
-                  ingredients: [{ name: "Chicken & Rice", kcal: 800, p: 60, c: 80, f: 10 }],
-                },
-              ].map((t) => (
-                <div key={t.id} onClick={() => openViewTemplate(t)} className="p-5 bg-black/40 rounded-2xl border border-zinc-800 hover:border-zinc-600 transition cursor-pointer active:scale-[0.98]">
-                  <div className="font-bold">{t.name}</div>
-                  <div className="text-zinc-500 text-xs mt-1 uppercase tracking-tighter">
-                    {t.totals.p}g Protein • {t.totals.kcal} kcal
-                  </div>
+              <div className="p-5 bg-black/40 rounded-2xl border border-zinc-800 hover:border-zinc-600 transition cursor-pointer active:scale-[0.98]">
+                <div className="font-bold">High Protein Day</div>
+                <div className="text-zinc-500 text-xs mt-1 uppercase tracking-tighter">
+                  220g Protein • 2400 kcal
                 </div>
-              ))}
+              </div>
             </div>
             <button onClick={() => setIsTemplateModalOpen(true)} className="w-full py-4 bg-zinc-800/50 border border-zinc-800 border-dashed rounded-2xl text-zinc-500 font-bold hover:text-white transition mt-auto">+ Create Template</button>
           </div>
         </div>
 
-        {/* Hydration Section */}
         <div className="bg-gradient-to-br from-[#E65015] to-[#BC4315] rounded-[2.5rem] p-8 relative overflow-hidden">
           <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
             <div className="flex-grow">
               <h2 className="text-4xl font-black mb-1">Hydration Status</h2>
-              <p className="text-orange-100/80 mb-8 font-medium">Keep it up! Proper hydration aids muscle recovery.</p>
+              <p className="text-orange-100/80 mb-8 font-medium">Keep it up!</p>
               <div className="h-3 w-full bg-orange-800/40 rounded-full overflow-hidden mb-4">
                 <div className="h-full bg-white rounded-full transition-all duration-1000" style={{ width: `${percentage}%` }}></div>
               </div>
               <div className="flex justify-between items-center text-xs font-black uppercase text-orange-200">
-                <span>{goal / 1000}L Daily Goal</span>
+                <span>{goal / 1000}L Goal</span>
                 <span className="text-4xl italic text-white">{percentage}%</span>
               </div>
             </div>
@@ -279,19 +234,15 @@ export default function NutritionPage() {
         </div>
       </main>
 
-      <footer className="py-16 px-6 border-t border-zinc-800 bg-black mt-12 text-center text-zinc-500 text-sm">
-        © {new Date().getFullYear()} Nexus Fitness App.
-      </footer>
-
-      {/* Modals */}
-      <LogMealModal isOpen={isLogModalOpen} onClose={() => setIsLogModalOpen(false)} onAdd={(item: FoodItem) => console.log(item)} />
-      <CreateTemplateModal isOpen={isTemplateModalOpen} onClose={() => setIsTemplateModalOpen(false)} onSave={handleSaveTemplate} />
-      <ViewTemplateModal
-        isOpen={isViewModalOpen}
-        template={selectedTemplate}
-        onClose={() => setIsViewModalOpen(false)}
-        onLog={() => setIsViewModalOpen(false)}
+      {/* MODALS */}
+      <LogMealModal 
+        isOpen={isLogModalOpen} 
+        onClose={() => setIsLogModalOpen(false)} 
+        selectedType={activeMealType} 
       />
+      
+      <CreateTemplateModal isOpen={isTemplateModalOpen} onClose={() => setIsTemplateModalOpen(false)} onSave={() => setIsTemplateModalOpen(false)} />
+      <ViewTemplateModal isOpen={isViewModalOpen} template={selectedTemplate} onClose={() => setIsViewModalOpen(false)} onLog={() => setIsViewModalOpen(false)} />
     </div>
   );
 }

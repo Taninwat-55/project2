@@ -4,27 +4,19 @@ import React, { useState } from 'react';
 import { Plus, Star, Utensils, X } from 'lucide-react'; 
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, ChartOptions } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
+import { logMeal } from "@/app/actions/nutrition"; 
 
 ChartJS.register(ArcElement, Tooltip, Legend);
-
-interface FoodItem {
-  name: string;
-  type: string;
-  amount: string;
-  kcal: number;
-  p: string;
-  c: string;
-  f: string;
-}
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (item: FoodItem) => void;
+  selectedType: "breakfast" | "lunch" | "dinner" | "snack"; 
 }
 
-export default function LogMealModal({ isOpen, onClose, onAdd }: Props) {
+export default function LogMealModal({ isOpen, onClose, selectedType }: Props) {
   const [saveAsFavorite, setSaveAsFavorite] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     serving: '100',
@@ -36,69 +28,77 @@ export default function LogMealModal({ isOpen, onClose, onAdd }: Props) {
 
   if (!isOpen) return null;
 
-  // CHART DATA 
   const chartData = {
     datasets: [{
       data: [
         Number(formData.p) || 0, 
         Number(formData.c) || 0, 
         Number(formData.f) || 0,
-        // Om alla är noll, visa en tom mörk cirkel
         (Number(formData.p) + Number(formData.c) + Number(formData.f)) === 0 ? 1 : 0
       ],
-      backgroundColor: [
-        '#206A9E', // Protein
-        '#51A255', // Carbs
-        '#C7831F', // Fats
-        '#18181b'  // Bakgrund om tom
-      ],
+      backgroundColor: ['#206A9E', '#51A255', '#C7831F', '#18181b'],
       borderWidth: 0,
       borderRadius: 20,
       circumference: 360,
     }],
   };
 
-  // CHART OPTIONS - Här sätter vi tjockleken (cutout)
   const chartOptions: ChartOptions<'doughnut'> = {
-    plugins: { 
-      tooltip: { enabled: false }, 
-      legend: { display: false } 
-    },
+    plugins: { tooltip: { enabled: false }, legend: { display: false } },
     responsive: true,
     maintainAspectRatio: true,
-    cutout: '80%', // Gör cirkeln tunn
+    cutout: '80%', 
   };
 
-  const handleAdd = () => {
-    if (!formData.name || !formData.kcal) return;
+  // HANDLER MED CONSOLE LOGS 
+  const handleAdd = async () => {
+    if (!formData.name || !formData.kcal) {
+        alert("Fyll i namn och kalorier!");
+        return;
+    }
     
-    const newItem: FoodItem = {
-      name: formData.name,
-      type: saveAsFavorite ? 'TEMPLATE' : 'MANUAL',
-      amount: `${formData.serving}g`,
-      kcal: Number(formData.kcal),
-      p: `${formData.p || 0}g`,
-      c: `${formData.c || 0}g`,
-      f: `${formData.f || 0}g`,
+    setLoading(true);
+
+    const mealData = {
+        name: formData.name,
+        type: selectedType,
+        calories: Number(formData.kcal),
+        protein: Number(formData.p) || 0,
+        carbs: Number(formData.c) || 0,
+        fat: Number(formData.f) || 0,
     };
 
-    onAdd(newItem);
-    onClose();
+    // LOGG 1: Innan skickning
+    console.log("🚀 Försöker skicka till databasen...", mealData);
+
+    const result = await logMeal(mealData);
+
+    setLoading(false);
+
+    if (result.success) {
+        // LOGG 2: Vid framgång
+        console.log(`✅ SUCCESS! Sparat i databasen under kategori: ${selectedType.toUpperCase()}`);
+        console.log("Response från server:", result);
+        
+        setFormData({ name: '', serving: '100', kcal: '', p: '', c: '', f: '' });
+        onClose();
+    } else {
+        // LOGG 3: Vid fel
+        console.error("❌ DATABASE ERROR:", result.error);
+        alert("Kunde inte spara: " + result.error);
+    }
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
       <div className="relative w-full max-w-4xl bg-zinc-900 border border-zinc-800 rounded-[3rem] p-12 overflow-hidden shadow-2xl text-left">
-        
-        {/* Stäng-knapp */}
         <button onClick={onClose} className="absolute top-8 right-10 text-zinc-500 hover:text-white transition">
            <X size={24} />
         </button>
 
-        {/* Header */}
         <div className="text-center mb-10">
           <h2 className="text-4xl font-extrabold tracking-tight text-white uppercase text-center">
-            Add New <span className="text-orange-500">Food Item</span>
+            Add New <span className="text-orange-500">{selectedType}</span> Item
           </h2>
           <p className="text-zinc-500 text-sm mt-2 font-normal italic text-center">
             Enter the nutritional details for your custom food item.
@@ -106,7 +106,6 @@ export default function LogMealModal({ isOpen, onClose, onAdd }: Props) {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-          {/* Inputs */}
           <div className="space-y-6">
             <div className="bg-black/20 p-6 rounded-3xl border border-zinc-800/50">
               <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-4 px-1">Basic Information</h3>
@@ -197,35 +196,26 @@ export default function LogMealModal({ isOpen, onClose, onAdd }: Props) {
             </div>
           </div>
 
-          {/* Preview */}
           <div className="flex flex-col text-left">
             <div className="bg-black/20 p-8 rounded-3xl border border-zinc-800/50 flex-grow flex flex-col items-center justify-center relative">
               <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 absolute top-8">Item Preview</h3>
-              
               <div className="relative w-44 h-44 my-6">
-                {/* VIKTIGT: Här lade vi till options={chartOptions} för att få rätt tjocklek */}
                 <Doughnut data={chartData} options={chartOptions} />
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <span className="text-4xl font-black text-white">{formData.kcal || 0}</span>
                   <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-1">KCAL</span>
                 </div>
               </div>
-
               <button 
                 type="button"
                 onClick={() => setSaveAsFavorite(!saveAsFavorite)}
-                className={`flex items-center gap-3 px-6 py-4 rounded-2xl border transition-all mb-8 w-full justify-center group ${
-                  saveAsFavorite 
-                  ? 'bg-orange-600 border-orange-500 text-white shadow-lg shadow-orange-900/40 scale-[1.02]' 
-                  : 'bg-zinc-800/40 border-zinc-700 text-zinc-400 hover:border-orange-500/50 hover:bg-zinc-800/60'
-                }`}
+                className={`flex items-center gap-3 px-6 py-4 rounded-2xl border transition-all mb-8 w-full justify-center group ${saveAsFavorite ? 'bg-orange-600 border-orange-500 text-white shadow-lg shadow-orange-900/40 scale-[1.02]' : 'bg-zinc-800/40 border-zinc-700 text-zinc-400 hover:border-orange-500/50 hover:bg-zinc-800/60'}`}
               >
                 {saveAsFavorite ? <Star size={16} fill="white" /> : <Star size={16} className="group-hover:text-orange-500 transition-colors" />}
                 <span className="text-[10px] font-black uppercase tracking-[0.2em]">
                   {saveAsFavorite ? 'Saved as Template' : 'Add to Meal Template'}
                 </span>
               </button>
-
               <div className="w-full space-y-2">
                 <div className="flex justify-between text-[10px] font-black uppercase tracking-widest p-4 bg-zinc-800/30 rounded-2xl border border-zinc-700/50 text-white">
                   <span className="text-blue-400">Protein</span>
@@ -241,19 +231,9 @@ export default function LogMealModal({ isOpen, onClose, onAdd }: Props) {
                 </div>
               </div>
             </div>
-
-            <div className="mt-6 bg-orange-950/20 border border-orange-900/30 p-6 rounded-3xl">
-              <h4 className="text-orange-500 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 mb-2 italic">
-                <Utensils size={14} /> Quick Tip
-              </h4>
-              <p className="text-orange-200/60 text-[11px] leading-relaxed font-normal">
-                Templates allow you to log this exact meal combination with one click from your nutrition dashboard.
-              </p>
-            </div>
           </div>
         </div>
 
-        {/* Footer */}
         <div className="flex justify-center gap-4 mt-12">
           <button type="button" onClick={onClose} className="px-12 py-4 bg-zinc-800 hover:bg-zinc-700 rounded-full font-black text-[10px] uppercase tracking-[0.2em] transition text-zinc-400">
             Cancel
@@ -261,9 +241,10 @@ export default function LogMealModal({ isOpen, onClose, onAdd }: Props) {
           <button 
             type="button"
             onClick={handleAdd}
-            className="px-12 py-4 bg-orange-600 hover:bg-orange-500 rounded-full font-black text-[10px] uppercase tracking-[0.2em] transition text-white flex items-center gap-2 shadow-xl shadow-orange-900/20 active:scale-95"
+            disabled={loading}
+            className="px-12 py-4 bg-orange-600 hover:bg-orange-500 rounded-full font-black text-[10px] uppercase tracking-[0.2em] transition text-white flex items-center gap-2 shadow-xl shadow-orange-900/20 active:scale-95 disabled:opacity-50"
           >
-            <Plus size={18} /> Add Item
+            {loading ? "Saving..." : <><Plus size={18} /> Add Item</>}
           </button>
         </div>
       </div>

@@ -194,11 +194,11 @@ export default function DinnerDetailsPage() {
         </div>
       </main>
 
-      <LogMealModal 
+      {/* <LogMealModal 
         isOpen={isLogOpen} 
         onClose={() => setIsLogOpen(false)} 
         onAdd={handleAddItem}
-      />
+      /> */}
 
       <EditMealModal 
         isOpen={isEditOpen} 
