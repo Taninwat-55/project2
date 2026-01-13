@@ -203,7 +203,7 @@ export default function LogMealModal({ isOpen, onClose, onAdd }: Props) {
               <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 absolute top-8">Item Preview</h3>
               
               <div className="relative w-44 h-44 my-6">
-                <Doughnut data={chartData} options={chartOptions} />
+                <Doughnut data={chartData} options={{ plugins: { legend: { display: false } } }} />
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <span className="text-4xl font-black text-white">{formData.kcal || 0}</span>
                   <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-1">KCAL</span>
