@@ -58,7 +58,7 @@ export default function LogMealModal({ isOpen, onClose, onAdd }: Props) {
     }],
   };
 
-  // CHART OPTIONS (för att dölja tooltip när alla värden är noll) 
+  // CHART OPTIONS - Här sätter vi tjockleken (cutout)
   const chartOptions: ChartOptions<'doughnut'> = {
     plugins: { 
       tooltip: { enabled: false }, 
@@ -66,7 +66,7 @@ export default function LogMealModal({ isOpen, onClose, onAdd }: Props) {
     },
     responsive: true,
     maintainAspectRatio: true,
-    cutout: '80%',
+    cutout: '80%', // Gör cirkeln tunn
   };
 
   const handleAdd = () => {
@@ -88,7 +88,7 @@ export default function LogMealModal({ isOpen, onClose, onAdd }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-      <div className="relative w-full max-w-4xl bg-zinc-900 border border-zinc-800 rounded-[3rem] p-12 overflow-hidden shadow-2xl">
+      <div className="relative w-full max-w-4xl bg-zinc-900 border border-zinc-800 rounded-[3rem] p-12 overflow-hidden shadow-2xl text-left">
         
         {/* Stäng-knapp */}
         <button onClick={onClose} className="absolute top-8 right-10 text-zinc-500 hover:text-white transition">
@@ -97,10 +97,10 @@ export default function LogMealModal({ isOpen, onClose, onAdd }: Props) {
 
         {/* Header */}
         <div className="text-center mb-10">
-          <h2 className="text-4xl font-extrabold tracking-tight text-white uppercase">
+          <h2 className="text-4xl font-extrabold tracking-tight text-white uppercase text-center">
             Add New <span className="text-orange-500">Food Item</span>
           </h2>
-          <p className="text-zinc-500 text-sm mt-2 font-normal italic">
+          <p className="text-zinc-500 text-sm mt-2 font-normal italic text-center">
             Enter the nutritional details for your custom food item.
           </p>
         </div>
@@ -198,12 +198,13 @@ export default function LogMealModal({ isOpen, onClose, onAdd }: Props) {
           </div>
 
           {/* Preview */}
-          <div className="flex flex-col">
+          <div className="flex flex-col text-left">
             <div className="bg-black/20 p-8 rounded-3xl border border-zinc-800/50 flex-grow flex flex-col items-center justify-center relative">
               <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 absolute top-8">Item Preview</h3>
               
               <div className="relative w-44 h-44 my-6">
-                <Doughnut data={chartData} options={{ plugins: { legend: { display: false } } }} />
+                {/* VIKTIGT: Här lade vi till options={chartOptions} för att få rätt tjocklek */}
+                <Doughnut data={chartData} options={chartOptions} />
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <span className="text-4xl font-black text-white">{formData.kcal || 0}</span>
                   <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-1">KCAL</span>

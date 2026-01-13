@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Plus, Star, Utensils, X, Trash2 } from 'lucide-react';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { Plus, Star, X, Trash2 } from 'lucide-react'; 
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, ChartOptions } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -15,7 +15,24 @@ interface Ingredient {
   f: number;
 }
 
-export default function CreateTemplateModal({ isOpen, onClose, onSave }: any) {
+interface TemplateData {
+  name: string;
+  ingredients: Ingredient[];
+  totals: {
+    kcal: number;
+    p: number;
+    c: number;
+    f: number;
+  };
+}
+
+interface Props {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (data: TemplateData) => void;
+}
+
+export default function CreateTemplateModal({ isOpen, onClose, onSave }: Props) {
   const [templateName, setTemplateName] = useState("");
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [currentIng, setCurrentIng] = useState({ name: '', kcal: '', p: '', c: '', f: '' });
@@ -29,22 +46,21 @@ export default function CreateTemplateModal({ isOpen, onClose, onSave }: any) {
     f: acc.f + curr.f,
   }), { kcal: 0, p: 0, c: 0, f: 0 });
 
-  // NY DIAGRAM-DESIGN (
   const chartData = {
     datasets: [{
       data: [totals.p || 1, totals.c || 1, totals.f || 1],
       backgroundColor: ['#206A9E', '#51A255', '#C7831F'],
       borderWidth: 0,
-      borderRadius: 20, // Ger de runda ändarna på staplarna
+      borderRadius: 20,
       circumference: 360,
-      cutout: '80%',
     }],
   };
 
-  const chartOptions = {
+  const chartOptions: ChartOptions<'doughnut'> = {
     plugins: { tooltip: { enabled: false }, legend: { display: false } },
     responsive: true,
     maintainAspectRatio: true,
+    cutout: '80%',
   };
 
   const addIngredient = () => {
@@ -68,7 +84,7 @@ export default function CreateTemplateModal({ isOpen, onClose, onSave }: any) {
         </button>
 
         <div className="text-center mb-10">
-          <h2 className="text-4xl font-extrabold tracking-tight text-white">
+          <h2 className="text-4xl font-extrabold tracking-tight text-white uppercase">
             Build Meal <span className="text-orange-500">Template</span>
           </h2>
           <p className="text-zinc-500 text-sm mt-2 font-medium italic">Combine ingredients into a saved favorite.</p>
@@ -146,13 +162,12 @@ export default function CreateTemplateModal({ isOpen, onClose, onSave }: any) {
                 </div>
               </div>
 
-              {/* tillagda items */}
               <div className="w-full space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar mt-4">
                 {ingredients.map((ing, idx) => (
                   <div key={idx} className="flex justify-between items-center p-4 bg-zinc-800/30 border border-zinc-700/50 rounded-2xl group">
                     <div className="text-left">
-                      <div className="text-sm font-bold text-white">{ing.name}</div>
-                      <div className="text-[10px] font-black text-zinc-500 uppercase">{ing.kcal} kcal</div>
+                      <div className="text-sm font-bold text-white uppercase tracking-tight">{ing.name}</div>
+                      <div className="text-[10px] font-black text-zinc-500 uppercase italic mt-1">{ing.kcal} kcal</div>
                     </div>
                     <button onClick={() => setIngredients(ingredients.filter((_, i) => i !== idx))} className="text-zinc-600 hover:text-red-500 transition">
                       <Trash2 size={16} />
