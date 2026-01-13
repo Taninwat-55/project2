@@ -1,14 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
-import Link from "next/link";
 import {
     Dumbbell,
     Flame,
     Clock,
     ClipboardList
 } from "lucide-react";
-import { motion, AnimatePresence } from 'framer-motion';
 
 import AddWorkoutModal from "@/app/components/AddWorkoutModal";
 
@@ -29,7 +26,6 @@ interface WorkoutsContentProps {
 }
 
 export default function WorkoutsContent({ initialWorkouts, stats }: WorkoutsContentProps) {
-    const [showStartVideo, setShowStartVideo] = useState(false);
 
     // --- 2. DATA ---
     const statsData = [
