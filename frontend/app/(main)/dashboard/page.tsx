@@ -1,5 +1,4 @@
 import { createClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
 import Link from "next/link";
 import {
   Flame,
@@ -101,20 +100,16 @@ function calculateStreak(dates: Date[]) {
 export default async function Dashboard() {
   const supabase = await createClient();
 
-  // Check if user is logged in
+  // Get user - middleware ensures user is authenticated
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
 
   // Fetch Workouts
   const { data: workouts } = await supabase
     .from("workouts")
     .select("*")
-    .eq("user_id", user.id)
+    .eq("user_id", user!.id)
     .order("performed_at", { ascending: false });
 
   const recentWorkouts = workouts || [];
