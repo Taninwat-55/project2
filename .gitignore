@@ -40,4 +40,4 @@ Thumbs.db
 .idea/
 
 # --- Vercel (if using for deployment) ---
-.vercel
+.vercelfrontend/tsconfig.tsbuildinfo
