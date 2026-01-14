@@ -48,6 +48,19 @@ export async function updateSession(request: NextRequest) {
         error,
     } = await supabase.auth.getUser()
 
+    // Check if profile is completed (only if user exists)
+    let profileCompleted = false
+    if (user) {
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('profile_completed')
+            .eq('id', user.id)
+            .single()
+
+        profileCompleted = profile?.profile_completed ?? false
+    }
+
+    return { user, profileCompleted, supabaseResponse }
     // Log auth errors for debugging, but don't throw to allow graceful handling
     if (error) {
         console.error('Error retrieving user from Supabase:', error.message)
