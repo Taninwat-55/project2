@@ -35,26 +35,37 @@ export default function ProgressContent({
     const [weightInput, setWeightInput] = useState(currentWeight?.toString() || '');
     const [isLogging, setIsLogging] = useState(false);
     const [logSuccess, setLogSuccess] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
 
     const handleTimeRangeChange = (range: TimeRange) => {
         setTimeRange(range);
         const months = timeRanges.find(r => r.value === range)?.months;
 
         startTransition(async () => {
-            const [newWeightHistory, newStrengthProgress] = await Promise.all([
-                getWeightHistory(months),
-                getStrengthProgress(months)
-            ]);
-            setWeightHistory(newWeightHistory);
-            setStrengthProgress(newStrengthProgress);
+            try {
+                const [newWeightHistory, newStrengthProgress] = await Promise.all([
+                    getWeightHistory(months),
+                    getStrengthProgress(months)
+                ]);
+                setWeightHistory(newWeightHistory);
+                setStrengthProgress(newStrengthProgress);
+            } catch (error) {
+                console.error('Failed to load progress data:', error);
+                // Keep existing data on error
+            }
         });
     };
 
     const handleLogWeight = async () => {
         const weight = parseFloat(weightInput);
-        if (isNaN(weight) || weight <= 0) return;
+        if (isNaN(weight) || weight <= 0) {
+            setErrorMessage('Please enter a valid weight greater than 0');
+            setTimeout(() => setErrorMessage(''), 3000);
+            return;
+        }
 
         setIsLogging(true);
+        setErrorMessage('');
         const result = await logWeight(weight);
         setIsLogging(false);
 
@@ -66,6 +77,9 @@ export default function ProgressContent({
             setWeightHistory(newHistory);
 
             setTimeout(() => setLogSuccess(false), 2000);
+        } else {
+            setErrorMessage(result.error || 'Failed to log weight');
+            setTimeout(() => setErrorMessage(''), 3000);
         }
     };
 
@@ -192,6 +206,12 @@ export default function ProgressContent({
                                     </>
                                 )}
                             </button>
+
+                            {errorMessage && (
+                                <div className="text-sm text-red-500 text-center bg-red-50 dark:bg-red-950/30 py-2 px-3 rounded-lg">
+                                    {errorMessage}
+                                </div>
+                            )}
 
                             {currentWeight && (
                                 <p className="text-sm text-[var(--muted-foreground)] text-center">
