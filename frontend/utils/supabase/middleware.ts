@@ -46,6 +46,11 @@ export async function updateSession(request: NextRequest) {
             profileCompleted = cachedStatus
         } else {
             // Fallback: query database only if not in metadata
+            // Log this to monitor cache effectiveness
+            if (process.env.NODE_ENV === 'development') {
+                console.log('Profile completion status not in metadata, querying database');
+            }
+            
             const { data: profile } = await supabase
                 .from('profiles')
                 .select('profile_completed')
