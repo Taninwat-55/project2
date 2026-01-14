@@ -7,8 +7,11 @@ export async function updateSession(request: NextRequest) {
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
     if (!supabaseUrl || !supabaseAnonKey) {
-        console.error('Missing required Supabase environment variables')
-        throw new Error('Supabase configuration is missing. Please check your environment variables.')
+        const missing = []
+        if (!supabaseUrl) missing.push('NEXT_PUBLIC_SUPABASE_URL')
+        if (!supabaseAnonKey) missing.push('NEXT_PUBLIC_SUPABASE_ANON_KEY')
+        console.error(`Missing required Supabase environment variables: ${missing.join(', ')}`)
+        throw new Error(`Supabase configuration is missing: ${missing.join(', ')}. Please check your environment variables.`)
     }
 
     let supabaseResponse = NextResponse.next({

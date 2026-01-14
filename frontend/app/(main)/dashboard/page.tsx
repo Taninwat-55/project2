@@ -1,4 +1,5 @@
 import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import {
   Flame,
@@ -108,8 +109,8 @@ export default async function Dashboard() {
   // Defensive check: if middleware somehow fails or is bypassed
   if (!user) {
     console.error('User not authenticated in dashboard despite middleware protection')
-    // This should not happen with middleware, but we handle it gracefully
-    throw new Error('Authentication required')
+    // Redirect to login instead of throwing error for better UX
+    redirect('/login?redirectTo=/dashboard')
   }
 
   // Fetch Workouts
