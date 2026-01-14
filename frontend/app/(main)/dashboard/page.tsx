@@ -100,16 +100,23 @@ function calculateStreak(dates: Date[]) {
 export default async function Dashboard() {
   const supabase = await createClient();
 
-  // Get user - middleware ensures user is authenticated
+  // Get user - middleware ensures user is authenticated, but we add defensive check
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  // Defensive check: if middleware somehow fails or is bypassed
+  if (!user) {
+    console.error('User not authenticated in dashboard despite middleware protection')
+    // This should not happen with middleware, but we handle it gracefully
+    throw new Error('Authentication required')
+  }
 
   // Fetch Workouts
   const { data: workouts } = await supabase
     .from("workouts")
     .select("*")
-    .eq("user_id", user!.id)
+    .eq("user_id", user.id)
     .order("performed_at", { ascending: false });
 
   const recentWorkouts = workouts || [];
