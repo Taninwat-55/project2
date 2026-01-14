@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { Plus, Droplet, Flame, Clock } from "lucide-react";
 
 import { logHydration, getTodayHydration } from "@/app/actions/hydration";
+import { getNutritionGoals, getTodayNutrition, NutritionGoals, TodayNutrition } from "@/app/actions/nutrition-goals";
 import LogMealModal from "@/app/components/LogMealModal";
 import CreateTemplateModal from "@/app/components/CreateTemplateModal";
 import ViewTemplateModal from "@/app/components/ViewTemplateModal";
@@ -47,8 +48,25 @@ export default function NutritionPage() {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<MealTemplate | null>(null);
 
-  const goal = 2500;
-  const percentage = Math.min(100, Math.round((hydration / goal) * 100));
+  // Dynamic goals from user profile
+  const [goals, setGoals] = useState<NutritionGoals>({
+    calorieGoal: 2000,
+    proteinG: 150,
+    carbsG: 200,
+    fatG: 55,
+    hasProfile: false,
+  });
+
+  // Today's consumed nutrition
+  const [consumed, setConsumed] = useState<TodayNutrition>({
+    caloriesConsumed: 0,
+    proteinConsumed: 0,
+    carbsConsumed: 0,
+    fatConsumed: 0,
+  });
+
+  const hydrationGoal = 2500;
+  const hydrationPercentage = Math.min(100, Math.round((hydration / hydrationGoal) * 100));
 
   // HANDLERS 
   const openLogModal = (mealName: string) => {
@@ -68,9 +86,18 @@ export default function NutritionPage() {
     if (!result.success) setHydration((prev) => prev - amount);
   };
 
+  // Fetch data on mount
   useEffect(() => {
     getTodayHydration().then(setHydration);
+    getNutritionGoals().then(setGoals);
+    getTodayNutrition().then(setConsumed);
   }, []);
+
+  // Refetch consumed when modal closes (meal was potentially logged)
+  const handleModalClose = () => {
+    setIsLogModalOpen(false);
+    getTodayNutrition().then(setConsumed);
+  };
 
   const macroOptions: ChartOptions<'doughnut'> = {
     plugins: { tooltip: { enabled: false }, legend: { display: false } },
@@ -81,19 +108,25 @@ export default function NutritionPage() {
 
   const createMacroData = (current: number, target: number, color: string) => ({
     datasets: [{
-        data: [current, Math.max(0, target - current)],
-        backgroundColor: [color, "#18181b"],
-        borderWidth: 0,
-        borderRadius: 20,
-        circumference: 360,
+      data: [current, Math.max(0, target - current)],
+      backgroundColor: [color, "#18181b"],
+      borderWidth: 0,
+      borderRadius: 20,
+      circumference: 360,
     }],
   });
 
+  // Dynamic macro cards using fetched goals and consumed values
+  const caloriesRemaining = Math.max(0, goals.calorieGoal - consumed.caloriesConsumed);
+  const proteinStatus = consumed.proteinConsumed >= goals.proteinG * 0.8 ? "High" : consumed.proteinConsumed >= goals.proteinG * 0.5 ? "Good" : "Low";
+  const carbsStatus = consumed.carbsConsumed >= goals.carbsG * 0.8 ? "Near" : consumed.carbsConsumed >= goals.carbsG * 0.5 ? "Good" : "Low";
+  const fatStatus = consumed.fatConsumed >= goals.fatG * 0.8 ? "Near" : consumed.fatConsumed >= goals.fatG * 0.5 ? "Good" : "Low";
+
   const macroCards = [
-    { label: "Daily Calories", val: 1840, goal: 2500, unit: "kcal", color: "#f97316", footerLabel: "Remaining", footerVal: "660" },
-    { label: "Protein", val: 125, goal: 180, unit: "g", color: "#206A9E", footerLabel: "Status", footerVal: "High" },
-    { label: "Carbs", val: 210, goal: 250, unit: "g", color: "#51A255", footerLabel: "Target", footerVal: "Near" },
-    { label: "Fats", val: 45, goal: 65, unit: "g", color: "#C7831F", footerLabel: "Balance", footerVal: "Good" },
+    { label: "Daily Calories", val: consumed.caloriesConsumed, goal: goals.calorieGoal, unit: "kcal", color: "#f97316", footerLabel: "Remaining", footerVal: caloriesRemaining.toString() },
+    { label: "Protein", val: consumed.proteinConsumed, goal: goals.proteinG, unit: "g", color: "#206A9E", footerLabel: "Status", footerVal: proteinStatus },
+    { label: "Carbs", val: consumed.carbsConsumed, goal: goals.carbsG, unit: "g", color: "#51A255", footerLabel: "Target", footerVal: carbsStatus },
+    { label: "Fats", val: consumed.fatConsumed, goal: goals.fatG, unit: "g", color: "#C7831F", footerLabel: "Balance", footerVal: fatStatus },
   ];
 
   return (
@@ -215,11 +248,11 @@ export default function NutritionPage() {
               <h2 className="text-4xl font-black mb-1">Hydration Status</h2>
               <p className="text-orange-100/80 mb-8 font-medium">Keep it up!</p>
               <div className="h-3 w-full bg-orange-800/40 rounded-full overflow-hidden mb-4">
-                <div className="h-full bg-white rounded-full transition-all duration-1000" style={{ width: `${percentage}%` }}></div>
+                <div className="h-full bg-white rounded-full transition-all duration-1000" style={{ width: `${hydrationPercentage}%` }}></div>
               </div>
               <div className="flex justify-between items-center text-xs font-black uppercase text-orange-200">
-                <span>{goal / 1000}L Goal</span>
-                <span className="text-4xl italic text-white">{percentage}%</span>
+                <span>{hydrationGoal / 1000}L Goal</span>
+                <span className="text-4xl italic text-white">{hydrationPercentage}%</span>
               </div>
             </div>
             <div className="flex gap-4">
@@ -235,12 +268,12 @@ export default function NutritionPage() {
       </main>
 
       {/* MODALS */}
-      <LogMealModal 
-        isOpen={isLogModalOpen} 
-        onClose={() => setIsLogModalOpen(false)} 
-        selectedType={activeMealType} 
+      <LogMealModal
+        isOpen={isLogModalOpen}
+        onClose={handleModalClose}
+        selectedType={activeMealType}
       />
-      
+
       <CreateTemplateModal isOpen={isTemplateModalOpen} onClose={() => setIsTemplateModalOpen(false)} onSave={() => setIsTemplateModalOpen(false)} />
       <ViewTemplateModal isOpen={isViewModalOpen} template={selectedTemplate} onClose={() => setIsViewModalOpen(false)} onLog={() => setIsViewModalOpen(false)} />
     </div>

@@ -51,12 +51,25 @@ export async function updateProfile(data: ProfileData) {
       location: data.location,
       phone: data.phone,
       avatar_url: data.avatarUrl,
+      profile_completed: true,
       updated_at: new Date().toISOString(),
     })
     .eq("id", user.id);
 
   if (error) {
     return { success: false, error: error.message };
+  }
+
+  // Update user metadata to cache profile completion status
+  // This reduces database queries in middleware
+  const { error: metadataError } = await supabase.auth.updateUser({
+    data: { profile_completed: true }
+  });
+
+  // Log metadata update failure but don't fail the overall operation
+  // The profile is still marked as complete in the database
+  if (metadataError) {
+    console.error('Failed to update user metadata:', metadataError);
   }
 
   revalidatePath("/dashboard");

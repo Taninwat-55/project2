@@ -13,6 +13,7 @@ cypress/screenshots
 out/
 build/
 dist/
+*.tsbuildinfo
 
 # --- Security & Environment Variables (CRITICAL) ---
 **/.env
@@ -40,4 +41,4 @@ Thumbs.db
 .idea/
 
 # --- Vercel (if using for deployment) ---
-.vercel
+.vercelfrontend/tsconfig.tsbuildinfo

@@ -2,13 +2,25 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function updateSession(request: NextRequest) {
+    // Validate required environment variables
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+        const missing = []
+        if (!supabaseUrl) missing.push('NEXT_PUBLIC_SUPABASE_URL')
+        if (!supabaseAnonKey) missing.push('NEXT_PUBLIC_SUPABASE_ANON_KEY')
+        console.error(`Missing required Supabase environment variables: ${missing.join(', ')}`)
+        throw new Error(`Supabase configuration is missing: ${missing.join(', ')}. Please check your environment variables.`)
+    }
+
     let supabaseResponse = NextResponse.next({
         request,
     })
 
     const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        supabaseUrl,
+        supabaseAnonKey,
         {
             cookies: {
                 getAll() {
@@ -33,7 +45,39 @@ export async function updateSession(request: NextRequest) {
 
     const {
         data: { user },
+        error,
     } = await supabase.auth.getUser()
 
-    return { user, supabaseResponse }
+    // Check if profile is completed (only if user exists)
+    let profileCompleted = false
+    if (user) {
+        // First, check user metadata for cached profile completion status
+        const cachedStatus = user.user_metadata?.profile_completed
+
+        if (typeof cachedStatus === 'boolean') {
+            // Use cached value from user metadata
+            profileCompleted = cachedStatus
+        } else {
+            // Fallback: query database only if not in metadata
+            // Log this to monitor cache effectiveness
+            if (process.env.NODE_ENV === 'development') {
+                console.log('Profile completion status not in metadata, querying database');
+            }
+
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('profile_completed')
+                .eq('id', user.id)
+                .single()
+
+            profileCompleted = profile?.profile_completed ?? false
+        }
+    }
+
+    // Log auth errors for debugging, but don't throw to allow graceful handling
+    if (error) {
+        console.error('Error retrieving user from Supabase:', error.message)
+    }
+
+    return { user, profileCompleted, supabaseResponse }
 }

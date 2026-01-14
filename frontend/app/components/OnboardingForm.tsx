@@ -4,9 +4,11 @@ import { useState } from "react";
 import { updateProfile } from "@/app/actions/profile";
 import { ActivityLevel, Gender } from "@/types/database";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/app/components/ToastContext";
 
 export default function OnboardingForm() {
   const router = useRouter();
+  const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -25,9 +27,10 @@ export default function OnboardingForm() {
     });
 
     if (result.success) {
+      showToast("Profile saved successfully!", "success");
       router.push("/dashboard"); // Go to dashboard after setup
     } else {
-      alert("Error: " + result.error);
+      showToast(result.error || "Failed to save profile", "error");
     }
     setLoading(false);
   };
