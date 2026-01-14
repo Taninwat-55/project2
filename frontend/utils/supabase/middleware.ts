@@ -41,7 +41,7 @@ export async function updateSession(request: NextRequest) {
         // First, check user metadata for cached profile completion status
         const cachedStatus = user.user_metadata?.profile_completed
         
-        if (cachedStatus !== undefined) {
+        if (typeof cachedStatus === 'boolean') {
             // Use cached value from user metadata
             profileCompleted = cachedStatus
         } else {
