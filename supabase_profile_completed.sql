@@ -10,6 +10,8 @@ ADD COLUMN IF NOT EXISTS profile_completed BOOLEAN DEFAULT FALSE;
 UPDATE profiles 
 SET profile_completed = TRUE 
 WHERE first_name IS NOT NULL 
+  AND last_name IS NOT NULL
+  AND gender IS NOT NULL
   AND weight_kg IS NOT NULL 
   AND height_cm IS NOT NULL 
   AND date_of_birth IS NOT NULL 

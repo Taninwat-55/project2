@@ -4,6 +4,12 @@ import { NextResponse, type NextRequest } from 'next/server'
 export async function middleware(request: NextRequest) {
     const { user, profileCompleted, supabaseResponse } = await updateSession(request)
 
+    const pathname = request.nextUrl.pathname
+
+    // Allow unauthenticated access to login, signup, and onboarding pages
+    const isAuthPage = pathname.startsWith('/login') || pathname.startsWith('/signup')
+    const isOnboardingPage = pathname.startsWith('/onboarding')
+
     // If no user and trying to access protected routes, redirect to login
     // Preserve the original URL so user can be redirected back after login
     if (!user) {
@@ -14,8 +20,8 @@ export async function middleware(request: NextRequest) {
     }
 
     // If user exists but profile is not completed, redirect to onboarding
-    // Skip this check if already on the onboarding page
-    if (!profileCompleted && !request.nextUrl.pathname.startsWith('/onboarding')) {
+    // Skip this check if already on the onboarding, login, or signup page
+    if (user && !profileCompleted && !isOnboardingPage && !isAuthPage) {
         const url = request.nextUrl.clone()
         url.pathname = '/onboarding'
         return NextResponse.redirect(url)
@@ -44,5 +50,7 @@ export const config = {
         '/support/:path*',
         '/archive/:path*',
         '/onboarding/:path*',
+        '/login/:path*',
+        '/signup/:path*',
     ],
 }
