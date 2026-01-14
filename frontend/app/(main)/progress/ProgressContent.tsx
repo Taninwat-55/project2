@@ -72,9 +72,14 @@ export default function ProgressContent({
         if (result.success) {
             setLogSuccess(true);
             // Refresh chart data
-            const months = timeRanges.find(r => r.value === timeRange)?.months;
-            const newHistory = await getWeightHistory(months);
-            setWeightHistory(newHistory);
+            try {
+                const months = timeRanges.find(r => r.value === timeRange)?.months;
+                const newHistory = await getWeightHistory(months);
+                setWeightHistory(newHistory);
+            } catch (error) {
+                console.error('Failed to refresh chart data:', error);
+                // Weight was logged successfully, just chart refresh failed
+            }
 
             setTimeout(() => setLogSuccess(false), 2000);
         } else {
