@@ -39,7 +39,6 @@ export default function OnboardingForm() {
 
     if (result.success) {
       showToast("Profile saved successfully!", "success");
-      // Navigate to dashboard after refresh trigger
       router.push("/dashboard");
     } else {
       showToast(result.error || "Failed to save profile", "error");
