@@ -27,24 +27,24 @@ export default function OnboardingForm() {
       activityLevel: formData.get("activityLevel") as ActivityLevel,
     };
 
-    console.log("[OnboardingForm] Submitting profile data:", profileData);
+    if (process.env.NODE_ENV !== "production") {
+      console.log("[OnboardingForm] Submitting profile data:", profileData);
+    }
 
     const result = await updateProfile(profileData);
 
-    console.log("[OnboardingForm] updateProfile result:", result);
+    if (process.env.NODE_ENV !== "production") {
+      console.log("[OnboardingForm] updateProfile result:", result);
+    }
 
     if (result.success) {
       showToast("Profile saved successfully!", "success");
-      // Force a full refresh to ensure middleware gets fresh session data
-      router.refresh();
-      // Small delay to ensure refresh completes before navigation
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 100);
+      router.push("/dashboard");
     } else {
       showToast(result.error || "Failed to save profile", "error");
-      setLoading(false);
     }
+    
+    setLoading(false);
   };
 
   return (
@@ -99,13 +99,13 @@ export default function OnboardingForm() {
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-gray-300 ml-1">Gender</label>
                 <div className="relative group">
-                  <input className="hidden" /> {/* Spacer or fix if needed, but select should be fine */}
                   <select
                     name="gender"
+                    defaultValue=""
                     className="w-full bg-[#1c1c1e] text-white text-sm rounded-xl py-3.5 px-4 border border-zinc-800 outline-none focus:border-[var(--color-accent)] focus:ring-1 focus:ring-[var(--color-accent)] transition-all appearance-none cursor-pointer"
                     required
                   >
-                    <option value="" disabled selected>Select Gender</option>
+                    <option value="" disabled>Select Gender</option>
                     <option value="male">Male</option>
                     <option value="female">Female</option>
                     <option value="other">Other</option>
@@ -163,10 +163,11 @@ export default function OnboardingForm() {
                   <Activity className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4 group-focus-within:text-[var(--color-accent)] transition-colors" />
                   <select
                     name="activityLevel"
+                    defaultValue=""
                     className="w-full bg-[#1c1c1e] text-white text-sm rounded-xl py-3.5 pl-10 pr-4 border border-zinc-800 outline-none focus:border-[var(--color-accent)] focus:ring-1 focus:ring-[var(--color-accent)] transition-all appearance-none cursor-pointer"
                     required
                   >
-                    <option value="" disabled selected>Select Activity Level</option>
+                    <option value="" disabled>Select Activity Level</option>
                     <option value="sedentary">Sedentary (Office job)</option>
                     <option value="lightly_active">Lightly Active (1-3 days/week)</option>
                     <option value="moderately_active">Moderately Active (3-5 days/week)</option>
