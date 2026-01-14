@@ -53,7 +53,7 @@ export async function updateSession(request: NextRequest) {
     if (user) {
         // First, check user metadata for cached profile completion status
         const cachedStatus = user.user_metadata?.profile_completed
-        
+
         if (typeof cachedStatus === 'boolean') {
             // Use cached value from user metadata
             profileCompleted = cachedStatus
@@ -63,7 +63,7 @@ export async function updateSession(request: NextRequest) {
             if (process.env.NODE_ENV === 'development') {
                 console.log('Profile completion status not in metadata, querying database');
             }
-            
+
             const { data: profile } = await supabase
                 .from('profiles')
                 .select('profile_completed')
@@ -74,11 +74,10 @@ export async function updateSession(request: NextRequest) {
         }
     }
 
-    return { user, profileCompleted, supabaseResponse }
     // Log auth errors for debugging, but don't throw to allow graceful handling
     if (error) {
         console.error('Error retrieving user from Supabase:', error.message)
     }
 
-    return { user, supabaseResponse }
+    return { user, profileCompleted, supabaseResponse }
 }
