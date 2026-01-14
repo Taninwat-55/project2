@@ -37,7 +37,20 @@ export async function updateProfile(data: ProfileData) {
     data.activityLevel as ActivityLevel
   );
 
-  const { error } = await supabase
+  console.log('[updateProfile] Attempting to update profile for user:', user.id);
+  console.log('[updateProfile] Data being sent:', {
+    first_name: data.firstName,
+    last_name: data.lastName,
+    gender: data.gender,
+    weight_kg: data.weight,
+    height_cm: data.height,
+    date_of_birth: data.dateOfBirth ? data.dateOfBirth : null,
+    activity_level: data.activityLevel,
+    daily_calorie_goal: calculatedGoal,
+    profile_completed: true,
+  });
+
+  const { error, count } = await supabase
     .from("profiles")
     .update({
       first_name: data.firstName,
@@ -56,7 +69,10 @@ export async function updateProfile(data: ProfileData) {
     })
     .eq("id", user.id);
 
+  console.log('[updateProfile] Update result - error:', error, 'count:', count);
+
   if (error) {
+    console.error('[updateProfile] Update failed:', error.message);
     return { success: false, error: error.message };
   }
 

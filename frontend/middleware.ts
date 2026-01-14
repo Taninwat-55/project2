@@ -11,8 +11,8 @@ export async function middleware(request: NextRequest) {
     const isOnboardingPage = pathname.startsWith('/onboarding')
 
     // If no user and trying to access protected routes, redirect to login
-    // Preserve the original URL so user can be redirected back after login
-    if (!user) {
+    // Skip redirect if already on auth pages (login/signup) to prevent infinite loop
+    if (!user && !isAuthPage) {
         const url = request.nextUrl.clone()
         url.pathname = '/login'
         url.searchParams.set('redirectTo', request.nextUrl.pathname)
