@@ -60,6 +60,12 @@ export async function updateProfile(data: ProfileData) {
     return { success: false, error: error.message };
   }
 
+  // Update user metadata to cache profile completion status
+  // This reduces database queries in middleware
+  await supabase.auth.updateUser({
+    data: { profile_completed: true }
+  });
+
   revalidatePath("/dashboard");
   revalidatePath("/settings");
   return { success: true };

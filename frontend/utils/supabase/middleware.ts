@@ -38,13 +38,22 @@ export async function updateSession(request: NextRequest) {
     // Check if profile is completed (only if user exists)
     let profileCompleted = false
     if (user) {
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('profile_completed')
-            .eq('id', user.id)
-            .single()
+        // First, check user metadata for cached profile completion status
+        const cachedStatus = user.user_metadata?.profile_completed
+        
+        if (cachedStatus !== undefined) {
+            // Use cached value from user metadata
+            profileCompleted = cachedStatus
+        } else {
+            // Fallback: query database only if not in metadata
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('profile_completed')
+                .eq('id', user.id)
+                .single()
 
-        profileCompleted = profile?.profile_completed ?? false
+            profileCompleted = profile?.profile_completed ?? false
+        }
     }
 
     return { user, profileCompleted, supabaseResponse }
