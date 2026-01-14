@@ -13,6 +13,7 @@ import {
   UtensilsCrossed,
   Archive,
   History,
+  TrendingUp,
   Settings,
   HelpCircle,
   LogOut,
@@ -172,6 +173,7 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
                           { name: 'Dashboard', icon: <LayoutDashboard size={16} />, href: '/dashboard' },
                           { name: 'Workouts', icon: <Dumbbell size={16} />, href: '/workouts' },
                           { name: 'Nutrition', icon: <UtensilsCrossed size={16} />, href: '/nutrition' },
+                          { name: 'Progress', icon: <TrendingUp size={16} />, href: '/progress' },
                           { name: 'Archive', icon: <Archive size={16} />, href: '/archive' },
                           { name: 'History', icon: <History size={16} />, href: '/history' },
                         ].map((item) => (
