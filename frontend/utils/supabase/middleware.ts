@@ -57,20 +57,24 @@ export async function updateSession(request: NextRequest) {
         if (typeof cachedStatus === 'boolean') {
             // Use cached value from user metadata
             profileCompleted = cachedStatus
+            console.log('[Middleware] Using cached profile_completed from metadata:', cachedStatus)
         } else {
             // Fallback: query database only if not in metadata
-            // Log this to monitor cache effectiveness
-            if (process.env.NODE_ENV === 'development') {
-                console.log('Profile completion status not in metadata, querying database');
-            }
+            console.log('[Middleware] Profile completion status not in metadata, querying database for user:', user.id)
 
-            const { data: profile } = await supabase
+            const { data: profile, error: profileError } = await supabase
                 .from('profiles')
                 .select('profile_completed')
                 .eq('id', user.id)
                 .single()
 
+            if (profileError) {
+                console.error('[Middleware] Error fetching profile:', profileError.message)
+            }
+
+            console.log('[Middleware] Database profile result:', profile)
             profileCompleted = profile?.profile_completed ?? false
+            console.log('[Middleware] Final profileCompleted value:', profileCompleted)
         }
     }
 
