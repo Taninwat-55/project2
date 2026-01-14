@@ -101,8 +101,8 @@ export default function ProgressContent({
                             onClick={() => handleTimeRangeChange(range.value)}
                             disabled={isPending}
                             className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${timeRange === range.value
-                                    ? 'bg-[var(--color-accent)] text-white'
-                                    : 'bg-[var(--card)] text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)] border border-[var(--border)]'
+                                ? 'bg-[var(--color-accent)] text-white'
+                                : 'bg-[var(--card)] text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)] border border-[var(--border)]'
                                 } ${isPending ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
                             {range.label}
@@ -133,10 +133,10 @@ export default function ProgressContent({
                             </div>
                             {weightHistory.length >= 2 && (
                                 <div className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium ${weightChange < 0
-                                        ? 'bg-green-500/20 text-green-500'
-                                        : weightChange > 0
-                                            ? 'bg-red-500/20 text-red-500'
-                                            : 'bg-[var(--muted)] text-[var(--muted-foreground)]'
+                                    ? 'bg-green-500/20 text-green-500'
+                                    : weightChange > 0
+                                        ? 'bg-red-500/20 text-red-500'
+                                        : 'bg-[var(--muted)] text-[var(--muted-foreground)]'
                                     }`}>
                                     {weightChange < 0 ? <TrendingDown className="w-4 h-4" /> : <TrendingUp className="w-4 h-4" />}
                                     {Math.abs(weightChange).toFixed(1)} kg ({weightChangePercent}%)
@@ -155,7 +155,7 @@ export default function ProgressContent({
 
                     {/* Quick Weight Log Card */}
                     <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6">
-                        <h3 className="text-lg font-bold mb-4">Log Today's Weight</h3>
+                        <h3 className="text-lg font-bold mb-4">Log Today&apos;s Weight</h3>
                         <div className="space-y-4">
                             <div>
                                 <label className="text-sm text-[var(--muted-foreground)] mb-2 block">
@@ -174,8 +174,8 @@ export default function ProgressContent({
                                 onClick={handleLogWeight}
                                 disabled={isLogging || !weightInput}
                                 className={`w-full py-3 rounded-xl font-medium transition-all flex items-center justify-center gap-2 ${logSuccess
-                                        ? 'bg-green-500 text-white'
-                                        : 'bg-[var(--color-accent)] text-white hover:opacity-90'
+                                    ? 'bg-green-500 text-white'
+                                    : 'bg-[var(--color-accent)] text-white hover:opacity-90'
                                     } ${(isLogging || !weightInput) ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
                                 {isLogging ? (
