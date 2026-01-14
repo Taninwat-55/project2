@@ -103,7 +103,7 @@ export async function getStrengthProgress(months?: number): Promise<StrengthProg
 
     exercises.forEach(ex => {
         const performedAt = workoutDates.get(ex.workout_id);
-        if (!performedAt || ex.weight_kg === null) return;
+        if (!performedAt) return;
 
         const dateStr = new Date(performedAt).toLocaleDateString('en-US', {
             month: 'short',
