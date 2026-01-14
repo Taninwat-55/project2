@@ -37,18 +37,20 @@ export async function updateProfile(data: ProfileData) {
     data.activityLevel as ActivityLevel
   );
 
-  console.log('[updateProfile] Attempting to update profile for user:', user.id);
-  console.log('[updateProfile] Data being sent:', {
-    first_name: data.firstName,
-    last_name: data.lastName,
-    gender: data.gender,
-    weight_kg: data.weight,
-    height_cm: data.height,
-    date_of_birth: data.dateOfBirth ? data.dateOfBirth : null,
-    activity_level: data.activityLevel,
-    daily_calorie_goal: calculatedGoal,
-    profile_completed: true,
-  });
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('[updateProfile] Attempting to update profile for user:', user.id);
+    console.log('[updateProfile] Data being sent:', {
+      first_name: data.firstName,
+      last_name: data.lastName,
+      gender: data.gender,
+      weight_kg: data.weight,
+      height_cm: data.height,
+      date_of_birth: data.dateOfBirth ? data.dateOfBirth : null,
+      activity_level: data.activityLevel,
+      daily_calorie_goal: calculatedGoal,
+      profile_completed: true,
+    });
+  }
 
   const { error, count } = await supabase
     .from("profiles")
@@ -69,7 +71,9 @@ export async function updateProfile(data: ProfileData) {
     })
     .eq("id", user.id);
 
-  console.log('[updateProfile] Update result - error:', error, 'count:', count);
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('[updateProfile] Update result - error:', error, 'count:', count);
+  }
 
   if (error) {
     console.error('[updateProfile] Update failed:', error.message);
