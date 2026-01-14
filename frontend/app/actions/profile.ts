@@ -51,6 +51,7 @@ export async function updateProfile(data: ProfileData) {
       location: data.location,
       phone: data.phone,
       avatar_url: data.avatarUrl,
+      profile_completed: true,
       updated_at: new Date().toISOString(),
     })
     .eq("id", user.id);

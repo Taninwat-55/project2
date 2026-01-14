@@ -84,6 +84,7 @@ export type Database = {
           last_name: string | null
           location: string | null
           phone: string | null
+          profile_completed: boolean | null
           updated_at: string
           weight_kg: number | null
         }
@@ -102,6 +103,7 @@ export type Database = {
           last_name?: string | null
           location?: string | null
           phone?: string | null
+          profile_completed?: boolean | null
           updated_at?: string
           weight_kg?: number | null
         }
@@ -120,6 +122,7 @@ export type Database = {
           last_name?: string | null
           location?: string | null
           phone?: string | null
+          profile_completed?: boolean | null
           updated_at?: string
           weight_kg?: number | null
         }

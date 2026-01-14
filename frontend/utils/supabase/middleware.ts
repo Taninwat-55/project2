@@ -35,5 +35,17 @@ export async function updateSession(request: NextRequest) {
         data: { user },
     } = await supabase.auth.getUser()
 
-    return { user, supabaseResponse }
+    // Check if profile is completed (only if user exists)
+    let profileCompleted = false
+    if (user) {
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('profile_completed')
+            .eq('id', user.id)
+            .single()
+
+        profileCompleted = profile?.profile_completed ?? false
+    }
+
+    return { user, profileCompleted, supabaseResponse }
 }
