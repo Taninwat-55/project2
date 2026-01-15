@@ -14,6 +14,8 @@ This folder contains SQL migrations for the Supabase database. Run these in orde
 | 6 | `006_hydration.sql` | Creates hydration_logs table for water tracking |
 | 7 | `007_weight_logs.sql` | Creates weight_logs table for body weight tracking |
 | 8 | `008_fix_profile_completed.sql` | One-time fix for existing users' profile_completed status |
+| 9 | `010_workouts_status.sql` | Adds status column and RLS policies for workouts |
+| 10 | `011_user_settings.sql` | Creates user_settings table for preferences persistence |
 
 ## How to Run
 

@@ -19,6 +19,7 @@ import {
     Target,
 } from "lucide-react";
 import { signOut } from "@/app/(auth)/actions";
+import { getUserSettings, updateFitnessPreferences } from "@/app/actions/settings";
 
 const sidebarTabs = [
     { id: "account", label: "Account", icon: UserIcon, href: "/settings" },
@@ -37,13 +38,15 @@ const activityLevels = [
 export default function FitnessPreferencesPage() {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [msg, setMsg] = useState<{ type: "success" | "error", text: string } | null>(null);
     const router = useRouter();
 
     // Preferences state
     const [distanceUnit, setDistanceUnit] = useState<"kilometers" | "miles">("kilometers");
     const [weightUnit, setWeightUnit] = useState<"kilograms" | "pounds">("kilograms");
     const [energyUnit, setEnergyUnit] = useState<"calories" | "kilojoules">("calories");
-    const [primaryFocus, setPrimaryFocus] = useState("weight_loss");
+    const [primaryFocus, setPrimaryFocus] = useState("general_fitness");
     const [weeklyGoal, setWeeklyGoal] = useState(4);
     const [activityLevel, setActivityLevel] = useState("lightly_active");
 
@@ -53,18 +56,52 @@ export default function FitnessPreferencesPage() {
     );
 
     useEffect(() => {
-        supabase.auth.getUser().then(({ data: { user } }) => {
+        const load = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
                 router.push("/login");
                 return;
             }
             setUser(user);
+
+            // Load settings from database
+            const settings = await getUserSettings();
+            setDistanceUnit(settings.distance_unit);
+            setWeightUnit(settings.weight_unit);
+            setEnergyUnit(settings.energy_unit);
+            setPrimaryFocus(settings.primary_focus);
+            setWeeklyGoal(settings.weekly_goal);
+            setActivityLevel(settings.activity_level);
+
             setLoading(false);
-        });
+        };
+        load();
     }, [router, supabase.auth]);
 
     const handleSignOut = async () => {
         await signOut();
+    };
+
+    const handleSave = async () => {
+        setSaving(true);
+        setMsg(null);
+
+        const result = await updateFitnessPreferences({
+            distance_unit: distanceUnit,
+            weight_unit: weightUnit,
+            energy_unit: energyUnit,
+            primary_focus: primaryFocus,
+            weekly_goal: weeklyGoal,
+            activity_level: activityLevel,
+        });
+
+        if (result.success) {
+            setMsg({ type: "success", text: "Preferences saved successfully!" });
+        } else {
+            setMsg({ type: "error", text: result.error || "Failed to save" });
+        }
+        setSaving(false);
+        setTimeout(() => setMsg(null), 3000);
     };
 
     if (loading) {
@@ -172,7 +209,7 @@ export default function FitnessPreferencesPage() {
 
                                 {/* Weight */}
                                 <div>
-                                    <label className="text-sm text-[var(--muted-foreground)] mb-3 block">weight</label>
+                                    <label className="text-sm text-[var(--muted-foreground)] mb-3 block">Weight</label>
                                     <div className="flex bg-[var(--muted)] rounded-xl p-1">
                                         <button
                                             onClick={() => setWeightUnit("kilograms")}
@@ -300,12 +337,24 @@ export default function FitnessPreferencesPage() {
                         </div>
 
                         {/* Action Buttons */}
+                        {msg && (
+                            <div className={`p-4 mb-4 rounded-lg border ${msg.type === 'success' ? 'bg-green-500/10 border-green-500 text-green-500' : 'bg-red-500/10 border-red-500 text-red-500'}`}>
+                                {msg.text}
+                            </div>
+                        )}
                         <div className="flex justify-end gap-4 pt-4 border-t border-[var(--border)]">
-                            <button className="px-6 py-3 border border-[var(--border)] rounded-full text-sm font-medium hover:bg-[var(--muted)] transition-colors">
+                            <button
+                                onClick={() => router.refresh()}
+                                className="px-6 py-3 border border-[var(--border)] rounded-full text-sm font-medium hover:bg-[var(--muted)] transition-colors"
+                            >
                                 Cancel
                             </button>
-                            <button className="px-6 py-3 bg-[var(--color-accent)] rounded-full text-sm font-bold hover:bg-orange-600 transition-colors">
-                                Save Changes
+                            <button
+                                onClick={handleSave}
+                                disabled={saving}
+                                className="px-6 py-3 bg-[var(--color-accent)] rounded-full text-sm font-bold hover:bg-orange-600 transition-colors disabled:opacity-50"
+                            >
+                                {saving ? "Saving..." : "Save Changes"}
                             </button>
                         </div>
                     </div>
