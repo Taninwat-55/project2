@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { signOut } from "@/app/(auth)/actions";
 import { useTheme } from "@/app/components/ThemeProvider";
+import { getUserSettings, updateDisplaySettings } from "@/app/actions/settings";
 
 const sidebarTabs = [
     { id: "account", label: "Account", icon: UserIcon, href: "/settings" },
@@ -56,6 +57,8 @@ function ToggleSwitch({ enabled, onChange }: { enabled: boolean; onChange: (valu
 export default function DisplayPage() {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [msg, setMsg] = useState<{ type: "success" | "error", text: string } | null>(null);
     const router = useRouter();
 
     // Use global theme context
@@ -72,18 +75,46 @@ export default function DisplayPage() {
     );
 
     useEffect(() => {
-        supabase.auth.getUser().then(({ data: { user } }) => {
+        const load = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
                 router.push("/login");
                 return;
             }
             setUser(user);
+
+            // Load settings from database
+            const settings = await getUserSettings();
+            setFontSize(settings.font_size);
+            setReduceMotion(settings.reduce_motion);
+            setHighContrast(settings.high_contrast);
+
             setLoading(false);
-        });
+        };
+        load();
     }, [router, supabase.auth]);
 
     const handleSignOut = async () => {
         await signOut();
+    };
+
+    const handleSave = async () => {
+        setSaving(true);
+        setMsg(null);
+
+        const result = await updateDisplaySettings({
+            font_size: fontSize,
+            reduce_motion: reduceMotion,
+            high_contrast: highContrast,
+        });
+
+        if (result.success) {
+            setMsg({ type: "success", text: "Display settings saved!" });
+        } else {
+            setMsg({ type: "error", text: result.error || "Failed to save" });
+        }
+        setSaving(false);
+        setTimeout(() => setMsg(null), 3000);
     };
 
     const resetDefaults = () => {
@@ -274,12 +305,24 @@ export default function DisplayPage() {
                         </div>
 
                         {/* Action Buttons */}
+                        {msg && (
+                            <div className={`p-4 mb-4 rounded-lg border ${msg.type === 'success' ? 'bg-green-500/10 border-green-500 text-green-500' : 'bg-red-500/10 border-red-500 text-red-500'}`}>
+                                {msg.text}
+                            </div>
+                        )}
                         <div className="flex justify-end gap-4 pt-4 border-t border-[var(--border)]">
-                            <button className="px-6 py-3 border border-[var(--border)] rounded-full text-sm font-medium hover:bg-[var(--muted)] transition-colors">
+                            <button
+                                onClick={() => router.refresh()}
+                                className="px-6 py-3 border border-[var(--border)] rounded-full text-sm font-medium hover:bg-[var(--muted)] transition-colors"
+                            >
                                 Cancel
                             </button>
-                            <button className="px-6 py-3 bg-[var(--color-accent)] rounded-full text-sm font-bold hover:bg-orange-600 transition-colors">
-                                Save Changes
+                            <button
+                                onClick={handleSave}
+                                disabled={saving}
+                                className="px-6 py-3 bg-[var(--color-accent)] rounded-full text-sm font-bold hover:bg-orange-600 transition-colors disabled:opacity-50"
+                            >
+                                {saving ? "Saving..." : "Save Changes"}
                             </button>
                         </div>
                     </div>
