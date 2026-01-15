@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dumbbell,
   Flame,
@@ -18,7 +18,7 @@ import { Trash2 } from "lucide-react";
 // Types
 // --------------------------------------------------
 interface Workout {
-  id: number;
+  id: string;
   title: string;
   duration: string;
   calories: string;
@@ -42,8 +42,13 @@ export default function WorkoutsContent({
   mode = 'workouts',
 }: WorkoutsContentProps) {
   const [workouts, setWorkouts] = useState<Workout[]>(initialWorkouts);
-  const [savingId, setSavingId] = useState<number | null>(null);
+  const [savingId, setSavingId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+
+  // Sync state when server data changes (after router.refresh())
+  useEffect(() => {
+    setWorkouts(initialWorkouts);
+  }, [initialWorkouts]);
 
   // --------------------------------------------------
   // SAVE (only used on workouts page)
@@ -67,59 +72,59 @@ export default function WorkoutsContent({
     setSavingId(null);
   };
 
-    // --------------------------------------------------
-    // DELETE (only used on archive page)
-    const handleDelete = async (id: number) => {
+  // --------------------------------------------------
+  // DELETE (only used on archive page)
+  const handleDelete = async (id: string) => {
     // 1. Immediate log to see if the button even works
     console.log("Button clicked for ID:", id);
-    
+
     // 2. Alert to interrupt the UI
     if (!window.confirm("Confirm Permanent Delete?")) return;
 
     setSavingId(id);
-    
-    try {
-        const result = await deleteWorkout(id);
-        console.log("Server response:", result);
 
-        if (result.success) {
-            setMessage("Deleted!");
-            // FORCE REFRESH: This is the most reliable way to clear the UI
-            window.location.reload(); 
-        } else {
-            alert("Error: " + result.error);
-        }
+    try {
+      const result = await deleteWorkout(id);
+      console.log("Server response:", result);
+
+      if (result.success) {
+        setMessage("Deleted!");
+        // FORCE REFRESH: This is the most reliable way to clear the UI
+        window.location.reload();
+      } else {
+        alert("Error: " + result.error);
+      }
     } catch (err) {
-        console.error("Critical error in handleDelete:", err);
+      console.error("Critical error in handleDelete:", err);
     } finally {
-        setSavingId(null);
+      setSavingId(null);
     }
-};
+  };
 
   const statsData = stats
     ? [
-        {
-          label: 'Workouts this week',
-          value: stats.thisWeek.toString(),
-          icon: Dumbbell,
-          color: 'bg-orange-500/20 text-orange-500',
-        },
-        {
-          label: 'Calories burned',
-          value: stats.calories,
-          icon: Flame,
-          color: 'bg-red-500/20 text-red-500',
-        },
-        {
-          label: 'Active Minutes',
-          value: stats.activeMinutes,
-          icon: Clock,
-          color: 'bg-green-500/20 text-green-500',
-        },
-      ]
+      {
+        label: 'Workouts this week',
+        value: stats.thisWeek.toString(),
+        icon: Dumbbell,
+        color: 'bg-orange-500/20 text-orange-500',
+      },
+      {
+        label: 'Calories burned',
+        value: stats.calories,
+        icon: Flame,
+        color: 'bg-red-500/20 text-red-500',
+      },
+      {
+        label: 'Active Minutes',
+        value: stats.activeMinutes,
+        icon: Clock,
+        color: 'bg-green-500/20 text-green-500',
+      },
+    ]
     : [];
 
- return (
+  return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] relative">
       {/* Success/Error Message Overlay */}
       {message && (
@@ -237,7 +242,7 @@ export default function WorkoutsContent({
                         className="p-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all disabled:opacity-50"
                       >
                         {savingId === item.id ? (
-                           <Loader2 size={16} className="animate-spin" />
+                          <Loader2 size={16} className="animate-spin" />
                         ) : (
                           <Trash2 size={16} />
                         )}

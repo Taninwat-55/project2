@@ -10,12 +10,12 @@ type WorkoutData = z.infer<typeof WorkoutSchema>;
 // ----------------------------------------------------
 // 1. SAVE WORKOUT TO ARCHIVE (Moves existing record)
 // ----------------------------------------------------
-export async function saveToArchive(workout: { 
-  id: number; // We need the ID to find the specific record
-  title: string; 
-  duration: string; 
-  calories: string; 
-  category?: string; 
+export async function saveToArchive(workout: {
+  id: string; // We need the ID to find the specific record
+  title: string;
+  duration: string;
+  calories: string;
+  category?: string;
   description?: string;
 }) {
   const supabase = await createClient();
@@ -25,13 +25,13 @@ export async function saveToArchive(workout: {
   // We simply UPDATE the status of the existing workout.
   // This removes it from getUserWorkouts (active) 
   // and moves it to getArchivedWorkouts (completed)
-  const { error } = await supabase
+  const { error, count } = await supabase
     .from("workouts")
-    .update({ 
+    .update({
       status: "completed",
       type: workout.category || "General",
       notes: workout.description
-    })
+    }, { count: 'exact' })
     .eq("id", workout.id)
     .eq("user_id", user.id);
 
@@ -40,10 +40,17 @@ export async function saveToArchive(workout: {
     return { success: false, error: error.message };
   }
 
+  if (count === 0) {
+    console.error("saveToArchive: No rows updated. Check RLS policy or ownership.");
+    return { success: false, error: "Could not archive workout. You may not own this workout." };
+  }
+
+  console.log("saveToArchive success for ID:", workout.id, "Rows affected:", count);
+
   // Tell Next.js to clear the cache so the list updates immediately
   revalidatePath("/workouts");
   revalidatePath("/archive");
-  
+
   return { success: true };
 }
 
@@ -104,7 +111,7 @@ export async function getUserWorkouts(limit: number = 20) {
   }
 
   return data.map(workout => ({
-    id: workout.id,
+    id: workout.id as string,
     title: workout.name,
     duration: `${workout.duration_minutes} min`,
     calories: `${workout.calories_burned} kcal`,
@@ -138,10 +145,15 @@ export async function getArchivedWorkouts(limit: number = 50) {
     .order("performed_at", { ascending: false })
     .limit(limit);
 
-  if (error) return [];
+  if (error) {
+    console.error("getArchivedWorkouts Error:", error.message);
+    return [];
+  }
+
+  console.log("getArchivedWorkouts Data:", data); // DEBUG LOG
 
   return data.map(workout => ({
-    id: workout.id,
+    id: workout.id as string,
     title: workout.name,
     duration: `${workout.duration_minutes} min`,
     calories: `${workout.calories_burned} kcal`,
@@ -191,12 +203,12 @@ export async function getWorkoutStats() {
 // ----------------------------------------------------
 // 6. DELETE WORKOUT (Permanent Removal)
 // ----------------------------------------------------
-export async function deleteWorkout(id: number) {
+export async function deleteWorkout(id: string) {
   console.log("Attempting to delete workout with ID:", id); // Check your terminal for this!
-  
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  
+
   if (!user) return { success: false, error: "Not authenticated" };
 
   const { error, count } = await supabase
@@ -215,7 +227,7 @@ export async function deleteWorkout(id: number) {
   }
 
   // Force all pages to dump their cache and get fresh data
-  revalidatePath("/", "layout"); 
-  
+  revalidatePath("/", "layout");
+
   return { success: true };
 }
