@@ -1,11 +1,11 @@
-import { ContactForm } from "@/app/components/contact-form";
-import { ContactInfo } from "@/app/components/contact-info";
-import PageTransition from "@/app/components/page-transition"; // [1] Import the wrapper
+import { ContactForm } from "@/app/components/ContactForm";
+import { ContactInfo } from "@/app/components/ContactInfo";
+import PageTransition from "@/app/components/PageTransition"; // [1] Import the wrapper
 
 export default function ContactPage() {
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-orange-500/30">
-      
+
       {/* [2] Wrap the main content area */}
       <PageTransition>
         <main className="max-w-7xl mx-auto px-6 py-12 lg:py-20">
