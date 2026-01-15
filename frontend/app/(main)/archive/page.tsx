@@ -10,9 +10,8 @@ import {
   ChevronRight,
   PlusCircle,
 } from 'lucide-react';
-import { getUserWorkouts } from '@/app/actions/workouts';
+import { getArchivedWorkouts } from '@/app/actions/workouts';
 
-// 1. Define the Workout Interface
 interface Workout {
   id: string;
   title: string;
@@ -37,15 +36,15 @@ export default async function ArchivePage({
   if (!user) redirect('/login');
 
   // 2. Fetch Data
-  const workoutsData = await getUserWorkouts();
-  
+  const workoutsData = await getArchivedWorkouts();
+
   // 3. Clean and Sort Data (Newest First)
   const allWorkouts = (Array.isArray(workoutsData) ? workoutsData : [])
     .map((w: unknown) => w as Workout)
     .sort((a, b) => {
-        const dateA = new Date(a.created_at || a.date || 0).getTime();
-        const dateB = new Date(b.created_at || b.date || 0).getTime();
-        return dateB - dateA;
+      const dateA = new Date(a.created_at || a.date || 0).getTime();
+      const dateB = new Date(b.created_at || b.date || 0).getTime();
+      return dateB - dateA;
     });
 
   // 4. Stats Calculation
@@ -84,7 +83,7 @@ export default async function ArchivePage({
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <main className="max-w-[1400px] mx-auto px-6 md:px-12 py-8">
-        
+
         {/* Header */}
         <div className="mb-8 flex justify-between items-end">
           <div>
@@ -130,8 +129,8 @@ export default async function ArchivePage({
             {displayedWorkouts.map((workout) => {
               const rawDate = workout.created_at || workout.date;
               const dateObj = rawDate ? new Date(rawDate) : null;
-              const dateLabel = dateObj && !isNaN(dateObj.getTime()) 
-                ? dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) 
+              const dateLabel = dateObj && !isNaN(dateObj.getTime())
+                ? dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
                 : 'Recent';
 
               return (
@@ -176,9 +175,8 @@ export default async function ArchivePage({
             <div className="flex items-center gap-4 md:gap-6 px-4 md:px-6 py-3 bg-[var(--card)] border border-[var(--border)] rounded-2xl shadow-xl backdrop-blur-md">
               <Link
                 href={`?page=${Math.max(1, currentPage - 1)}`}
-                className={`flex items-center gap-2 text-sm font-bold transition-all ${
-                  currentPage === 1 ? 'opacity-20 pointer-events-none' : 'text-white hover:text-orange-500'
-                }`}
+                className={`flex items-center gap-2 text-sm font-bold transition-all ${currentPage === 1 ? 'opacity-20 pointer-events-none' : 'text-white hover:text-orange-500'
+                  }`}
               >
                 <ChevronLeft size={20} strokeWidth={2.5} />
                 <span>Previous</span>
@@ -198,9 +196,8 @@ export default async function ArchivePage({
 
               <Link
                 href={`?page=${Math.min(totalPages, currentPage + 1)}`}
-                className={`flex items-center gap-2 text-sm font-bold transition-all ${
-                  currentPage === totalPages ? 'opacity-20 pointer-events-none' : 'text-white hover:text-orange-500'
-                }`}
+                className={`flex items-center gap-2 text-sm font-bold transition-all ${currentPage === totalPages ? 'opacity-20 pointer-events-none' : 'text-white hover:text-orange-500'
+                  }`}
               >
                 <span>Next</span>
                 <ChevronRight size={20} strokeWidth={2.5} />

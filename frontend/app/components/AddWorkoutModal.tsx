@@ -1,12 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, X, Dumbbell, Timer, Flame, ChevronRight, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 import { logWorkout } from '@/app/actions/workouts';
 
 export default function AddWorkoutModal() {
+    const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
     const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
     const [errorMessage, setErrorMessage] = useState('');
@@ -45,6 +47,7 @@ export default function AddWorkoutModal() {
 
         if (result.success) {
             setStatus('success');
+            router.refresh(); // Trigger server data refresh
             setTimeout(() => {
                 setStatus('idle');
                 setIsOpen(false);
@@ -56,7 +59,7 @@ export default function AddWorkoutModal() {
                 setReps('');
                 setWeight('');
                 setDistance('');
-            }, 2000);
+            }, 1500);
         } else {
             setStatus('error');
             setErrorMessage(result.error || 'Failed to save workout');
