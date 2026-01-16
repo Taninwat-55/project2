@@ -49,3 +49,28 @@ export async function getTodayMeals() {
 
   return data || [];
 }
+
+// Funktion för att spara måltidsmallar
+export async function saveMealTemplate(data: any) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Unauthorized" };
+
+  const { error } = await supabase.from("meal_templates").insert({
+    user_id: user.id,
+    name: data.name,
+    ingredients: data.ingredients, 
+    total_kcal: data.totals.kcal,
+    total_protein: data.totals.p,
+    total_carbs: data.totals.c,
+    total_fat: data.totals.f,
+  });
+
+  if (error) {
+    console.error("Database Error:", error);
+    return { success: false, error: error.message };
+  }
+  
+  revalidatePath("/nutrition");
+  return { success: true };
+}

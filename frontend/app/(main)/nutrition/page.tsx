@@ -225,7 +225,6 @@ export default function NutritionPage() {
       </div>
     </Link>
 
-    {/* Behåll plus-knappen för att öppna modalen direkt */}
     <button 
       onClick={(e) => {
         e.preventDefault(); // Hindrar länken från att triggas
