@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Plus, Star, Utensils, X } from 'lucide-react';
+import { Plus, Star, X } from 'lucide-react';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, ChartOptions } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 import { logMeal } from "@/app/actions/nutrition";

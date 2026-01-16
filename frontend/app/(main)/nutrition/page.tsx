@@ -14,16 +14,6 @@ import ViewTemplateModal from "@/app/components/ViewTemplateModal";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-interface FoodItem {
-  name: string;
-  type: string;
-  amount: string;
-  kcal: number;
-  p: string;
-  c: string;
-  f: string;
-}
-
 interface Ingredient {
   name: string;
   kcal: number;
@@ -47,6 +37,7 @@ export default function NutritionPage() {
 
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<MealTemplate | null>(null);
+  // Note: setSelectedTemplate and selectedTemplate are used via ViewTemplateModal
 
   // Dynamic goals from user profile
   const [goals, setGoals] = useState<NutritionGoals>({
@@ -206,35 +197,35 @@ export default function NutritionPage() {
               </div>
             </div>
             <div className="space-y-4">
-{ [
-    { icon: "🥐", name: "Breakfast", type: "breakfast" },
-    { icon: "🍲", name: "Lunch", type: "lunch" },
-    { icon: "🥗", name: "Dinner", type: "dinner" },
-    { icon: "🍎", name: "Snack", type: "snack" },
-].map((meal) => (
-  <div 
-    key={meal.name} 
-    className="flex justify-between items-center p-5 bg-black/40 rounded-2xl border border-zinc-800 hover:bg-zinc-800/40 transition group cursor-pointer"
-  >
-    {/* Gör hela vänstra delen klickbar till historik-sidan */}
-    <Link href={`/nutrition/${meal.type}`} className="flex items-center gap-5 flex-grow">
-      <div className="w-12 h-12 bg-zinc-800 rounded-xl flex items-center justify-center text-xl">{meal.icon}</div>
-      <div>
-        <h4 className="font-bold">{meal.name}</h4>
-        <p className="text-zinc-500 text-xs">View history</p>
-      </div>
-    </Link>
+              {[
+                { icon: "🥐", name: "Breakfast", type: "breakfast" },
+                { icon: "🍲", name: "Lunch", type: "lunch" },
+                { icon: "🥗", name: "Dinner", type: "dinner" },
+                { icon: "🍎", name: "Snack", type: "snack" },
+              ].map((meal) => (
+                <div
+                  key={meal.name}
+                  className="flex justify-between items-center p-5 bg-black/40 rounded-2xl border border-zinc-800 hover:bg-zinc-800/40 transition group cursor-pointer"
+                >
+                  {/* Gör hela vänstra delen klickbar till historik-sidan */}
+                  <Link href={`/nutrition/${meal.type}`} className="flex items-center gap-5 flex-grow">
+                    <div className="w-12 h-12 bg-zinc-800 rounded-xl flex items-center justify-center text-xl">{meal.icon}</div>
+                    <div>
+                      <h4 className="font-bold">{meal.name}</h4>
+                      <p className="text-zinc-500 text-xs">View history</p>
+                    </div>
+                  </Link>
 
-    <button 
-      onClick={(e) => {
-        e.preventDefault(); // Hindrar länken från att triggas
-        openLogModal(meal.name);
-      }} 
-      className="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center hover:bg-orange-600 transition"
-    >
-      <Plus size={20} className="text-zinc-400 group-hover:text-white" />
-    </button>
-  </div>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault(); // Hindrar länken från att triggas
+                      openLogModal(meal.name);
+                    }}
+                    className="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center hover:bg-orange-600 transition"
+                  >
+                    <Plus size={20} className="text-zinc-400 group-hover:text-white" />
+                  </button>
+                </div>
               ))}
             </div>
           </div>

@@ -6,7 +6,6 @@ import { ChevronLeft, Calendar, Plus, Pencil, Trash2 } from 'lucide-react';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 
-import LogMealModal from '@/app/components/LogMealModal';
 import EditMealModal from '@/app/components/EditMealModal';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -22,9 +21,10 @@ interface FoodItem {
 }
 
 export default function DinnerDetailsPage() {
-  const [isLogOpen, setIsLogOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<FoodItem | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_isLogOpen, setIsLogOpen] = useState(false);
 
   // LOGIK: Använd useState för listan så att den kan uppdateras
   const [loggedItems, setLoggedItems] = useState<FoodItem[]>([
@@ -32,12 +32,7 @@ export default function DinnerDetailsPage() {
     { name: 'Quinoa Salad', type: 'SIDE DISH', amount: '1 cup', kcal: 220, p: '8g', c: '40g', f: '4g' },
   ]);
 
-  // Funktion för att lägga till nytt objekt från modalen
-  const handleAddItem = (newItem: FoodItem) => {
-    setLoggedItems([...loggedItems, newItem]);
-  };
-
-  // Funktion för att ta bort objekt
+  // Function to delete item
   const handleDelete = (name: string) => {
     setLoggedItems(loggedItems.filter(item => item.name !== name));
   };
@@ -75,7 +70,7 @@ export default function DinnerDetailsPage() {
   return (
     <div className="bg-black min-h-screen text-white font-sans selection:bg-orange-500/30">
       <main className="max-w-6xl mx-auto p-8">
-        
+
         {/* Header Section */}
         <div className="flex justify-between items-end mb-10">
           <div>
@@ -90,7 +85,7 @@ export default function DinnerDetailsPage() {
             </p>
           </div>
           <div className="flex gap-4">
-            <button 
+            <button
               onClick={() => setIsLogOpen(true)}
               className="px-8 py-4 bg-orange-600 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2 hover:bg-orange-500 transition active:scale-95 shadow-lg shadow-orange-900/20"
             >
@@ -137,7 +132,7 @@ export default function DinnerDetailsPage() {
             </div>
           </div>
           <div className="h-4 bg-orange-900/30 rounded-full overflow-hidden border border-orange-400/20">
-            <div className="h-full bg-white rounded-full transition-all duration-1000" style={{ width: `${(totalKcal/1000)*100}%` }} />
+            <div className="h-full bg-white rounded-full transition-all duration-1000" style={{ width: `${(totalKcal / 1000) * 100}%` }} />
           </div>
         </div>
 
@@ -150,7 +145,7 @@ export default function DinnerDetailsPage() {
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <h4 className="font-bold text-lg">{item.name}</h4>
-                    <button onClick={() => {setSelectedItem(item); setIsEditOpen(true);}} className="text-zinc-600 hover:text-white transition-colors">
+                    <button onClick={() => { setSelectedItem(item); setIsEditOpen(true); }} className="text-zinc-600 hover:text-white transition-colors">
                       <Pencil size={18} />
                     </button>
                     <button onClick={() => handleDelete(item.name)} className="text-zinc-600 hover:text-red-500 transition-colors">
@@ -181,8 +176,8 @@ export default function DinnerDetailsPage() {
               </div>
             </div>
           ))}
-          
-          <button 
+
+          <button
             onClick={() => setIsLogOpen(true)}
             className="border-2 border-dashed border-zinc-800 rounded-[2.5rem] p-8 flex flex-col items-center justify-center text-zinc-600 hover:text-white hover:border-zinc-700 transition min-h-[220px] group"
           >
@@ -200,9 +195,9 @@ export default function DinnerDetailsPage() {
         onAdd={handleAddItem}
       /> */}
 
-      <EditMealModal 
-        isOpen={isEditOpen} 
-        onClose={() => setIsEditOpen(false)} 
+      <EditMealModal
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
         itemData={selectedItem}
       />
     </div>
