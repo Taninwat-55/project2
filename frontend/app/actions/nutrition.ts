@@ -4,6 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
+// MealSchema is used as type via z.infer
 const MealSchema = z.object({
   name: z.string().min(1),
   type: z.enum(["breakfast", "lunch", "dinner", "snack"]),
@@ -29,7 +30,7 @@ export async function logMeal(data: z.infer<typeof MealSchema>) {
   });
 
   if (error) return { success: false, error: error.message };
-  
+
   revalidatePath("/nutrition");
   return { success: true };
 }
@@ -51,7 +52,11 @@ export async function getTodayMeals() {
 }
 
 // Funktion för att spara måltidsmallar
-export async function saveMealTemplate(data: any) {
+export async function saveMealTemplate(data: {
+  name: string;
+  ingredients: { name: string; kcal: number; p: number; c: number; f: number }[];
+  totals: { kcal: number; p: number; c: number; f: number };
+}) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { success: false, error: "Unauthorized" };
@@ -59,7 +64,7 @@ export async function saveMealTemplate(data: any) {
   const { error } = await supabase.from("meal_templates").insert({
     user_id: user.id,
     name: data.name,
-    ingredients: data.ingredients, 
+    ingredients: data.ingredients,
     total_kcal: data.totals.kcal,
     total_protein: data.totals.p,
     total_carbs: data.totals.c,
@@ -70,7 +75,7 @@ export async function saveMealTemplate(data: any) {
     console.error("Database Error:", error);
     return { success: false, error: error.message };
   }
-  
+
   revalidatePath("/nutrition");
   return { success: true };
 }

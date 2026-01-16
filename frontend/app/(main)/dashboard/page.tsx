@@ -180,10 +180,6 @@ export default async function Dashboard({
   ).size;
 
   // Weekly totals by category
-  const weeklyRunning = thisWeekWorkouts
-    .filter(w => w.type === "Running")
-    .reduce((acc, w) => acc + (w.distance || 0), 0);
-
   const weeklyStrength = new Set(
     thisWeekWorkouts.filter(w => w.type === "Weight lifting").map(w => new Date(w.performed_at).toDateString())
   ).size;
