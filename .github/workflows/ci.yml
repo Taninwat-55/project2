@@ -8,13 +8,18 @@ on:
 
 jobs:
   test:
-    name: Run Tests & Lint
+    name: Run Tests, Lint & Build
     runs-on: ubuntu-latest
 
     # define where the frontend code lives
     defaults:
       run:
         working-directory: ./frontend
+
+    env:
+      # Dummy values for build (not used in production)
+      NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-key
 
     steps:
       - name: Check out code
@@ -35,3 +40,6 @@ jobs:
 
       - name: Run Tests
         run: npm run test:ci
+
+      - name: Build (catches TypeScript errors)
+        run: npm run build
