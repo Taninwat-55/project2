@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { Plus, Star, X, Trash2 } from 'lucide-react'; 
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, ChartOptions } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
+// Importera din server action
+import { saveMealTemplate } from "@/app/actions/nutrition";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -36,6 +38,7 @@ export default function CreateTemplateModal({ isOpen, onClose, onSave }: Props) 
   const [templateName, setTemplateName] = useState("");
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [currentIng, setCurrentIng] = useState({ name: '', kcal: '', p: '', c: '', f: '' });
+  const [isSaving, setIsSaving] = useState(false);
 
   if (!isOpen) return null;
 
@@ -73,6 +76,32 @@ export default function CreateTemplateModal({ isOpen, onClose, onSave }: Props) 
       f: Number(currentIng.f || 0),
     }]);
     setCurrentIng({ name: '', kcal: '', p: '', c: '', f: '' });
+  };
+
+  // NY FUNKTION FÖR ATT HANTERA SPARNING TILL DB 
+  const handleInternalSave = async () => {
+    if (!templateName || ingredients.length === 0) {
+      alert("Fyll i namn och lägg till ingredienser!");
+      return;
+    }
+
+    setIsSaving(true);
+    const templateData = { name: templateName, ingredients, totals };
+
+    try {
+      const result = await saveMealTemplate(templateData);
+      if (result.success) {
+        console.log("✅ Mall sparad!");
+        onSave(templateData); 
+        onClose();
+      } else {
+        alert("Error: " + result.error);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -195,11 +224,11 @@ export default function CreateTemplateModal({ isOpen, onClose, onSave }: Props) 
           </button>
           <button 
             type="button"
-            onClick={() => onSave({ name: templateName, ingredients, totals })}
-            disabled={ingredients.length === 0}
+            onClick={handleInternalSave}
+            disabled={ingredients.length === 0 || isSaving}
             className="px-12 py-4 bg-orange-600 hover:bg-orange-500 rounded-full font-black text-[10px] uppercase tracking-[0.2em] transition text-white flex items-center gap-2 shadow-xl shadow-orange-900/20 disabled:opacity-30"
           >
-            <Plus size={18} /> Save Template
+            {isSaving ? "Saving..." : <><Plus size={18} /> Save Template</>}
           </button>
         </div>
       </div>
