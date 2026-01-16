@@ -98,7 +98,25 @@ function calculateStreak(dates: Date[]) {
   return streak;
 }
 
-export default async function Dashboard() {
+// Helper to get start of current week (Monday)
+function getWeekStart() {
+  const now = new Date();
+  const day = now.getDay();
+  const diff = now.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
+  const monday = new Date(now.setDate(diff));
+  monday.setHours(0, 0, 0, 0);
+  return monday;
+}
+
+
+export default async function Dashboard({
+  searchParams,
+}: {
+  searchParams: Promise<{ filter?: string }>;
+}) {
+  const params = await searchParams;
+  const activeFilter = params.filter || "All Activities";
+
   const supabase = await createClient();
 
   // Get user - middleware ensures user is authenticated, but we add defensive check
@@ -113,6 +131,15 @@ export default async function Dashboard() {
     redirect('/login?redirectTo=/dashboard')
   }
 
+  // Fetch user settings for weekly goal target
+  const { data: userSettings } = await supabase
+    .from("user_settings")
+    .select("weekly_goal")
+    .eq("user_id", user.id)
+    .single();
+
+  const weeklyGoalTarget = userSettings?.weekly_goal || 4; // Default to 4 days
+
   // Fetch Workouts
   const { data: workouts } = await supabase
     .from("workouts")
@@ -120,16 +147,99 @@ export default async function Dashboard() {
     .eq("user_id", user.id)
     .order("performed_at", { ascending: false });
 
-  const recentWorkouts = workouts || [];
+  const allWorkouts = workouts || [];
 
-  // Calculate Stats
-  const totalWorkouts = recentWorkouts.length;
-  const totalDurationMinutes = recentWorkouts.reduce((acc, curr) => acc + (curr.duration_minutes || 0), 0);
-  const totalCaloriesBurned = recentWorkouts.reduce((acc, curr) => acc + (curr.calories_burned || 0), 0);
+  // Generate dynamic filter tabs from user's actual workout types
+  const uniqueTypes = [...new Set(allWorkouts.map(w => w.type).filter(Boolean))];
+  const filterTabs = [
+    { label: "All Activities", type: null },
+    ...uniqueTypes.slice(0, 5).map(type => ({ label: type, type })) // Limit to 5 types
+  ];
+
+  // Filter workouts for display based on selected filter
+  const recentWorkouts = activeFilter === "All Activities"
+    ? allWorkouts
+    : allWorkouts.filter(w => w.type === activeFilter);
+
+  // Calculate Stats (always use all workouts for stats)
+  const totalWorkouts = allWorkouts.length;
+  const totalDurationMinutes = allWorkouts.reduce((acc, curr) => acc + (curr.duration_minutes || 0), 0);
+  const totalCaloriesBurned = allWorkouts.reduce((acc, curr) => acc + (curr.calories_burned || 0), 0);
 
   // Prepare dates for streak calculation
-  const workoutDates = recentWorkouts.map(w => new Date(w.performed_at));
+  const workoutDates = allWorkouts.map(w => new Date(w.performed_at));
   const currentStreak = calculateStreak(workoutDates);
+
+  // Calculate Weekly Data
+  const weekStart = getWeekStart();
+  const thisWeekWorkouts = allWorkouts.filter(w => new Date(w.performed_at) >= weekStart);
+
+  // Count unique days with workouts this week
+  const uniqueWorkoutDays = new Set(
+    thisWeekWorkouts.map(w => new Date(w.performed_at).toDateString())
+  ).size;
+
+  // Weekly totals by category
+  const weeklyRunning = thisWeekWorkouts
+    .filter(w => w.type === "Running")
+    .reduce((acc, w) => acc + (w.distance || 0), 0);
+
+  const weeklyStrength = new Set(
+    thisWeekWorkouts.filter(w => w.type === "Weight lifting").map(w => new Date(w.performed_at).toDateString())
+  ).size;
+
+  const weeklyCardio = thisWeekWorkouts
+    .filter(w => ["Running", "Cycling"].includes(w.type))
+    .reduce((acc, w) => acc + (w.duration_minutes || 0), 0);
+
+  // Dynamic Weekly Goals
+  const weeklyGoals = [
+    {
+      label: "Workouts",
+      current: uniqueWorkoutDays,
+      target: weeklyGoalTarget,
+      unit: "days",
+      color: "bg-orange-500"
+    },
+    {
+      label: "Strength",
+      current: weeklyStrength,
+      target: 3,
+      unit: "days",
+      color: "bg-blue-500"
+    },
+    {
+      label: "Cardio",
+      current: weeklyCardio,
+      target: 120,
+      unit: "min",
+      color: "bg-purple-500"
+    },
+  ];
+
+  // Dynamic Weekly Records
+  const longestWorkout = thisWeekWorkouts.length > 0
+    ? thisWeekWorkouts.reduce((max, w) => (w.duration_minutes || 0) > (max.duration_minutes || 0) ? w : max, thisWeekWorkouts[0])
+    : null;
+
+  const highestCalorieWorkout = thisWeekWorkouts.length > 0
+    ? thisWeekWorkouts.reduce((max, w) => (w.calories_burned || 0) > (max.calories_burned || 0) ? w : max, thisWeekWorkouts[0])
+    : null;
+
+  const weeklyRecords = [
+    {
+      label: "Longest Workout",
+      value: longestWorkout ? formatDuration(longestWorkout.duration_minutes || 0) : "—",
+      subtext: longestWorkout ? longestWorkout.name : "No workouts yet",
+      icon: Trophy
+    },
+    {
+      label: "Most Calories",
+      value: highestCalorieWorkout ? `${highestCalorieWorkout.calories_burned} kcal` : "—",
+      subtext: highestCalorieWorkout ? highestCalorieWorkout.name : "No workouts yet",
+      icon: Flame
+    },
+  ];
 
   // Stats Data
   const statsData = [
@@ -180,7 +290,7 @@ export default async function Dashboard() {
 
   const activityData = last7Days.map(date => {
     const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
-    const dayWorkouts = recentWorkouts.filter(w => w.performed_at.startsWith(dateStr));
+    const dayWorkouts = allWorkouts.filter(w => w.performed_at.startsWith(dateStr));
     const value = dayWorkouts.reduce((acc, w) => acc + (w.duration_minutes || 0), 0);
     return {
       day: date.toLocaleDateString('en-US', { weekday: 'short' }), // Mon, Tue...
@@ -190,23 +300,8 @@ export default async function Dashboard() {
   });
 
   const maxVal = Math.max(...activityData.map((d) => d.value));
-  const maxActivityValue = maxVal > 60 ? maxVal : 60; // Minimum scale unless zero
+  const maxActivityValue = maxVal > 60 ? maxVal : 60; // Minimum scale
 
-  // Placeholder for Goals and Records (These require more complex schema/backend logic not present yet)
-  const weeklyGoals = [
-    { label: "Running", current: 35, target: 45, unit: "km", color: "bg-orange-500" },
-    { label: "Strength", current: 3, target: 5, unit: "days", color: "bg-blue-500" },
-    { label: "Mindfulness", current: 10, target: 60, unit: "min", color: "bg-purple-500" },
-  ];
-
-  // Weekly Records (Placeholder for now)
-  const weeklyRecords = [
-    { label: "Longest Run", value: "24:32 min", subtext: "Tuesday", icon: Trophy },
-    { label: "Max Volume", value: "1850 kg", subtext: "Yesterday", icon: Dumbbell },
-  ];
-
-  // Filter tabs
-  const filterTabs = ["All Activities", "Running", "Cycling", "Weight lifting", "Yoga"];
 
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
@@ -220,18 +315,19 @@ export default async function Dashboard() {
           <p className="text-[var(--muted-foreground)] text-sm">Deep dive into your fitness metrics and progress.</p>
         </div>
 
-        {/* Filter Tabs (Visual only for now) */}
+        {/* Filter Tabs */}
         <div className="flex flex-wrap gap-3 mb-8">
-          {filterTabs.map((tab, index) => (
-            <button
-              key={tab}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${index === 0
+          {filterTabs.map((tab) => (
+            <Link
+              key={tab.label}
+              href={tab.label === "All Activities" ? "/dashboard" : `/dashboard?filter=${encodeURIComponent(tab.label)}`}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeFilter === tab.label
                 ? "bg-[var(--color-accent)] text-white"
                 : "bg-[var(--card)] text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)] border border-[var(--border)]"
                 }`}
             >
-              {tab}
-            </button>
+              {tab.label}
+            </Link>
           ))}
         </div>
 
@@ -304,9 +400,17 @@ export default async function Dashboard() {
 
           {/* Right Column */}
           <div className="space-y-6">
-            {/* Weekly Goals - Placeholder for now as we don't have user goals table yet */}
+            {/* Weekly Goals */}
             <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5">
-              <h3 className="text-lg font-bold mb-4">Weekly Goals</h3>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-bold">Weekly Goals</h3>
+                <Link
+                  href="/settings/fitness-preferences"
+                  className="text-xs text-[var(--muted-foreground)] hover:text-[var(--color-accent)] transition-colors"
+                >
+                  Edit
+                </Link>
+              </div>
               <div className="space-y-4">
                 {weeklyGoals.map((goal) => (
                   <div key={goal.label} className="space-y-2">
