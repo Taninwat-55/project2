@@ -79,3 +79,22 @@ export async function saveMealTemplate(data: {
   revalidatePath("/nutrition");
   return { success: true };
 }
+
+// Funktion för att se sparande måltidsmallar
+export async function getMealTemplates() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from("meal_templates")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching templates:", error.message);
+    return [];
+  }
+
+  return data || [];
+}
