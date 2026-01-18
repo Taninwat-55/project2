@@ -19,7 +19,7 @@ import {
   NutritionGoals,
   TodayNutrition,
 } from "@/app/actions/nutrition-goals";
-import { getMealTemplates } from "@/app/actions/nutrition";
+import { getMealTemplates, logMealFromTemplate } from "@/app/actions/nutrition";
 import LogMealModal from "@/app/components/LogMealModal";
 import CreateTemplateModal from "@/app/components/CreateTemplateModal";
 import ViewTemplateModal from "@/app/components/ViewTemplateModal";
@@ -95,6 +95,17 @@ export default function NutritionPage() {
     fetchData();
   }, []);
 
+  // NY FUNKTION: Hanterar loggning av en mall till dagboken
+  const handleLogTemplate = async (template: any, mealType: string) => {
+    const result = await logMealFromTemplate(template, mealType);
+    if (result.success) {
+      setIsViewModalOpen(false);
+      fetchData(); // Uppdaterar all statistik på sidan direkt
+    } else {
+      alert("Error logging template: " + result.error);
+    }
+  };
+
   const openLogModal = (mealName: string) => {
     const typeMap: Record<string, "breakfast" | "lunch" | "dinner" | "snack"> =
       {
@@ -142,6 +153,7 @@ export default function NutritionPage() {
     0,
     goals.calorieGoal - consumed.caloriesConsumed
   );
+
   const proteinStatus =
     consumed.proteinConsumed >= goals.proteinG * 0.8
       ? "High"
@@ -422,7 +434,7 @@ export default function NutritionPage() {
             : null
         }
         onClose={() => setIsViewModalOpen(false)}
-        onLog={handleModalClose}
+        onLog={handleLogTemplate} 
       />
     </div>
   );
