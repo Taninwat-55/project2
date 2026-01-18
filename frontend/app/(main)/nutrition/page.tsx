@@ -10,7 +10,7 @@ import {
 } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
 import { useState, useEffect } from "react";
-import { Plus, Droplet, Flame, Clock } from "lucide-react";
+import { Plus, Droplet } from "lucide-react";
 
 import { logHydration, getTodayHydration } from "@/app/actions/hydration";
 import {
@@ -37,10 +37,16 @@ interface Ingredient {
 interface MealTemplate {
   id: string;
   name: string;
-  total_kcal: number;
-  total_protein: number;
-  total_carbs: number;
-  total_fat: number;
+  total_kcal?: number;
+  total_protein?: number;
+  total_carbs?: number;
+  total_fat?: number;
+  totals?: {
+    kcal: number;
+    p: number;
+    c: number;
+    f: number;
+  };
   ingredients: Ingredient[];
 }
 
@@ -96,7 +102,7 @@ export default function NutritionPage() {
   }, []);
 
   // NY FUNKTION: Hanterar loggning av en mall till dagboken
-  const handleLogTemplate = async (template: any, mealType: string) => {
+  const handleLogTemplate = async (template: MealTemplate, mealType: string) => {
     const result = await logMealFromTemplate(template, mealType);
     if (result.success) {
       setIsViewModalOpen(false);
@@ -108,12 +114,12 @@ export default function NutritionPage() {
 
   const openLogModal = (mealName: string) => {
     const typeMap: Record<string, "breakfast" | "lunch" | "dinner" | "snack"> =
-      {
-        Breakfast: "breakfast",
-        Lunch: "lunch",
-        Dinner: "dinner",
-        Snack: "snack",
-      };
+    {
+      Breakfast: "breakfast",
+      Lunch: "lunch",
+      Dinner: "dinner",
+      Snack: "snack",
+    };
     setActiveMealType(typeMap[mealName] || "breakfast");
     setIsLogModalOpen(true);
   };
@@ -158,20 +164,20 @@ export default function NutritionPage() {
     consumed.proteinConsumed >= goals.proteinG * 0.8
       ? "High"
       : consumed.proteinConsumed >= goals.proteinG * 0.5
-      ? "Good"
-      : "Low";
+        ? "Good"
+        : "Low";
   const carbsStatus =
     consumed.carbsConsumed >= goals.carbsG * 0.8
       ? "Near"
       : consumed.carbsConsumed >= goals.carbsG * 0.5
-      ? "Good"
-      : "Low";
+        ? "Good"
+        : "Low";
   const fatStatus =
     consumed.fatConsumed >= goals.fatG * 0.8
       ? "Near"
       : consumed.fatConsumed >= goals.fatG * 0.5
-      ? "Good"
-      : "Low";
+        ? "Good"
+        : "Low";
 
   const macroCards = [
     {
@@ -423,18 +429,18 @@ export default function NutritionPage() {
         template={
           selectedTemplate
             ? {
-                ...selectedTemplate,
-                totals: {
-                  kcal: selectedTemplate.total_kcal,
-                  p: selectedTemplate.total_protein,
-                  c: selectedTemplate.total_carbs,
-                  f: selectedTemplate.total_fat,
-                },
-              }
+              ...selectedTemplate,
+              totals: {
+                kcal: selectedTemplate.total_kcal || 0,
+                p: selectedTemplate.total_protein || 0,
+                c: selectedTemplate.total_carbs || 0,
+                f: selectedTemplate.total_fat || 0,
+              },
+            }
             : null
         }
         onClose={() => setIsViewModalOpen(false)}
-        onLog={handleLogTemplate} 
+        onLog={handleLogTemplate}
       />
     </div>
   );

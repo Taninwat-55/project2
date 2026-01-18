@@ -4,7 +4,20 @@ import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-// MealSchema is used as type via z.infer
+interface MealTemplateData {
+  name: string;
+  total_kcal?: number;
+  total_protein?: number;
+  total_carbs?: number;
+  total_fat?: number;
+  totals?: {
+    kcal: number;
+    p: number;
+    c: number;
+    f: number;
+  };
+}
+
 const MealSchema = z.object({
   name: z.string().min(1),
   type: z.enum(["breakfast", "lunch", "dinner", "snack"]),
@@ -100,7 +113,7 @@ export async function getMealTemplates() {
 }
 
 // Funktion för att logga en måltid från en mall
-export async function logMealFromTemplate(template: any, type: string) {
+export async function logMealFromTemplate(template: MealTemplateData, type: string) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { success: false, error: "Unauthorized" };
@@ -117,7 +130,7 @@ export async function logMealFromTemplate(template: any, type: string) {
   });
 
   if (error) return { success: false, error: error.message };
-  
+
   revalidatePath("/nutrition");
   return { success: true };
 }
