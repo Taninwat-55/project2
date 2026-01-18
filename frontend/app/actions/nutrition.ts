@@ -98,3 +98,26 @@ export async function getMealTemplates() {
 
   return data || [];
 }
+
+// Funktion för att logga en måltid från en mall
+export async function logMealFromTemplate(template: any, type: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Unauthorized" };
+
+  const { error } = await supabase.from("meal_logs").insert({
+    user_id: user.id,
+    name: template.name,
+    meal_type: type,
+    // Vi mappar från mallens fält till meal_logs fält
+    calories: template.total_kcal || template.totals?.kcal,
+    protein_g: template.total_protein || template.totals?.p,
+    carbs_g: template.total_carbs || template.totals?.c,
+    fat_g: template.total_fat || template.totals?.f,
+  });
+
+  if (error) return { success: false, error: error.message };
+  
+  revalidatePath("/nutrition");
+  return { success: true };
+}
