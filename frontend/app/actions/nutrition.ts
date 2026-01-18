@@ -1,8 +1,22 @@
-'use server';
+"use server";
 
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+
+interface MealTemplateData {
+  name: string;
+  total_kcal?: number;
+  total_protein?: number;
+  total_carbs?: number;
+  total_fat?: number;
+  totals?: {
+    kcal: number;
+    p: number;
+    c: number;
+    f: number;
+  };
+}
 
 const MealSchema = z.object({
   name: z.string().min(1),
@@ -13,17 +27,12 @@ const MealSchema = z.object({
   fat: z.number(),
 });
 
-interface MealTemplateInput {
-  name: string;
-  total_kcal: number;
-  total_protein: number;
-  total_carbs: number;
-  total_fat: number;
-}
-
 export async function logMeal(data: z.infer<typeof MealSchema>) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   if (!user) return { success: false, error: "Unauthorized" };
 
   const { error } = await supabase.from("meal_logs").insert({
@@ -44,7 +53,10 @@ export async function logMeal(data: z.infer<typeof MealSchema>) {
 
 export async function getTodayMeals() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   if (!user) return [];
 
   const today = new Date();
@@ -64,7 +76,10 @@ export async function saveMealTemplate(data: {
   totals: { kcal: number; p: number; c: number; f: number };
 }) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   if (!user) return { success: false, error: "Unauthorized" };
 
   const { error } = await supabase.from("meal_templates").insert({
@@ -88,7 +103,10 @@ export async function saveMealTemplate(data: {
 
 export async function getMealTemplates() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   if (!user) return [];
 
   const { data, error } = await supabase
@@ -104,9 +122,15 @@ export async function getMealTemplates() {
   return data || [];
 }
 
-export async function logMealFromTemplate(template: MealTemplateInput, type: string) {
+export async function logMealFromTemplate(
+  template: MealTemplateData,
+  type: string
+) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   if (!user) return { success: false, error: "Unauthorized" };
 
   const { error } = await supabase.from("meal_logs").insert({
@@ -120,7 +144,7 @@ export async function logMealFromTemplate(template: MealTemplateInput, type: str
   });
 
   if (error) return { success: false, error: error.message };
-  
+
   revalidatePath("/nutrition");
   return { success: true };
 }
