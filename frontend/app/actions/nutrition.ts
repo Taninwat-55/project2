@@ -1,4 +1,4 @@
-'use server';
+"use server";
 
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
@@ -29,7 +29,10 @@ const MealSchema = z.object({
 
 export async function logMeal(data: z.infer<typeof MealSchema>) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   if (!user) return { success: false, error: "Unauthorized" };
 
   const { error } = await supabase.from("meal_logs").insert({
@@ -50,7 +53,10 @@ export async function logMeal(data: z.infer<typeof MealSchema>) {
 
 export async function getTodayMeals() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   if (!user) return [];
 
   const today = new Date();
@@ -64,14 +70,16 @@ export async function getTodayMeals() {
   return data || [];
 }
 
-// Funktion för att spara måltidsmallar
 export async function saveMealTemplate(data: {
   name: string;
   ingredients: { name: string; kcal: number; p: number; c: number; f: number }[];
   totals: { kcal: number; p: number; c: number; f: number };
 }) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   if (!user) return { success: false, error: "Unauthorized" };
 
   const { error } = await supabase.from("meal_templates").insert({
@@ -93,10 +101,12 @@ export async function saveMealTemplate(data: {
   return { success: true };
 }
 
-// Funktion för att se sparande måltidsmallar
 export async function getMealTemplates() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   if (!user) return [];
 
   const { data, error } = await supabase
@@ -112,21 +122,25 @@ export async function getMealTemplates() {
   return data || [];
 }
 
-// Funktion för att logga en måltid från en mall
-export async function logMealFromTemplate(template: MealTemplateData, type: string) {
+export async function logMealFromTemplate(
+  template: MealTemplateData,
+  type: string
+) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   if (!user) return { success: false, error: "Unauthorized" };
 
   const { error } = await supabase.from("meal_logs").insert({
     user_id: user.id,
     name: template.name,
     meal_type: type,
-    // Vi mappar från mallens fält till meal_logs fält
-    calories: template.total_kcal || template.totals?.kcal,
-    protein_g: template.total_protein || template.totals?.p,
-    carbs_g: template.total_carbs || template.totals?.c,
-    fat_g: template.total_fat || template.totals?.f,
+    calories: template.total_kcal,
+    protein_g: template.total_protein,
+    carbs_g: template.total_carbs,
+    fat_g: template.total_fat,
   });
 
   if (error) return { success: false, error: error.message };
