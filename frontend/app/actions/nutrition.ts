@@ -4,20 +4,6 @@ import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-interface MealTemplateData {
-  name: string;
-  total_kcal?: number;
-  total_protein?: number;
-  total_carbs?: number;
-  total_fat?: number;
-  totals?: {
-    kcal: number;
-    p: number;
-    c: number;
-    f: number;
-  };
-}
-
 const MealSchema = z.object({
   name: z.string().min(1),
   type: z.enum(["breakfast", "lunch", "dinner", "snack"]),
@@ -26,6 +12,14 @@ const MealSchema = z.object({
   carbs: z.number(),
   fat: z.number(),
 });
+
+interface MealTemplateInput {
+  name: string;
+  total_kcal: number;
+  total_protein: number;
+  total_carbs: number;
+  total_fat: number;
+}
 
 export async function logMeal(data: z.infer<typeof MealSchema>) {
   const supabase = await createClient();
@@ -64,7 +58,6 @@ export async function getTodayMeals() {
   return data || [];
 }
 
-// Funktion för att spara måltidsmallar
 export async function saveMealTemplate(data: {
   name: string;
   ingredients: { name: string; kcal: number; p: number; c: number; f: number }[];
@@ -93,7 +86,6 @@ export async function saveMealTemplate(data: {
   return { success: true };
 }
 
-// Funktion för att se sparande måltidsmallar
 export async function getMealTemplates() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -112,8 +104,7 @@ export async function getMealTemplates() {
   return data || [];
 }
 
-// Funktion för att logga en måltid från en mall
-export async function logMealFromTemplate(template: any, type: string) {
+export async function logMealFromTemplate(template: MealTemplateInput, type: string) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { success: false, error: "Unauthorized" };
