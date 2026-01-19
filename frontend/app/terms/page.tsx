@@ -1,6 +1,6 @@
 import { Scale, AlertTriangle, CreditCard, UserX, FileText, HeartPulse } from "lucide-react";
 import Link from "next/link";
-
+import SiteHeader from "../components/SiteHeader";
 const sections = [
   {
     icon: <Scale className="text-orange-500" />,
@@ -31,6 +31,8 @@ const sections = [
 
 export default function TermsPage() {
   return (
+    <>
+    <SiteHeader />
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
       <section className="pt-24 pb-16 px-6 border-b border-white/5">
@@ -88,5 +90,6 @@ export default function TermsPage() {
         </div>
       </section>
     </div>
+    </>
   );
 }

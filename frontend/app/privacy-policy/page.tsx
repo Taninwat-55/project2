@@ -1,5 +1,5 @@
 import { ShieldCheck, Lock, Eye, FileText, Smartphone, Database, Mail } from "lucide-react";
-
+import SiteHeader from "../components/SiteHeader";
 const sections = [
   {
     id: "data-collection",
@@ -29,9 +29,11 @@ const sections = [
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-black text-white">
+    <>
+    <SiteHeader />
+    <div className="bg-black text-white">
       {/* Hero Header */}
-      <section className="pt-24 pb-16 px-6 bg-gradient-to-b from-orange-600/10 to-transparent">
+      <section className="pt-24 pb-16 px-6  from-orange-600/10 to-transparent">
         <div className="max-w-4xl mx-auto text-center">
           <div className="w-16 h-16 bg-orange-600/20 rounded-2xl flex items-center justify-center text-orange-500 mx-auto mb-6">
             <ShieldCheck size={40} />
@@ -106,5 +108,6 @@ export default function PrivacyPage() {
         </div>
       </section>
     </div>
+    </>
   );
 }
