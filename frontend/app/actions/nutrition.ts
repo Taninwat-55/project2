@@ -155,19 +155,27 @@ export async function logMealFromTemplate(
 }
 
 // Ta bort måltider
+
 export async function deleteMealLog(id: string) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { success: false, error: "Unauthorized" };
 
+  // Utför raderingen
   const { error } = await supabase
     .from("meal_logs")
     .delete()
-    .eq("id", id)
-    .eq("user_id", user.id); // Säkerhetsåtgärd: bara ägaren kan radera
+    .eq("id", id) // Detta ID måste vara UUID:t
+    .eq("user_id", user.id);
 
-  if (error) return { success: false, error: error.message };
+  if (error) {
+    console.error("Raderingsfel:", error.message);
+    return { success: false, error: error.message };
+  }
 
+  // Uppdatera cachen för både översikten och den specifika listan
   revalidatePath("/nutrition");
+  revalidatePath("/nutrition/[type]", "page"); 
+  
   return { success: true };
 }

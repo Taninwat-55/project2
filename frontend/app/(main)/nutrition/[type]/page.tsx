@@ -1,126 +1,153 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { ChevronLeft, Utensils } from "lucide-react";
-import { createClient } from "@/utils/supabase/client"; // Vi använder din befintliga klient!
+import { useState, useEffect, useCallback } from "react";
+import { useParams } from "next/navigation";
+import { Trash2, Pencil, ChevronLeft } from "lucide-react";
+import Link from "next/link";
+import { getTodayMeals, deleteMealLog } from "@/app/actions/nutrition";
+import EditMealModal from "@/app/components/EditMealModal";
 
 interface MealLog {
   id: string;
   name: string;
   calories: number;
-  protein_g: number; // Ändrat för att matcha din nutrition.ts
-  carbs_g: number;    // Ändrat
-  fat_g: number;      // Ändrat
-  meal_type: string;  // Ändrat från 'type' till 'meal_type'
-  created_at: string;
+  protein_g: number;
+  carbs_g: number;
+  fat_g: number;
+  meal_type: string;
+  created_at?: string;
 }
 
 export default function MealTypePage() {
   const params = useParams();
-  const router = useRouter();
-  const type = params?.type as string; 
-  const [meals, setMeals] = useState<MealLog[]>([]);
+  const mealType = params.type as string;
+
+  const [loggedItems, setLoggedItems] = useState<MealLog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<{
+    id: string;
+    name: string;
+    kcal: number;
+    p: string;
+    c: string;
+    f: string;
+  } | null>(null);
 
-useEffect(() => {
-    // Vi definierar en intern funktion för att hantera asynkron data
-    const loadMeals = async () => {
-      if (!type) return;
-      
-      setLoading(true);
-      const supabase = createClient();
-      
-      const { data, error } = await supabase
-        .from("meal_logs") 
-        .select("*")
-        .eq("meal_type", type.toLowerCase())
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        console.error("Fel vid hämtning:", error.message);
-      } else {
-        setMeals(data || []);
-      }
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const allMeals = await getTodayMeals();
+      // Här mappar vi om datan så TS vet att det är MealLog[]
+      const filtered = (allMeals as MealLog[]).filter(
+        (m) => m.meal_type === mealType,
+      );
+      setLoggedItems(filtered);
+    } catch (error) {
+      console.error("Failed to fetch:", error);
+    } finally {
       setLoading(false);
-    };
+    }
+  }, [mealType]);
 
-    loadMeals();
-  }, [type]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
-  // Beräkna totaler (använder de uppdaterade namnen protein_g osv)
-  const totals = meals.reduce((acc, meal) => ({
-    kcal: acc.kcal + (meal.calories || 0),
-    p: acc.p + (meal.protein_g || 0),
-    c: acc.c + (meal.carbs_g || 0),
-    f: acc.f + (meal.fat_g || 0),
-  }), { kcal: 0, p: 0, c: 0, f: 0 });
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this item?")) return;
+
+    const result = await deleteMealLog(id);
+    if (result.success) {
+      setLoggedItems((prev) => prev.filter((item) => item.id !== id));
+      setIsEditOpen(false);
+    } else {
+      alert("Error deleting: " + result.error);
+    }
+  };
 
   return (
     <div className="bg-black min-h-screen text-white p-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center gap-4 mb-10">
-          <button onClick={() => router.back()} className="p-3 bg-zinc-900 rounded-2xl border border-zinc-800 hover:bg-zinc-800 transition">
-            <ChevronLeft size={20} />
-          </button>
-          <h1 className="text-4xl font-extrabold capitalize">
-            {type} <span className="text-orange-500">History</span>
+      <main className="max-w-4xl mx-auto">
+        <div className="mb-10">
+          <Link
+            href="/nutrition"
+            className="flex items-center gap-2 text-zinc-500 hover:text-white mb-4 text-xs font-bold uppercase tracking-widest"
+          >
+            <ChevronLeft size={16} /> Back
+          </Link>
+          <h1 className="text-5xl font-extrabold capitalize">
+            {mealType} <span className="text-orange-500">Log</span>
           </h1>
         </div>
 
-        {/* Summeringskort */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-          <div className="bg-zinc-900/40 p-6 rounded-[2rem] border border-zinc-800/50 text-center">
-            <p className="text-zinc-500 text-[10px] font-black uppercase mb-1">Total Kcal</p>
-            <p className="text-2xl font-bold">{totals.kcal}</p>
-          </div>
-          <div className="bg-zinc-900/40 p-6 rounded-[2rem] border border-zinc-800/50 text-center">
-            <p className="text-blue-400 text-[10px] font-black uppercase mb-1">Protein</p>
-            <p className="text-2xl font-bold">{totals.p}g</p>
-          </div>
-          <div className="bg-zinc-900/40 p-6 rounded-[2rem] border border-zinc-800/50 text-center">
-            <p className="text-green-500 text-[10px] font-black uppercase mb-1">Carbs</p>
-            <p className="text-2xl font-bold">{totals.c}g</p>
-          </div>
-          <div className="bg-zinc-900/40 p-6 rounded-[2rem] border border-zinc-800/50 text-center">
-            <p className="text-yellow-600 text-[10px] font-black uppercase mb-1">Fats</p>
-            <p className="text-2xl font-bold">{totals.f}g</p>
-          </div>
-        </div>
-
-        {/* Måltidslista */}
         <div className="space-y-4">
           {loading ? (
-            <p className="text-zinc-500 text-center py-10">Loading...</p>
-          ) : meals.length === 0 ? (
-            <div className="text-center py-20 bg-zinc-900/20 rounded-[3rem] border border-dashed border-zinc-800 text-zinc-500">
-              No {type} items found.
+            <p className="text-zinc-500 italic text-sm">Loading items...</p>
+          ) : loggedItems.length === 0 ? (
+            <div className="p-10 border-2 border-dashed border-zinc-800 rounded-[2.5rem] text-center text-zinc-500">
+              No items logged for {mealType} today.
             </div>
           ) : (
-            meals.map((meal) => (
-              <div key={meal.id} className="bg-zinc-900/40 p-6 rounded-3xl border border-zinc-800 flex justify-between items-center">
-                <div className="flex items-center gap-6">
-                  <div className="w-14 h-14 bg-zinc-800 rounded-2xl flex items-center justify-center text-orange-500">
-                    <Utensils size={24} />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold">{meal.name}</h3>
-                    <p className="text-zinc-500 text-sm">
-                      {new Date(meal.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </p>
+            loggedItems.map((item) => (
+              <div
+                key={item.id}
+                className="bg-zinc-900/40 border border-zinc-800/50 rounded-3xl p-6 flex justify-between items-center"
+              >
+                <div>
+                  <h3 className="text-xl font-bold">{item.name}</h3>
+                  <div className="flex gap-4 mt-2 text-xs font-bold uppercase tracking-tighter">
+                    <span className="text-blue-400">P: {item.protein_g}g</span>
+                    <span className="text-green-500">C: {item.carbs_g}g</span>
+                    <span className="text-yellow-600">F: {item.fat_g}g</span>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-xl font-black">{meal.calories} kcal</div>
-                  <div className="text-[10px] font-bold text-zinc-500 uppercase">
-                    P: {meal.protein_g}g • C: {meal.carbs_g}g • F: {meal.fat_g}g
+
+                <div className="flex items-center gap-4">
+                  <div className="text-right mr-4">
+                    <span className="text-2xl font-black block leading-none">
+                      {item.calories}
+                    </span>
+                    <span className="text-[10px] font-black text-orange-500 uppercase">
+                      kcal
+                    </span>
                   </div>
+                  <button
+                    onClick={() => {
+                      setSelectedItem({
+                        id: item.id,
+                        name: item.name,
+                        kcal: item.calories,
+                        p: `${item.protein_g}g`,
+                        c: `${item.carbs_g}g`,
+                        f: `${item.fat_g}g`,
+                      });
+                      setIsEditOpen(true);
+                    }}
+                    className="p-3 bg-zinc-800 rounded-full text-zinc-400 hover:text-white transition-colors"
+                  >
+                    <Pencil size={18} />
+                  </button>
+
+                  <button
+                    onClick={() => handleDelete(item.id)}
+                    className="p-3 bg-zinc-800 rounded-full text-zinc-400 hover:text-red-500 transition-colors"
+                  >
+                    <Trash2 size={18} />
+                  </button>
                 </div>
               </div>
             ))
           )}
         </div>
-      </div>
+      </main>
+
+      <EditMealModal
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        onDelete={handleDelete}
+        itemData={selectedItem}
+      />
     </div>
   );
 }

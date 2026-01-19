@@ -50,3 +50,9 @@ CREATE POLICY "Users can manage their own templates" ON public.meal_templates FO
 CREATE POLICY "Users can manage ingredients of their templates" ON public.template_ingredients FOR ALL USING (
     EXISTS (SELECT 1 FROM public.meal_templates WHERE id = template_id AND user_id = auth.uid())
 );
+
+-- Denna policy tillåter radering om user_id på raden matchar den inloggade användaren
+CREATE POLICY "Users can delete their own meal logs" 
+ON public.meal_logs 
+FOR DELETE 
+USING (auth.uid() = user_id);
