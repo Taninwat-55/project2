@@ -23,15 +23,18 @@ export default function MealTypePage() {
   const [meals, setMeals] = useState<MealLog[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchMeals = async () => {
-      // Vi skapar klienten här inne
+useEffect(() => {
+    // Vi definierar en intern funktion för att hantera asynkron data
+    const loadMeals = async () => {
+      if (!type) return;
+      
+      setLoading(true);
       const supabase = createClient();
       
       const { data, error } = await supabase
         .from("meal_logs") 
         .select("*")
-        .eq("meal_type", type?.toLowerCase()) // Matchar 'meal_type' i din nutrition.ts
+        .eq("meal_type", type.toLowerCase())
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -42,7 +45,7 @@ export default function MealTypePage() {
       setLoading(false);
     };
 
-    if (type) fetchMeals();
+    loadMeals();
   }, [type]);
 
   // Beräkna totaler (använder de uppdaterade namnen protein_g osv)
