@@ -179,3 +179,37 @@ export async function deleteMealLog(id: string) {
   
   return { success: true };
 }
+
+// Redigera måltider
+// Lägg till detta interface högst upp eller i din action-fil
+interface UpdateMealData {
+  name: string;
+  calories: number;
+  protein_g: number;
+  carbs_g: number;
+  fat_g: number;
+}
+
+export async function updateMealLog(id: string, updates: UpdateMealData) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Unauthorized" };
+
+  const { error } = await supabase
+    .from("meal_logs")
+    .update({
+      name: updates.name,
+      calories: Math.round(updates.calories),
+      protein_g: Math.round(updates.protein_g),
+      carbs_g: Math.round(updates.carbs_g),
+      fat_g: Math.round(updates.fat_g),
+    })
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (error) return { success: false, error: error.message };
+
+  revalidatePath("/nutrition");
+  revalidatePath("/nutrition/[type]", "page");
+  return { success: true };
+}

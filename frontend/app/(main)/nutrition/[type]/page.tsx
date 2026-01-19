@@ -146,6 +146,7 @@ export default function MealTypePage() {
         isOpen={isEditOpen}
         onClose={() => setIsEditOpen(false)}
         onDelete={handleDelete}
+        onUpdate={fetchData} // Detta gör att listan uppdateras när du sparat
         itemData={selectedItem}
       />
     </div>

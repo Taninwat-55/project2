@@ -56,3 +56,14 @@ CREATE POLICY "Users can delete their own meal logs"
 ON public.meal_logs 
 FOR DELETE 
 USING (auth.uid() = user_id);
+
+
+-- Uppdatera måltiden
+DROP POLICY IF EXISTS "Users can manage their own meal logs" ON public.meal_logs;
+DROP POLICY IF EXISTS "Users can delete their own meal logs" ON public.meal_logs;
+
+CREATE POLICY "Users can manage their own meal logs" 
+ON public.meal_logs 
+FOR ALL 
+USING (auth.uid() = user_id)
+WITH CHECK (auth.uid() = user_id);
