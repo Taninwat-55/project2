@@ -6,7 +6,9 @@ import { X, Save, Trash2 } from 'lucide-react';
 interface EditProps {
   isOpen: boolean;
   onClose: () => void;
+  onDelete: (id: string) => void; // Ny prop för att hantera radering
   itemData: {
+    id: string; // Viktigt att id finns med
     name: string;
     kcal: number;
     p: string;
@@ -15,7 +17,7 @@ interface EditProps {
   } | null;
 }
 
-export default function EditMealModal({ isOpen, onClose, itemData }: EditProps) {
+export default function EditMealModal({ isOpen, onClose, onDelete, itemData }: EditProps) {
   if (!isOpen || !itemData) return null;
 
   return (
@@ -35,46 +37,49 @@ export default function EditMealModal({ isOpen, onClose, itemData }: EditProps) 
           </button>
         </div>
 
-        {/* Form */}
+        {/* Form Fields */}
         <div className="space-y-6">
           <div>
             <label className="text-[10px] font-bold text-zinc-500 uppercase mb-2 block">Item Name</label>
             <input 
               type="text" 
               defaultValue={itemData.name}
-              className="w-full bg-black border border-zinc-800 rounded-2xl py-4 px-4 focus:outline-none focus:border-orange-500 transition text-sm"
+              className="w-full bg-black border border-zinc-800 rounded-2xl py-4 px-4 focus:outline-none focus:border-orange-500 transition text-sm text-white"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
              <div>
                 <label className="text-[10px] font-bold text-zinc-500 uppercase mb-2 block text-orange-500">Calories (kcal)</label>
-                <input type="number" defaultValue={itemData.kcal} className="w-full bg-black border border-zinc-800 rounded-2xl py-4 px-4 focus:outline-none text-sm" />
+                <input type="number" defaultValue={itemData.kcal} className="w-full bg-black border border-zinc-800 rounded-2xl py-4 px-4 focus:outline-none text-sm text-white" />
              </div>
              <div>
                 <label className="text-[10px] font-bold text-zinc-500 uppercase mb-2 block text-blue-400">Protein (g)</label>
-                <input type="text" defaultValue={itemData.p.replace('g', '')} className="w-full bg-black border border-zinc-800 rounded-2xl py-4 px-4 focus:outline-none text-sm" />
+                <input type="text" defaultValue={itemData.p.replace('g', '')} className="w-full bg-black border border-zinc-800 rounded-2xl py-4 px-4 focus:outline-none text-sm text-white" />
              </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
              <div>
                 <label className="text-[10px] font-bold text-zinc-500 uppercase mb-2 block text-green-500">Carbs (g)</label>
-                <input type="text" defaultValue={itemData.c.replace('g', '')} className="w-full bg-black border border-zinc-800 rounded-2xl py-4 px-4 focus:outline-none text-sm" />
+                <input type="text" defaultValue={itemData.c.replace('g', '')} className="w-full bg-black border border-zinc-800 rounded-2xl py-4 px-4 focus:outline-none text-sm text-white" />
              </div>
              <div>
                 <label className="text-[10px] font-bold text-zinc-500 uppercase mb-2 block text-yellow-600">Fats (g)</label>
-                <input type="text" defaultValue={itemData.f.replace('g', '')} className="w-full bg-black border border-zinc-800 rounded-2xl py-4 px-4 focus:outline-none text-sm" />
+                <input type="text" defaultValue={itemData.f.replace('g', '')} className="w-full bg-black border border-zinc-800 rounded-2xl py-4 px-4 focus:outline-none text-sm text-white" />
              </div>
           </div>
         </div>
 
-        {/* Footer Actions */}
+        {/* Actions */}
         <div className="flex gap-4 mt-10">
-          <button className="flex-1 py-4 bg-zinc-800 hover:bg-red-900/20 hover:text-red-500 hover:border-red-900/50 border border-transparent rounded-2xl font-bold text-xs uppercase tracking-widest transition flex items-center justify-center gap-2">
+          <button 
+            onClick={() => onDelete(itemData.id)} // Anropar radering med id
+            className="flex-1 py-4 bg-zinc-800 hover:bg-red-900/20 hover:text-red-500 hover:border-red-900/50 border border-transparent rounded-2xl font-bold text-xs uppercase tracking-widest transition flex items-center justify-center gap-2"
+          >
             <Trash2 size={16} /> Delete
           </button>
-          <button onClick={onClose} className="flex-[2] py-4 bg-orange-600 hover:bg-orange-500 rounded-2xl font-bold text-xs uppercase tracking-widest transition flex items-center justify-center gap-2">
+          <button onClick={onClose} className="flex-[2] py-4 bg-orange-600 hover:bg-orange-500 rounded-2xl font-bold text-xs uppercase tracking-widest transition flex items-center justify-center gap-2 text-white">
             <Save size={16} /> Save Changes
           </button>
         </div>
