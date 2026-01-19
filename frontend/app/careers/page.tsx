@@ -6,6 +6,8 @@ import {
   Zap, ArrowUpRight, X, CheckCircle2, Send, Loader2 
 } from "lucide-react";
 
+import SiteHeader from "../components/SiteHeader";
+
 const jobs = [
   {
     title: "Senior Full Stack Engineer",
@@ -81,6 +83,8 @@ export default function CareersPage() {
   };
 
   return (
+    <>
+    <SiteHeader />
     <div className="min-h-screen bg-black text-white relative">
       
       {/* --- APPLICATION MODAL --- */}
@@ -221,5 +225,6 @@ export default function CareersPage() {
         </div>
       </section>
     </div>
+    </>
   );
 }

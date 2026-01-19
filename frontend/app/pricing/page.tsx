@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Check, Zap, Star, ArrowRight, Info, X, CheckCircle2, Mail } from 'lucide-react';
 import Link from 'next/link';
+import SiteHeader from '../components/SiteHeader';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function PricingPage({ user }: { user?: any }) {
@@ -19,6 +20,8 @@ export default function PricingPage({ user }: { user?: any }) {
   };
 
   return (
+    <>
+    <SiteHeader />
     <div className="min-h-screen bg-black text-white py-20 px-6 relative">
       
       {/* Friendly Information Popup (Modal) */}
@@ -190,5 +193,6 @@ export default function PricingPage({ user }: { user?: any }) {
         </div>
       </div>
     </div>
+    </>
   );
 }
