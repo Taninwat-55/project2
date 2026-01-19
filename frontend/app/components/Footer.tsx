@@ -37,7 +37,7 @@ const Footer = () => {
             <nav className="flex flex-col gap-3 text-gray-400 text-sm">
               <Link href="/about" className="hover:text-orange-500 transition-colors">About Us</Link>
               <Link href="/careers" className="hover:text-orange-500 transition-colors">Careers</Link>
-              <Link href="#" className="hover:text-orange-500 transition-colors">Privacy Policy</Link>
+              <Link href="/privacy-policy" className="hover:text-orange-500 transition-colors">Privacy Policy</Link>
               <Link href="#" className="hover:text-orange-500 transition-colors">Terms of Service</Link>
             </nav>
           </div>
