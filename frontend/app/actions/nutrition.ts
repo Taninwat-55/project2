@@ -148,3 +148,21 @@ export async function logMealFromTemplate(
   revalidatePath("/nutrition");
   return { success: true };
 }
+
+// Ta bort måltider
+export async function deleteMealLog(id: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: "Unauthorized" };
+
+  const { error } = await supabase
+    .from("meal_logs")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", user.id); // Säkerhetsåtgärd: bara ägaren kan radera
+
+  if (error) return { success: false, error: error.message };
+
+  revalidatePath("/nutrition");
+  return { success: true };
+}
