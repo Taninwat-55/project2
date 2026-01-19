@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { ToastProvider } from "./components/ToastContext";
-
+import Footer from "./components/Footer";
 
 export const metadata: Metadata = {
   title: "Fitness App",
@@ -21,9 +21,14 @@ export default function RootLayout({
           <ToastProvider>
             {/* Nav removed - moved to (main)/layout.tsx */}
 
+            {/* main with flex-1 ensures the footer is pushed to the bottom */}
             <main className="flex-1">
               {children}
             </main>
+
+            {/* Render the Footer here */}
+            <Footer />
+            
           </ToastProvider>
         </ThemeProvider>
       </body>
