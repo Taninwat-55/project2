@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
-import { Pencil, ChevronLeft, Trash2 } from "lucide-react";
+import { Pencil, ChevronLeft, Trash2, Plus } from "lucide-react";
 import Link from "next/link";
 import { Doughnut } from "react-chartjs-2";
 import {
@@ -14,6 +14,7 @@ import {
 } from "chart.js";
 import { getTodayMeals, deleteMealLog } from "@/app/actions/nutrition";
 import EditMealModal from "@/app/components/EditMealModal";
+import QuickAddModal from "@/app/components/QuickAddModal"; 
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -34,6 +35,7 @@ export default function MealTypePage() {
   const [loggedItems, setLoggedItems] = useState<MealLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isQuickAddOpen, setIsQuickAddOpen] = useState(false); // Ny state för QuickAdd
   const [selectedItem, setSelectedItem] = useState<{
     id: string;
     name: string;
@@ -97,13 +99,23 @@ export default function MealTypePage() {
     <div className="bg-black min-h-screen text-white font-sans selection:bg-orange-500/30 pb-20">
       <main className="max-w-6xl mx-auto p-8">
         
-        <div className="mb-10 text-left">
-          <Link href="/nutrition" className="flex items-center gap-2 text-zinc-500 hover:text-white mb-4 text-[10px] font-bold uppercase tracking-widest transition">
-            <ChevronLeft size={16} /> Back
-          </Link>
-          <h1 className="text-5xl font-extrabold mb-2 tracking-tight capitalize">
-            {mealType} <span className="text-orange-500">Details</span>
-          </h1>
+        <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div className="text-left">
+            <Link href="/nutrition" className="flex items-center gap-2 text-zinc-500 hover:text-white mb-4 text-[10px] font-bold uppercase tracking-widest transition">
+              <ChevronLeft size={16} /> Back
+            </Link>
+            <h1 className="text-5xl font-extrabold mb-2 tracking-tight capitalize">
+              {mealType} <span className="text-orange-500">Details</span>
+            </h1>
+          </div>
+
+          {/* QUICK ADD BUTTON */}
+          <button 
+            onClick={() => setIsQuickAddOpen(true)}
+            className="flex items-center gap-2 bg-white text-black px-6 py-3 rounded-2xl font-black uppercase italic text-sm hover:bg-orange-500 transition-all active:scale-95"
+          >
+            <Plus size={18} strokeWidth={3} /> Quick Add
+          </button>
         </div>
 
         {/* STATS GRID */}
@@ -150,53 +162,58 @@ export default function MealTypePage() {
         {/* LOGGED ITEMS */}
         <div className="text-left mb-8">
           <h2 className="text-2xl font-bold mb-6 px-2">Logged Items</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {loggedItems.map((item) => (
-              <div key={item.id} className="bg-zinc-900/40 p-6 rounded-[2rem] border border-zinc-800/50 flex flex-col">
-                <div className="flex justify-between items-start mb-6">
-                  <div>
-                    <h3 className="font-bold text-xl leading-tight">{item.name}</h3>
-                    <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest leading-none mt-1 block">Consumed</span>
+          {loading ? (
+            <p className="text-zinc-500 px-2 uppercase text-xs font-bold animate-pulse">Loading meals...</p>
+          ) : loggedItems.length === 0 ? (
+            <p className="text-zinc-500 px-2 uppercase text-xs font-bold">No meals logged for this category yet.</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {loggedItems.map((item) => (
+                <div key={item.id} className="bg-zinc-900/40 p-6 rounded-[2rem] border border-zinc-800/50 flex flex-col">
+                  <div className="flex justify-between items-start mb-6">
+                    <div>
+                      <h3 className="font-bold text-xl leading-tight">{item.name}</h3>
+                      <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest leading-none mt-1 block">Consumed</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-xl font-black block leading-none">{item.calories}</span>
+                      <span className="text-[9px] font-bold text-orange-500 uppercase">kcal</span>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <span className="text-xl font-black block leading-none">{item.calories}</span>
-                    <span className="text-[9px] font-bold text-orange-500 uppercase">kcal</span>
-                  </div>
-                </div>
 
-                {/* CENTRERAD GRUPP, MEN TAJT MELLANRUM (FLEX) */}
-                <div className="flex justify-center gap-6 border-t border-zinc-800/50 pt-4 mb-6">
-                  <div className="flex flex-col items-center">
-                    <span className="text-[8px] font-bold text-zinc-500 uppercase">Protein</span>
-                    <span className="text-blue-400 font-bold text-sm">{item.protein_g}g</span>
+                  <div className="flex justify-center gap-6 border-t border-zinc-800/50 pt-4 mb-6">
+                    <div className="flex flex-col items-center">
+                      <span className="text-[8px] font-bold text-zinc-500 uppercase">Protein</span>
+                      <span className="text-blue-400 font-bold text-sm">{item.protein_g}g</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <span className="text-[8px] font-bold text-zinc-500 uppercase">Carbs</span>
+                      <span className="text-green-500 font-bold text-sm">{item.carbs_g}g</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <span className="text-[8px] font-bold text-zinc-500 uppercase">Fats</span>
+                      <span className="text-yellow-600 font-bold text-sm">{item.fat_g}g</span>
+                    </div>
                   </div>
-                  <div className="flex flex-col items-center">
-                    <span className="text-[8px] font-bold text-zinc-500 uppercase">Carbs</span>
-                    <span className="text-green-500 font-bold text-sm">{item.carbs_g}g</span>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <span className="text-[8px] font-bold text-zinc-500 uppercase">Fats</span>
-                    <span className="text-yellow-600 font-bold text-sm">{item.fat_g}g</span>
-                  </div>
-                </div>
 
-                <div className="flex gap-2">
-                  <button onClick={() => {
-                    setSelectedItem({
-                      id: item.id, name: item.name, kcal: item.calories,
-                      p: `${item.protein_g}g`, c: `${item.carbs_g}g`, f: `${item.fat_g}g`
-                    });
-                    setIsEditOpen(true);
-                  }} className="flex-1 py-3 bg-zinc-800 rounded-xl text-[10px] font-bold uppercase flex items-center justify-center gap-1 hover:bg-zinc-700 transition">
-                    <Pencil size={12} /> Edit
-                  </button>
-                  <button onClick={() => handleDelete(item.id)} className="p-3 bg-zinc-800 rounded-xl text-zinc-500 hover:text-red-500 hover:bg-red-950/20 transition">
-                    <Trash2 size={14} />
-                  </button>
+                  <div className="flex gap-2">
+                    <button onClick={() => {
+                      setSelectedItem({
+                        id: item.id, name: item.name, kcal: item.calories,
+                        p: `${item.protein_g}g`, c: `${item.carbs_g}g`, f: `${item.fat_g}g`
+                      });
+                      setIsEditOpen(true);
+                    }} className="flex-1 py-3 bg-zinc-800 rounded-xl text-[10px] font-bold uppercase flex items-center justify-center gap-1 hover:bg-zinc-700 transition">
+                      <Pencil size={12} /> Edit
+                    </button>
+                    <button onClick={() => handleDelete(item.id)} className="p-3 bg-zinc-800 rounded-xl text-zinc-500 hover:text-red-500 hover:bg-red-950/20 transition">
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </main>
 
@@ -207,6 +224,14 @@ export default function MealTypePage() {
         onDelete={handleDelete}
         onUpdate={fetchData}
         itemData={selectedItem} 
+      />
+
+      {/* NY QUICK ADD MODAL */}
+      <QuickAddModal 
+        isOpen={isQuickAddOpen}
+        onClose={() => setIsQuickAddOpen(false)}
+        onAdded={fetchData}
+        mealType={mealType}
       />
     </div>
   );
