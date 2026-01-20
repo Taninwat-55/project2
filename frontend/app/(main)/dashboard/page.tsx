@@ -10,7 +10,10 @@ import {
   Trophy,
   Dumbbell,
   ArrowRight,
+  Settings,
 } from "lucide-react";
+import ProfileSummaryCard from "@/app/components/ProfileSummaryCard";
+import DashboardGoalsCard from "./DashboardGoalsCard";
 
 // Helper to format duration
 function formatDuration(minutes: number) {
@@ -139,6 +142,21 @@ export default async function Dashboard({
     .single();
 
   const weeklyGoalTarget = userSettings?.weekly_goal || 4; // Default to 4 days
+
+  // Fetch user profile for ProfileSummaryCard
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("weight_kg, height_cm, gender, activity_level, daily_calorie_goal")
+    .eq("id", user.id)
+    .single();
+
+  // Fetch user goals
+  const { data: userGoals } = await supabase
+    .from("user_goals")
+    .select("*")
+    .eq("user_id", user.id)
+    .eq("status", "active")
+    .order("created_at", { ascending: false });
 
   // Fetch Workouts
   const { data: workouts } = await supabase
@@ -396,15 +414,28 @@ export default async function Dashboard({
 
           {/* Right Column */}
           <div className="space-y-6">
+            {/* Profile Summary Card */}
+            <ProfileSummaryCard
+              weight={profile?.weight_kg}
+              height={profile?.height_cm}
+              gender={profile?.gender}
+              activityLevel={profile?.activity_level}
+              dailyCalorieGoal={profile?.daily_calorie_goal}
+            />
+
+            {/* My Goals Card */}
+            <DashboardGoalsCard goals={userGoals || []} />
+
             {/* Weekly Goals */}
             <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-bold">Weekly Goals</h3>
                 <Link
                   href="/settings/fitness-preferences"
-                  className="text-xs text-[var(--muted-foreground)] hover:text-[var(--color-accent)] transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--muted)] text-[var(--foreground)] rounded-full text-xs font-medium hover:bg-[var(--color-accent)] hover:text-white transition-colors"
                 >
-                  Edit
+                  <Settings size={12} />
+                  Edit Goals
                 </Link>
               </div>
               <div className="space-y-4">
@@ -422,7 +453,7 @@ export default async function Dashboard({
                     <div className="w-full h-1.5 bg-[var(--muted)] rounded-full overflow-hidden">
                       <div
                         className={`h-full ${goal.color} rounded-full transition-all`}
-                        style={{ width: `${(goal.current / goal.target) * 100}%` }}
+                        style={{ width: `${Math.min((goal.current / goal.target) * 100, 100)}%` }}
                       />
                     </div>
                   </div>
@@ -516,53 +547,6 @@ export default async function Dashboard({
           </div>
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="py-16 px-6 border-t border-[var(--border)] bg-[var(--background)] mt-12 w-full">
-        <div className="max-w-[1400px] mx-auto grid md:grid-cols-4 gap-12">
-          <div>
-            <Link href="/" className="flex items-center gap-2 mb-6">
-              <div className="w-8 h-8 rounded-full border-2 border-[var(--color-accent)] flex items-center justify-center text-[var(--color-accent)] font-bold text-sm">
-                N
-              </div>
-              <span className="font-bold text-lg tracking-wide text-[var(--foreground)]">Nexus</span>
-            </Link>
-            <p className="text-[var(--muted-foreground)] text-sm leading-relaxed max-w-xs">
-              Empowering athletes everywhere to reach their peak performance through data and discipline.
-            </p>
-          </div>
-
-          <div>
-            <h4 className="font-bold text-[var(--foreground)] mb-6">Product</h4>
-            <ul className="space-y-4 text-sm text-[var(--muted-foreground)]">
-              <li><Link href="#" className="hover:text-[var(--color-accent)] transition-colors">Features</Link></li>
-              <li><Link href="#" className="hover:text-[var(--color-accent)] transition-colors">Testimonials</Link></li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-bold text-[var(--foreground)] mb-6">Company</h4>
-            <ul className="space-y-4 text-sm text-[var(--muted-foreground)]">
-              <li><Link href="#" className="hover:text-[var(--color-accent)] transition-colors">About Us</Link></li>
-              <li><Link href="#" className="hover:text-[var(--color-accent)] transition-colors">Careers</Link></li>
-              <li><Link href="#" className="hover:text-[var(--color-accent)] transition-colors">Privacy Policy</Link></li>
-              <li><Link href="#" className="hover:text-[var(--color-accent)] transition-colors">Terms of Service</Link></li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-bold text-[var(--foreground)] mb-6">Support</h4>
-            <ul className="space-y-4 text-sm text-[var(--muted-foreground)]">
-              <li><Link href="#" className="hover:text-[var(--color-accent)] transition-colors">Help Center</Link></li>
-              <li><Link href="#" className="hover:text-[var(--color-accent)] transition-colors">Contact Us</Link></li>
-              <li><Link href="#" className="hover:text-[var(--color-accent)] transition-colors">Status</Link></li>
-            </ul>
-          </div>
-        </div>
-        <div className="max-w-[1400px] mx-auto mt-16 pt-8 border-t border-[var(--border)] text-center text-sm text-[var(--muted-foreground)]">
-          © {new Date().getFullYear()} Nexus Fitness App. All rights reserved.
-        </div>
-      </footer>
     </div>
   );
 }
