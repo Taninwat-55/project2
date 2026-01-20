@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import {
-  CheckCircle2, Server, Database, Activity,
-  RefreshCcw, Mail, ShieldCheck, Cpu, Globe
+  CheckCircle2, Database, Activity,
+  RefreshCcw, ShieldCheck, Cpu, Globe
 } from "lucide-react";
 
 // Mock data for the 30-day uptime bars
@@ -21,7 +21,8 @@ const services = [
 
 export default function StatusPage() {
   const [isScanning, setIsScanning] = useState(true);
-  const [lastUpdated, setLastUpdated] = useState(new Date());
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_lastUpdated, setLastUpdated] = useState(new Date());
   const [emailSubscribed, setEmailSubscribed] = useState(false);
 
   useEffect(() => {

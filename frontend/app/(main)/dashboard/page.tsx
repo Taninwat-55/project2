@@ -328,6 +328,17 @@ export default async function Dashboard({
   const maxVal = Math.max(...activityData.map((d) => d.value));
   const maxActivityValue = maxVal > 60 ? maxVal : 60; // Minimum scale
 
+  // Pre-calculate workout type breakdown for last 7 days
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+  const strengthMinutes = allWorkouts
+    .filter(w => w.type === 'strength' && new Date(w.performed_at) >= sevenDaysAgo)
+    .reduce((acc, w) => acc + (w.duration_minutes || 0), 0);
+
+  const cardioMinutes = allWorkouts
+    .filter(w => w.type === 'cardio' && new Date(w.performed_at) >= sevenDaysAgo)
+    .reduce((acc, w) => acc + (w.duration_minutes || 0), 0);
 
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
@@ -435,12 +446,7 @@ export default async function Dashboard({
                     <span className="text-xs font-medium text-[var(--muted-foreground)]">Strength</span>
                   </div>
                   <div className="text-2xl font-bold">
-                    {(() => {
-                      const strengthMins = allWorkouts
-                        .filter(w => w.type === 'strength' && new Date(w.performed_at) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000))
-                        .reduce((acc, w) => acc + (w.duration_minutes || 0), 0);
-                      return strengthMins;
-                    })()}
+                    {strengthMinutes}
                     <span className="text-sm font-normal text-[var(--muted-foreground)] ml-1">min</span>
                   </div>
                 </div>
@@ -450,12 +456,7 @@ export default async function Dashboard({
                     <span className="text-xs font-medium text-[var(--muted-foreground)]">Cardio</span>
                   </div>
                   <div className="text-2xl font-bold">
-                    {(() => {
-                      const cardioMins = allWorkouts
-                        .filter(w => w.type === 'cardio' && new Date(w.performed_at) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000))
-                        .reduce((acc, w) => acc + (w.duration_minutes || 0), 0);
-                      return cardioMins;
-                    })()}
+                    {cardioMinutes}
                     <span className="text-sm font-normal text-[var(--muted-foreground)] ml-1">min</span>
                   </div>
                 </div>
