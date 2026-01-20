@@ -141,11 +141,13 @@ export default async function Dashboard({
   // Fetch user settings for weekly goal target
   const { data: userSettings } = await supabase
     .from("user_settings")
-    .select("weekly_goal")
+    .select("weekly_goal, strength_goal_days, cardio_goal_minutes")
     .eq("user_id", user.id)
     .single();
 
   const weeklyGoalTarget = userSettings?.weekly_goal || 4; // Default to 4 days
+  const strengthGoalTarget = userSettings?.strength_goal_days ?? 3;
+  const cardioGoalTarget = userSettings?.cardio_goal_minutes ?? 120;
 
   // Fetch user profile for ProfileSummaryCard
   const { data: profile } = await supabase
@@ -222,14 +224,14 @@ export default async function Dashboard({
     {
       label: "Strength",
       current: weeklyStrength,
-      target: 3,
+      target: strengthGoalTarget,
       unit: "days",
       color: "bg-blue-500"
     },
     {
       label: "Cardio",
       current: weeklyCardio,
-      target: 120,
+      target: cardioGoalTarget,
       unit: "min",
       color: "bg-purple-500"
     },
