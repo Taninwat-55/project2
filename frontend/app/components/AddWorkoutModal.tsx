@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, X, Dumbbell, Timer, Flame, ChevronRight, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Plus, X, Dumbbell, Timer, Flame, ChevronRight, AlertCircle, CheckCircle2, Calendar } from 'lucide-react';
 
 import { logWorkout } from '@/app/actions/workouts';
 
@@ -22,6 +22,10 @@ export default function AddWorkoutModal() {
     const [reps, setReps] = useState('');
     const [weight, setWeight] = useState('');
     const [distance, setDistance] = useState('');
+    const [workoutDate, setWorkoutDate] = useState(() => {
+        // Default to today's date in YYYY-MM-DD format
+        return new Date().toISOString().split('T')[0];
+    });
 
     const handleSave = async () => {
         // --- NEW: Validation Check ---
@@ -42,7 +46,8 @@ export default function AddWorkoutModal() {
             sets: parseInt(sets) || undefined,
             reps: parseInt(reps) || undefined,
             weight: parseFloat(weight) || undefined,
-            distance: parseFloat(distance) || undefined
+            distance: parseFloat(distance) || undefined,
+            performedAt: workoutDate || undefined
         });
 
         if (result.success) {
@@ -59,6 +64,7 @@ export default function AddWorkoutModal() {
                 setReps('');
                 setWeight('');
                 setDistance('');
+                setWorkoutDate(new Date().toISOString().split('T')[0]);
             }, 1500);
         } else {
             setStatus('error');
@@ -144,7 +150,20 @@ export default function AddWorkoutModal() {
                                             className={`w-full bg-black border ${status === 'error' && !duration ? 'border-red-500/50' : 'border-white/5'} rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-orange-500/50 text-white transition-colors`}
                                         />
                                     </div>
+                                </div>
 
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] uppercase font-black text-zinc-500 tracking-widest ml-1 flex items-center gap-1">
+                                            <Calendar size={12} /> Date
+                                        </label>
+                                        <input
+                                            type="date"
+                                            value={workoutDate}
+                                            onChange={(e) => setWorkoutDate(e.target.value)}
+                                            className="w-full bg-black border border-white/5 rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-orange-500/50 text-white [color-scheme:dark]"
+                                        />
+                                    </div>
                                     <div className="space-y-2">
                                         <label className="text-[10px] uppercase font-black text-zinc-500 tracking-widest ml-1 flex items-center gap-1">
                                             <Flame size={12} /> Calories

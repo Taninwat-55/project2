@@ -5,8 +5,8 @@ export const MealSchema = z.object({
   name: z.string().min(1, "Namn krävs"),
   calories: z.number().int().nonnegative("Kalorier måste vara 0 eller mer"),
   protein: z.number().nonnegative().default(0),
-  carbs: z.number().nonnegative().default(0), 
-  fat: z.number().nonnegative().default(0),   
+  carbs: z.number().nonnegative().default(0),
+  fat: z.number().nonnegative().default(0),
   type: z.enum(["breakfast", "lunch", "dinner", "snack"]),
 });
 
@@ -25,6 +25,9 @@ export const WorkoutSchema = z.object({
   weight: z.number().nonnegative().optional().nullable(),
   distance: z.number().nonnegative().optional().nullable(),
   notes: z.string().optional().nullable(),
+
+  // Date when workout was performed
+  performedAt: z.string().optional().nullable(),
 });
 
 // 3. Profile Schema (Complex validation made easy!)
