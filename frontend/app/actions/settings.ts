@@ -11,6 +11,8 @@ export interface UserSettings {
     energy_unit: "calories" | "kilojoules";
     primary_focus: string;
     weekly_goal: number;
+    strength_goal_days: number;
+    cardio_goal_minutes: number;
     activity_level: string;
 
     // Notifications
@@ -42,6 +44,8 @@ const defaultSettings: UserSettings = {
     energy_unit: "calories",
     primary_focus: "general_fitness",
     weekly_goal: 4,
+    strength_goal_days: 3,
+    cardio_goal_minutes: 120,
     activity_level: "lightly_active",
     pause_all_notifications: false,
     daily_reminders: false,
@@ -114,12 +118,15 @@ export async function updateUserSettings(
 }
 
 // Update fitness preferences specifically
+// Update fitness preferences specifically
 export async function updateFitnessPreferences(data: {
     distance_unit: string;
     weight_unit: string;
     energy_unit: string;
     primary_focus: string;
     weekly_goal: number;
+    strength_goal_days: number;
+    cardio_goal_minutes: number;
     activity_level: string;
 }): Promise<{ success: boolean; error?: string }> {
     return updateUserSettings({
@@ -128,6 +135,8 @@ export async function updateFitnessPreferences(data: {
         energy_unit: data.energy_unit as "calories" | "kilojoules",
         primary_focus: data.primary_focus,
         weekly_goal: data.weekly_goal,
+        strength_goal_days: data.strength_goal_days,
+        cardio_goal_minutes: data.cardio_goal_minutes,
         activity_level: data.activity_level,
     });
 }

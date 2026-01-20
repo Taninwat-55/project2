@@ -48,6 +48,8 @@ export default function FitnessPreferencesPage() {
     const [energyUnit, setEnergyUnit] = useState<"calories" | "kilojoules">("calories");
     const [primaryFocus, setPrimaryFocus] = useState("general_fitness");
     const [weeklyGoal, setWeeklyGoal] = useState(4);
+    const [strengthGoalDays, setStrengthGoalDays] = useState(3);
+    const [cardioGoalMinutes, setCardioGoalMinutes] = useState(120);
     const [activityLevel, setActivityLevel] = useState("lightly_active");
 
     const supabase = createBrowserClient(
@@ -71,6 +73,8 @@ export default function FitnessPreferencesPage() {
             setEnergyUnit(settings.energy_unit);
             setPrimaryFocus(settings.primary_focus);
             setWeeklyGoal(settings.weekly_goal);
+            setStrengthGoalDays(settings.strength_goal_days ?? 3);
+            setCardioGoalMinutes(settings.cardio_goal_minutes ?? 120);
             setActivityLevel(settings.activity_level);
 
             setLoading(false);
@@ -92,6 +96,8 @@ export default function FitnessPreferencesPage() {
             energy_unit: energyUnit,
             primary_focus: primaryFocus,
             weekly_goal: weeklyGoal,
+            strength_goal_days: strengthGoalDays,
+            cardio_goal_minutes: cardioGoalMinutes,
             activity_level: activityLevel,
         });
 
@@ -286,7 +292,7 @@ export default function FitnessPreferencesPage() {
                                     </select>
                                 </div>
 
-                                {/* Weekly Workout Goal */}
+                                {/* Weekly Workout Goal (Generic) */}
                                 <div>
                                     <div className="flex justify-between items-center mb-2">
                                         <label className="text-sm text-[var(--muted-foreground)]">Weekly Workout Goal</label>
@@ -303,6 +309,47 @@ export default function FitnessPreferencesPage() {
                                     <div className="flex justify-between text-xs text-[var(--color-accent)] mt-1">
                                         <span>1 day</span>
                                         <span>7 days</span>
+                                    </div>
+                                </div>
+
+                                {/* Strength Goal */}
+                                <div>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <label className="text-sm text-[var(--muted-foreground)]">Strength Goal (Days)</label>
+                                        <span className="text-sm text-[var(--color-accent)] font-medium">{strengthGoalDays} days</span>
+                                    </div>
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="7"
+                                        value={strengthGoalDays}
+                                        onChange={(e) => setStrengthGoalDays(Number(e.target.value))}
+                                        className="w-full h-2 bg-[var(--muted)] rounded-full appearance-none cursor-pointer accent-[var(--color-accent)]"
+                                    />
+                                    <div className="flex justify-between text-xs text-[var(--muted-foreground)] mt-1">
+                                        <span>0</span>
+                                        <span>7</span>
+                                    </div>
+                                </div>
+
+                                {/* Cardio Goal */}
+                                <div>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <label className="text-sm text-[var(--muted-foreground)]">Cardio Goal (Minutes)</label>
+                                        <span className="text-sm text-[var(--color-accent)] font-medium">{cardioGoalMinutes} min</span>
+                                    </div>
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="300"
+                                        step="10"
+                                        value={cardioGoalMinutes}
+                                        onChange={(e) => setCardioGoalMinutes(Number(e.target.value))}
+                                        className="w-full h-2 bg-[var(--muted)] rounded-full appearance-none cursor-pointer accent-[var(--color-accent)]"
+                                    />
+                                    <div className="flex justify-between text-xs text-[var(--muted-foreground)] mt-1">
+                                        <span>0</span>
+                                        <span>300</span>
                                     </div>
                                 </div>
                             </div>
