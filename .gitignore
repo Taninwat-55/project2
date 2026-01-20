@@ -42,3 +42,6 @@ Thumbs.db
 
 # --- Vercel (if using for deployment) ---
 .vercelfrontend/tsconfig.tsbuildinfo
+
+# --- Agent ---
+.agent/
