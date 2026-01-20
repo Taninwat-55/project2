@@ -11,9 +11,13 @@ import {
   Dumbbell,
   ArrowRight,
   Settings,
+  Droplet,
+  Utensils,
 } from "lucide-react";
 import ProfileSummaryCard from "@/app/components/ProfileSummaryCard";
 import DashboardGoalsCard from "./DashboardGoalsCard";
+import { getTodayHydration } from "@/app/actions/hydration";
+import { getNutritionGoals, getTodayNutrition } from "@/app/actions/nutrition-goals";
 
 // Helper to format duration
 function formatDuration(minutes: number) {
@@ -255,25 +259,41 @@ export default async function Dashboard({
     },
   ];
 
+  // Fetch Nutrition & Hydration Data
+  const todayHydration = await getTodayHydration();
+  const nutritionGoals = await getNutritionGoals();
+  const todayNutrition = await getTodayNutrition();
+
+  const hydrationGoal = 2500; // Hardcoded goal matching Nutrition page
+
   // Stats Data
   const statsData = [
     {
-      label: "Total Workouts",
-      value: totalWorkouts.toString(),
-      unit: "sessions",
-      change: "All time",
+      label: "Calories Consumed",
+      value: todayNutrition.caloriesConsumed.toString(),
+      unit: `/ ${nutritionGoals.calorieGoal} kcal`,
+      change: "Today",
       up: true,
-      icon: Dumbbell,
-      color: "text-orange-500"
+      icon: Utensils,
+      color: "text-orange-500",
     },
     {
-      label: "Calories Burned",
-      value: totalCaloriesBurned > 1000 ? `${(totalCaloriesBurned / 1000).toFixed(1)}K` : totalCaloriesBurned.toString(),
-      unit: totalCaloriesBurned > 1000 ? "" : "kcal",
-      change: "All time",
+      label: "Hydration",
+      value: (todayHydration / 1000).toFixed(1),
+      unit: `/ ${(hydrationGoal / 1000).toFixed(1)} L`,
+      change: "Today",
       up: true,
-      icon: Flame,
-      color: "text-red-500"
+      icon: Droplet,
+      color: "text-cyan-500",
+    },
+    {
+      label: "Current Streak",
+      value: currentStreak.toString(),
+      unit: "days",
+      change: "Keep it up!",
+      up: true,
+      icon: Zap,
+      color: "text-yellow-500"
     },
     {
       label: "Active Time",
@@ -285,13 +305,22 @@ export default async function Dashboard({
       color: "text-green-500"
     },
     {
-      label: "Current Streak",
-      value: currentStreak.toString(),
-      unit: "days",
-      change: "Keep it up!",
+      label: "Total Workouts",
+      value: totalWorkouts.toString(),
+      unit: "sessions",
+      change: "All time",
       up: true,
-      icon: Zap,
+      icon: Dumbbell,
       color: "text-blue-500"
+    },
+    {
+      label: "Calories Burned",
+      value: totalCaloriesBurned > 1000 ? `${(totalCaloriesBurned / 1000).toFixed(1)}K` : totalCaloriesBurned.toString(),
+      unit: totalCaloriesBurned > 1000 ? "kcal" : "kcal",
+      change: "All time",
+      up: true,
+      icon: Flame,
+      color: "text-red-500"
     },
   ];
 
@@ -369,7 +398,7 @@ export default async function Dashboard({
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
           {statsData.map((stat) => (
             <div
               key={stat.label}
