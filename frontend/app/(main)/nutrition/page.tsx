@@ -10,7 +10,7 @@ import {
 } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
 import { useState, useEffect } from "react";
-import { Plus, Droplet } from "lucide-react";
+import { Plus, Droplet, Flame } from "lucide-react";
 
 import { logHydration, getTodayHydration } from "@/app/actions/hydration";
 import {
@@ -73,12 +73,13 @@ export default function NutritionPage() {
     hasProfile: false,
   });
 
-  // Today's consumed nutrition
+  // Today's consumed nutrition + burned calories
   const [consumed, setConsumed] = useState<TodayNutrition>({
     caloriesConsumed: 0,
     proteinConsumed: 0,
     carbsConsumed: 0,
     fatConsumed: 0,
+    caloriesBurned: 0, // Nu med brända kalorier!
   });
 
   const hydrationGoal = 2500;
@@ -101,12 +102,11 @@ export default function NutritionPage() {
     fetchData();
   }, []);
 
-  // NY FUNKTION: Hanterar loggning av en mall till dagboken
   const handleLogTemplate = async (template: MealTemplate, mealType: string) => {
     const result = await logMealFromTemplate(template, mealType);
     if (result.success) {
       setIsViewModalOpen(false);
-      fetchData(); // Uppdaterar all statistik på sidan direkt
+      fetchData(); 
     } else {
       alert("Error logging template: " + result.error);
     }
@@ -133,7 +133,7 @@ export default function NutritionPage() {
   const handleModalClose = () => {
     setIsLogModalOpen(false);
     setIsTemplateModalOpen(false);
-    fetchData(); // Uppdatera allt när en modal stängs
+    fetchData(); 
   };
 
   const macroOptions: ChartOptions<"doughnut"> = {
@@ -155,39 +155,24 @@ export default function NutritionPage() {
     ],
   });
 
-  const caloriesRemaining = Math.max(
-    0,
-    goals.calorieGoal - consumed.caloriesConsumed
-  );
+  // Beräkning: (Mål + Träning) - Ätit
+const totalCalorieBudget = (goals.calorieGoal || 2000) + (consumed.caloriesBurned || 0);
+  const caloriesRemaining = Math.max(0, totalCalorieBudget - consumed.caloriesConsumed);
 
-  const proteinStatus =
-    consumed.proteinConsumed >= goals.proteinG * 0.8
-      ? "High"
-      : consumed.proteinConsumed >= goals.proteinG * 0.5
-        ? "Good"
-        : "Low";
-  const carbsStatus =
-    consumed.carbsConsumed >= goals.carbsG * 0.8
-      ? "Near"
-      : consumed.carbsConsumed >= goals.carbsG * 0.5
-        ? "Good"
-        : "Low";
-  const fatStatus =
-    consumed.fatConsumed >= goals.fatG * 0.8
-      ? "Near"
-      : consumed.fatConsumed >= goals.fatG * 0.5
-        ? "Good"
-        : "Low";
+  const proteinStatus = consumed.proteinConsumed >= goals.proteinG * 0.8 ? "High" : consumed.proteinConsumed >= goals.proteinG * 0.5 ? "Good" : "Low";
+  const carbsStatus = consumed.carbsConsumed >= goals.carbsG * 0.8 ? "Near" : consumed.carbsConsumed >= goals.carbsG * 0.5 ? "Good" : "Low";
+  const fatStatus = consumed.fatConsumed >= goals.fatG * 0.8 ? "Near" : consumed.fatConsumed >= goals.fatG * 0.5 ? "Good" : "Low";
 
   const macroCards = [
     {
       label: "Daily Calories",
       val: consumed.caloriesConsumed,
-      goal: goals.calorieGoal,
+      goal: totalCalorieBudget, // Visar totalt budget inkl träning
       unit: "kcal",
       color: "#f97316",
       footerLabel: "Remaining",
       footerVal: caloriesRemaining.toString(),
+      extra: consumed.caloriesBurned > 0 ? `+${consumed.caloriesBurned} from exercise` : null
     },
     {
       label: "Protein",
@@ -262,6 +247,11 @@ export default function NutritionPage() {
                     {m.goal} {m.unit}
                   </span>
                 </div>
+                {m.extra && (
+                  <div className="text-[9px] text-orange-500 font-bold uppercase tracking-tighter">
+                    {m.extra}
+                  </div>
+                )}
                 <div className="flex justify-between text-[11px] font-bold uppercase border-t border-zinc-800/50 pt-3">
                   <span className="text-zinc-500">{m.footerLabel}</span>
                   <span style={{ color: m.color }}>
@@ -429,14 +419,14 @@ export default function NutritionPage() {
         template={
           selectedTemplate
             ? {
-              ...selectedTemplate,
-              totals: {
-                kcal: selectedTemplate.total_kcal || 0,
-                p: selectedTemplate.total_protein || 0,
-                c: selectedTemplate.total_carbs || 0,
-                f: selectedTemplate.total_fat || 0,
-              },
-            }
+                ...selectedTemplate,
+                totals: {
+                  kcal: selectedTemplate.total_kcal || 0,
+                  p: selectedTemplate.total_protein || 0,
+                  c: selectedTemplate.total_carbs || 0,
+                  f: selectedTemplate.total_fat || 0,
+                },
+              }
             : null
         }
         onClose={() => setIsViewModalOpen(false)}
