@@ -97,7 +97,7 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
 
         {/* The Sticky Pill Navbar with Bubbly Animation */}
         <nav className="hidden md:flex items-center gap-2 px-3 py-2 bg-zinc-900/40 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl relative">
-          {navLinks.map((link) => (
+          {(user ? [{ name: 'Dashboard', href: '/dashboard' }, ...navLinks] : navLinks).map((link) => (
             <Link
               key={link.href}
               href={link.href}
