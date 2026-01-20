@@ -67,6 +67,11 @@ export async function logWorkout(data: WorkoutData) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { success: false, error: "User not authenticated" };
 
+  // Use provided date or default to now
+  const performedAt = data.performedAt
+    ? new Date(data.performedAt).toISOString()
+    : new Date().toISOString();
+
   const { error } = await supabase.from("workouts").insert({
     user_id: user.id,
     name: data.name,
@@ -79,7 +84,7 @@ export async function logWorkout(data: WorkoutData) {
     weight: data.weight,
     distance: data.distance,
     notes: data.notes,
-    performed_at: new Date().toISOString(),
+    performed_at: performedAt,
   });
 
   if (error) return { success: false, error: error.message };
