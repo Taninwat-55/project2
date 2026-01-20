@@ -303,12 +303,24 @@ export default async function Dashboard({
   });
 
   const activityData = last7Days.map(date => {
-    const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
-    const dayWorkouts = allWorkouts.filter(w => w.performed_at.startsWith(dateStr));
+    // Compare dates by using date-only (ignore time and timezone)
+    const targetYear = date.getFullYear();
+    const targetMonth = date.getMonth();
+    const targetDay = date.getDate();
+
+    const dayWorkouts = allWorkouts.filter(w => {
+      const workoutDate = new Date(w.performed_at);
+      return (
+        workoutDate.getFullYear() === targetYear &&
+        workoutDate.getMonth() === targetMonth &&
+        workoutDate.getDate() === targetDay
+      );
+    });
+
     const value = dayWorkouts.reduce((acc, w) => acc + (w.duration_minutes || 0), 0);
     return {
       day: date.toLocaleDateString('en-US', { weekday: 'short' }), // Mon, Tue...
-      fullDate: dateStr,
+      fullDate: date.toISOString().split('T')[0],
       value: value
     };
   });
@@ -384,14 +396,16 @@ export default async function Dashboard({
             {/* Bar Chart */}
             <div className="flex items-end justify-between gap-3 h-48 mb-4">
               {activityData.map((item, index) => (
-                <div key={item.day} className="flex-1 flex flex-col items-center gap-2">
-                  <div className="w-full flex justify-center">
-                    {/* Optional numeric label could go here */}
-                  </div>
+                <div key={item.day} className="flex-1 h-full flex flex-col justify-end items-center">
                   <div
-                    className={`w-full rounded-t-lg transition-all ${index === 6 ? "bg-[var(--color-accent)]" : "bg-[var(--muted)]/50"
+                    className={`w-full rounded-t-lg transition-all ${index === 6 ? "bg-[var(--color-accent)]" : "bg-[var(--muted)]"
                       }`}
-                    style={{ height: `${maxActivityValue > 0 ? (item.value / maxActivityValue) * 100 : 0}%` }}
+                    style={{
+                      height: item.value > 0
+                        ? `${Math.max((item.value / maxActivityValue) * 100, 5)}%`
+                        : '4px',
+                      minHeight: item.value > 0 ? '8px' : '4px'
+                    }}
                     title={`${item.value} mins`}
                   />
                 </div>
@@ -409,6 +423,74 @@ export default async function Dashboard({
                   {item.day}
                 </span>
               ))}
+            </div>
+
+            {/* Workout Breakdown Section */}
+            <div className="mt-6 pt-6 border-t border-[var(--border)]">
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                {/* Type Breakdown */}
+                <div className="bg-[var(--muted)]/30 rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-2 h-2 rounded-full bg-orange-500"></div>
+                    <span className="text-xs font-medium text-[var(--muted-foreground)]">Strength</span>
+                  </div>
+                  <div className="text-2xl font-bold">
+                    {(() => {
+                      const strengthMins = allWorkouts
+                        .filter(w => w.type === 'strength' && new Date(w.performed_at) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000))
+                        .reduce((acc, w) => acc + (w.duration_minutes || 0), 0);
+                      return strengthMins;
+                    })()}
+                    <span className="text-sm font-normal text-[var(--muted-foreground)] ml-1">min</span>
+                  </div>
+                </div>
+                <div className="bg-[var(--muted)]/30 rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                    <span className="text-xs font-medium text-[var(--muted-foreground)]">Cardio</span>
+                  </div>
+                  <div className="text-2xl font-bold">
+                    {(() => {
+                      const cardioMins = allWorkouts
+                        .filter(w => w.type === 'cardio' && new Date(w.performed_at) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000))
+                        .reduce((acc, w) => acc + (w.duration_minutes || 0), 0);
+                      return cardioMins;
+                    })()}
+                    <span className="text-sm font-normal text-[var(--muted-foreground)] ml-1">min</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Recent Workouts Mini List */}
+              <div className="space-y-2">
+                <h4 className="text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">This Week&apos;s Activity</h4>
+                <div className="space-y-1.5">
+                  {activityData.slice().reverse().slice(0, 4).map((day, idx) => {
+                    const dayWorkouts = allWorkouts.filter(w => {
+                      const workoutDate = new Date(w.performed_at);
+                      const targetDate = new Date(day.fullDate);
+                      return (
+                        workoutDate.getFullYear() === targetDate.getFullYear() &&
+                        workoutDate.getMonth() === targetDate.getMonth() &&
+                        workoutDate.getDate() === targetDate.getDate()
+                      );
+                    });
+                    return (
+                      <div key={day.fullDate} className="flex items-center justify-between py-1.5 px-2 rounded-lg hover:bg-[var(--muted)]/30 transition-colors">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-1.5 h-1.5 rounded-full ${idx === 0 ? 'bg-[var(--color-accent)]' : 'bg-[var(--muted-foreground)]/30'}`}></div>
+                          <span className="text-sm">{day.day}</span>
+                        </div>
+                        <div className="text-xs text-[var(--muted-foreground)]">
+                          {dayWorkouts.length > 0
+                            ? dayWorkouts.map(w => w.name).slice(0, 2).join(', ') + (dayWorkouts.length > 2 ? ` +${dayWorkouts.length - 2}` : '')
+                            : 'Rest day'}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </div>
 
