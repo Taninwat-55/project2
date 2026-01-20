@@ -18,6 +18,8 @@ import ProfileSummaryCard from "@/app/components/ProfileSummaryCard";
 import DashboardGoalsCard from "./DashboardGoalsCard";
 import { getTodayHydration } from "@/app/actions/hydration";
 import { getNutritionGoals, getTodayNutrition } from "@/app/actions/nutrition-goals";
+import { getWeightHistory } from "@/app/actions/weight";
+import WeightTrackerCard from "./WeightTrackerCard";
 
 // Helper to format duration
 function formatDuration(minutes: number) {
@@ -536,6 +538,9 @@ export default async function Dashboard({
               activityLevel={profile?.activity_level}
               dailyCalorieGoal={profile?.daily_calorie_goal}
             />
+
+            {/* Weight Tracker Card */}
+            <WeightTrackerCard history={await getWeightHistory()} />
 
             {/* My Goals Card */}
             <DashboardGoalsCard goals={userGoals || []} />
