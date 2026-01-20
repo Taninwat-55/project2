@@ -50,11 +50,8 @@ export async function getTodayNutrition(): Promise<TodayNutrition> {
 
   if (!user) return { caloriesConsumed: 0, proteinConsumed: 0, carbsConsumed: 0, fatConsumed: 0, caloriesBurned: 0 };
 
-  // Vi skapar ett datum-filter för bara DAGEN (YYYY-MM-DD) 
-  // för att undvika problem med exakta klockslag/tidzoner
   const todayDate = new Date().toISOString().split('T')[0]; 
 
-  // 1. Hämta mat
   const { data: meals } = await supabase
     .from("meal_logs")
     .select("calories, protein_g, carbs_g, fat_g")
@@ -62,10 +59,9 @@ export async function getTodayNutrition(): Promise<TodayNutrition> {
     .filter("eaten_at", "gte", `${todayDate}T00:00:00`)
     .filter("eaten_at", "lte", `${todayDate}T23:59:59`);
 
-  // 2. Hämta workouts - NU ÄNNU MER FLEXIBEL
   const { data: workouts, error: workoutError } = await supabase
     .from("workouts")
-    .select("calories_burned")
+    .select("calories_burned, name, performed_at") // Vi vet att den heter calories_burned
     .eq("user_id", user.id)
     .filter("performed_at", "gte", `${todayDate}T00:00:00`)
     .filter("performed_at", "lte", `${todayDate}T23:59:59`);
@@ -82,10 +78,9 @@ export async function getTodayNutrition(): Promise<TodayNutrition> {
     { caloriesConsumed: 0, proteinConsumed: 0, carbsConsumed: 0, fatConsumed: 0 }
   );
 
-  // Vi plockar ut alla kalorier oavsett om de heter calories_burned eller något annat
   const totalBurned = (workouts || []).reduce((acc, w) => {
-    const val = w.calories_burned || (w as any).calories || 0;
-    return acc + Number(val);
+    // Vi använder nu explicit w.calories_burned
+    return acc + (Number(w.calories_burned) || 0);
   }, 0);
 
   return { ...nutritionTotals, caloriesBurned: totalBurned };

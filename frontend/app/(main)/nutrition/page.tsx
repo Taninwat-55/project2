@@ -10,7 +10,7 @@ import {
 } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
 import { useState, useEffect } from "react";
-import { Plus, Droplet, Flame } from "lucide-react";
+import { Plus, Droplet } from "lucide-react";
 
 import { logHydration, getTodayHydration } from "@/app/actions/hydration";
 import {
