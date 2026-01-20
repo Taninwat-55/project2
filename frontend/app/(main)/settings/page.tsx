@@ -16,6 +16,9 @@ import {
     LogOut,
     MapPin,
     CalendarDays,
+    Scale,
+    Ruler,
+    Flame,
 } from "lucide-react";
 import { signOut } from "@/app/(auth)/actions";
 import { updateProfile, updateEmail, updatePassword } from "@/app/actions/profile";
@@ -51,6 +54,7 @@ export default function SettingsPage() {
         dateOfBirth: "",
         activityLevel: "sedentary",
         avatarUrl: "",
+        dailyCalorieGoal: 0,
         language: "English (US)",
         timezone: "(GMT-8:00) Pacific Time (USA & Canada)",
     });
@@ -89,6 +93,7 @@ export default function SettingsPage() {
                     gender: profile.gender || "other",
                     dateOfBirth: profile.date_of_birth || "",
                     activityLevel: profile.activity_level || "sedentary",
+                    dailyCalorieGoal: profile.daily_calorie_goal || 0,
                 }));
             }
             setLoading(false);
@@ -97,9 +102,10 @@ export default function SettingsPage() {
     }, [router, supabase]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value, type } = e.target;
         setFormData((prev) => ({
             ...prev,
-            [e.target.name]: e.target.value,
+            [name]: type === "number" ? (value === "" ? 0 : parseFloat(value)) : value,
         }));
     };
 
@@ -220,6 +226,43 @@ export default function SettingsPage() {
                                     <div className="font-bold text-sm truncate w-32">{displayName}</div>
                                     <div className="text-xs text-[var(--muted-foreground)]">Pro Member</div>
                                 </div>
+                            </div>
+                        </div>
+
+                        {/* Profile Summary in Sidebar */}
+                        <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 mb-6">
+                            <div className="text-xs font-semibold text-[var(--muted-foreground)] mb-3 uppercase tracking-wide">Your Stats</div>
+                            <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2 text-sm">
+                                        <Scale size={14} className="text-[var(--muted-foreground)]" />
+                                        <span className="text-[var(--muted-foreground)]">Weight</span>
+                                    </div>
+                                    <span className="text-sm font-medium">{formData.weight} kg</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2 text-sm">
+                                        <Ruler size={14} className="text-[var(--muted-foreground)]" />
+                                        <span className="text-[var(--muted-foreground)]">Height</span>
+                                    </div>
+                                    <span className="text-sm font-medium">{formData.height} cm</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2 text-sm">
+                                        <UserIcon size={14} className="text-[var(--muted-foreground)]" />
+                                        <span className="text-[var(--muted-foreground)]">Gender</span>
+                                    </div>
+                                    <span className="text-sm font-medium capitalize">{formData.gender}</span>
+                                </div>
+                                {formData.dailyCalorieGoal > 0 && (
+                                    <div className="flex items-center justify-between pt-2 border-t border-[var(--border)]">
+                                        <div className="flex items-center gap-2 text-sm">
+                                            <Flame size={14} className="text-[var(--color-accent)]" />
+                                            <span className="text-[var(--muted-foreground)]">Daily Goal</span>
+                                        </div>
+                                        <span className="text-sm font-medium text-[var(--color-accent)]">{formData.dailyCalorieGoal.toLocaleString()} kcal</span>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -379,6 +422,67 @@ export default function SettingsPage() {
                                         className="w-full bg-[var(--muted)] border border-[var(--border)] rounded-xl py-3 px-4 text-sm text-[var(--foreground)] outline-none focus:border-[var(--color-accent)] transition-colors"
                                     />
                                 </div>
+                            </div>
+                        </div>
+
+                        {/* Physical Profile */}
+                        <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 mb-6">
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="text-xl font-bold">Physical Profile</h3>
+                                <span className="text-xs text-[var(--muted-foreground)]">Used for calorie calculations</span>
+                            </div>
+
+                            <div className="grid md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="text-xs text-[var(--muted-foreground)]">Weight (kg)</label>
+                                    <input
+                                        type="number"
+                                        name="weight"
+                                        step="0.1"
+                                        value={formData.weight}
+                                        onChange={handleInputChange}
+                                        className="w-full bg-[var(--muted)] border border-[var(--border)] rounded-xl py-3 px-4 text-sm text-[var(--foreground)] outline-none focus:border-[var(--color-accent)] transition-colors"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs text-[var(--muted-foreground)]">Height (cm)</label>
+                                    <input
+                                        type="number"
+                                        name="height"
+                                        value={formData.height}
+                                        onChange={handleInputChange}
+                                        className="w-full bg-[var(--muted)] border border-[var(--border)] rounded-xl py-3 px-4 text-sm text-[var(--foreground)] outline-none focus:border-[var(--color-accent)] transition-colors"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs text-[var(--muted-foreground)]">Gender</label>
+                                    <select
+                                        name="gender"
+                                        value={formData.gender}
+                                        onChange={handleInputChange}
+                                        className="w-full bg-[var(--muted)] border border-[var(--border)] rounded-xl py-3 px-4 text-sm text-[var(--foreground)] outline-none focus:border-[var(--color-accent)] transition-colors appearance-none cursor-pointer"
+                                    >
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs text-[var(--muted-foreground)]">Date of Birth</label>
+                                    <input
+                                        type="date"
+                                        name="dateOfBirth"
+                                        value={formData.dateOfBirth}
+                                        onChange={handleInputChange}
+                                        className="w-full bg-[var(--muted)] border border-[var(--border)] rounded-xl py-3 px-4 text-sm text-[var(--foreground)] outline-none focus:border-[var(--color-accent)] transition-colors [color-scheme:dark]"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl">
+                                <p className="text-xs text-blue-400">
+                                    💡 Updating your weight or height will recalculate your daily calorie goal automatically. For activity level and workout goals, go to Fitness Preferences.
+                                </p>
                             </div>
                         </div>
 
