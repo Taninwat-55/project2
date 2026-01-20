@@ -122,7 +122,7 @@ export default function GoalsCard({ goals, onGoalChange }: GoalsCardProps) {
                                                         {goal.target_date && (
                                                             <div className="text-xs text-[var(--muted-foreground)] flex items-center gap-1">
                                                                 <Calendar size={10} />
-                                                                {new Date(goal.target_date).toLocaleDateString()}
+                                                                {goal.target_date}
                                                             </div>
                                                         )}
                                                     </div>
@@ -219,8 +219,8 @@ function GoalsModal({ onClose, onSuccess }: GoalsModalProps) {
                                         type="button"
                                         onClick={() => setGoalType(type)}
                                         className={`p-3 rounded-xl text-center transition-all ${goalType === type
-                                                ? `${config.bgColor} border-2 border-current ${config.color}`
-                                                : "bg-[var(--muted)] border-2 border-transparent hover:border-[var(--muted-foreground)]/30"
+                                            ? `${config.bgColor} border-2 border-current ${config.color}`
+                                            : "bg-[var(--muted)] border-2 border-transparent hover:border-[var(--muted-foreground)]/30"
                                             }`}
                                     >
                                         <Icon size={16} className={`mx-auto mb-1 ${goalType === type ? config.color : ""}`} />

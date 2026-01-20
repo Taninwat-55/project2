@@ -3,9 +3,33 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, X, Dumbbell, Timer, Flame, ChevronRight, AlertCircle, CheckCircle2, Calendar } from 'lucide-react';
+import { Plus, X, Dumbbell, Timer, Flame, ChevronRight, AlertCircle, CheckCircle2, Calendar, ChevronDown } from 'lucide-react';
 
 import { logWorkout } from '@/app/actions/workouts';
+
+// Workout presets with suggested values
+const WORKOUT_PRESETS = [
+    // Strength exercises
+    { name: 'Bench Press', type: 'strength' as const, sets: 4, reps: 10, caloriesPerMin: 5 },
+    { name: 'Squats', type: 'strength' as const, sets: 4, reps: 12, caloriesPerMin: 6 },
+    { name: 'Deadlift', type: 'strength' as const, sets: 3, reps: 8, caloriesPerMin: 7 },
+    { name: 'Shoulder Press', type: 'strength' as const, sets: 3, reps: 10, caloriesPerMin: 4 },
+    { name: 'Bicep Curls', type: 'strength' as const, sets: 3, reps: 12, caloriesPerMin: 3 },
+    { name: 'Tricep Dips', type: 'strength' as const, sets: 3, reps: 12, caloriesPerMin: 4 },
+    { name: 'Leg Press', type: 'strength' as const, sets: 4, reps: 10, caloriesPerMin: 5 },
+    { name: 'Pull-ups', type: 'strength' as const, sets: 3, reps: 8, caloriesPerMin: 5 },
+    { name: 'Lat Pulldown', type: 'strength' as const, sets: 3, reps: 12, caloriesPerMin: 4 },
+    { name: 'Lunges', type: 'strength' as const, sets: 3, reps: 12, caloriesPerMin: 5 },
+    // Cardio exercises
+    { name: 'Running', type: 'cardio' as const, duration: 30, distance: 5, caloriesPerMin: 10 },
+    { name: 'Cycling', type: 'cardio' as const, duration: 45, distance: 15, caloriesPerMin: 8 },
+    { name: 'Swimming', type: 'cardio' as const, duration: 30, caloriesPerMin: 9 },
+    { name: 'Jump Rope', type: 'cardio' as const, duration: 15, caloriesPerMin: 12 },
+    { name: 'Rowing', type: 'cardio' as const, duration: 20, distance: 4, caloriesPerMin: 8 },
+    { name: 'HIIT', type: 'cardio' as const, duration: 20, caloriesPerMin: 12 },
+    { name: 'Walking', type: 'cardio' as const, duration: 30, distance: 3, caloriesPerMin: 4 },
+    { name: 'Elliptical', type: 'cardio' as const, duration: 30, caloriesPerMin: 7 },
+];
 
 export default function AddWorkoutModal() {
     const router = useRouter();
@@ -13,7 +37,7 @@ export default function AddWorkoutModal() {
     const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
     const [errorMessage, setErrorMessage] = useState('');
 
-    // --- NEW: Form State ---
+    // --- Form State ---
     const [workoutName, setWorkoutName] = useState('');
     const [duration, setDuration] = useState('');
     const [calories, setCalories] = useState('');
@@ -23,9 +47,34 @@ export default function AddWorkoutModal() {
     const [weight, setWeight] = useState('');
     const [distance, setDistance] = useState('');
     const [workoutDate, setWorkoutDate] = useState(() => {
-        // Default to today's date in YYYY-MM-DD format
         return new Date().toISOString().split('T')[0];
     });
+    const [showPresets, setShowPresets] = useState(false);
+
+    // Handle selecting a preset
+    const handleSelectPreset = (preset: typeof WORKOUT_PRESETS[number]) => {
+        setWorkoutName(preset.name);
+        setType(preset.type);
+
+        if (preset.type === 'strength') {
+            setSets(preset.sets?.toString() || '');
+            setReps(preset.reps?.toString() || '');
+            // Estimate calories: ~30 min workout at the given rate
+            setCalories(Math.round(30 * preset.caloriesPerMin).toString());
+            setDuration('30');
+            setDistance('');
+        } else {
+            setDuration(preset.duration?.toString() || '30');
+            setDistance(preset.distance?.toString() || '');
+            // Calculate calories based on duration
+            const dur = preset.duration || 30;
+            setCalories(Math.round(dur * preset.caloriesPerMin).toString());
+            setSets('');
+            setReps('');
+        }
+
+        setShowPresets(false);
+    };
 
     const handleSave = async () => {
         // --- NEW: Validation Check ---
@@ -65,6 +114,7 @@ export default function AddWorkoutModal() {
                 setWeight('');
                 setDistance('');
                 setWorkoutDate(new Date().toISOString().split('T')[0]);
+                setShowPresets(false);
             }, 1500);
         } else {
             setStatus('error');
@@ -128,13 +178,82 @@ export default function AddWorkoutModal() {
 
                                 <div className="space-y-2">
                                     <label className="text-[10px] uppercase font-black text-zinc-500 tracking-widest ml-1">Workout Name</label>
-                                    <input
-                                        type="text"
-                                        value={workoutName}
-                                        onChange={(e) => setWorkoutName(e.target.value)}
-                                        placeholder="e.g. Upper Body Push"
-                                        className={`w-full bg-black border ${status === 'error' && !workoutName ? 'border-red-500/50' : 'border-white/5'} rounded-2xl px-5 py-4 focus:outline-none focus:ring-2 focus:ring-orange-500/50 text-white transition-colors`}
-                                    />
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            value={workoutName}
+                                            onChange={(e) => setWorkoutName(e.target.value)}
+                                            onFocus={() => setShowPresets(true)}
+                                            placeholder="e.g. Upper Body Push"
+                                            className={`w-full bg-black border ${status === 'error' && !workoutName ? 'border-red-500/50' : 'border-white/5'} rounded-2xl px-5 py-4 pr-12 focus:outline-none focus:ring-2 focus:ring-orange-500/50 text-white transition-colors`}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPresets(!showPresets)}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 p-2 hover:bg-white/10 rounded-lg transition-colors"
+                                        >
+                                            <ChevronDown size={16} className={`text-zinc-500 transition-transform ${showPresets ? 'rotate-180' : ''}`} />
+                                        </button>
+                                    </div>
+
+                                    {/* Preset Dropdown */}
+                                    <AnimatePresence>
+                                        {showPresets && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: -10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -10 }}
+                                                className="absolute z-10 w-[calc(100%-48px)] mt-1 bg-zinc-800 border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+                                            >
+                                                <div className="p-2 border-b border-white/5">
+                                                    <span className="text-[10px] uppercase font-black text-zinc-500 tracking-widest px-2">Quick Select</span>
+                                                </div>
+                                                <div className="max-h-48 overflow-y-auto">
+                                                    <div className="p-2">
+                                                        <div className="text-[10px] uppercase font-black text-orange-500 tracking-widest px-2 py-1">Strength</div>
+                                                        {WORKOUT_PRESETS.filter(p => p.type === 'strength').map((preset) => (
+                                                            <button
+                                                                key={preset.name}
+                                                                type="button"
+                                                                onClick={() => handleSelectPreset(preset)}
+                                                                className="w-full text-left px-3 py-2 hover:bg-white/5 rounded-lg transition-colors flex justify-between items-center group"
+                                                            >
+                                                                <span className="text-sm">{preset.name}</span>
+                                                                <span className="text-xs text-zinc-500 group-hover:text-zinc-400">
+                                                                    {preset.sets}×{preset.reps} · ~{Math.round(30 * preset.caloriesPerMin)} kcal
+                                                                </span>
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                    <div className="p-2 border-t border-white/5">
+                                                        <div className="text-[10px] uppercase font-black text-blue-500 tracking-widest px-2 py-1">Cardio</div>
+                                                        {WORKOUT_PRESETS.filter(p => p.type === 'cardio').map((preset) => (
+                                                            <button
+                                                                key={preset.name}
+                                                                type="button"
+                                                                onClick={() => handleSelectPreset(preset)}
+                                                                className="w-full text-left px-3 py-2 hover:bg-white/5 rounded-lg transition-colors flex justify-between items-center group"
+                                                            >
+                                                                <span className="text-sm">{preset.name}</span>
+                                                                <span className="text-xs text-zinc-500 group-hover:text-zinc-400">
+                                                                    {preset.duration}min · ~{Math.round((preset.duration || 30) * preset.caloriesPerMin)} kcal
+                                                                </span>
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                                <div className="p-2 border-t border-white/5 bg-zinc-900/50">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setShowPresets(false)}
+                                                        className="w-full text-center text-xs text-zinc-500 hover:text-white py-1"
+                                                    >
+                                                        Or type your own workout name above
+                                                    </button>
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">
