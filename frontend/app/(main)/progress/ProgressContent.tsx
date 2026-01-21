@@ -1,13 +1,12 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { TrendingUp, TrendingDown, Scale, Dumbbell, Plus, Check, Loader2 } from 'lucide-react';
+import { TrendingUp, TrendingDown, Scale, Plus, Check, Loader2 } from 'lucide-react';
 import ProgressChart from '@/app/components/ProgressChart';
-import { logWeight, getWeightHistory, getStrengthProgress, WeightLogEntry, StrengthProgressEntry } from '@/app/actions/progress';
+import { logWeight, getWeightHistory, WeightLogEntry } from '@/app/actions/progress';
 
 interface ProgressContentProps {
     initialWeightHistory: WeightLogEntry[];
-    initialStrengthProgress: StrengthProgressEntry[];
     currentWeight: number | null;
 }
 
@@ -23,12 +22,10 @@ const timeRanges: { label: string; value: TimeRange; months?: number }[] = [
 
 export default function ProgressContent({
     initialWeightHistory,
-    initialStrengthProgress,
     currentWeight
 }: ProgressContentProps) {
     const [timeRange, setTimeRange] = useState<TimeRange>('3m');
     const [weightHistory, setWeightHistory] = useState(initialWeightHistory);
-    const [strengthProgress, setStrengthProgress] = useState(initialStrengthProgress);
     const [isPending, startTransition] = useTransition();
 
     // Weight logging state
@@ -43,15 +40,10 @@ export default function ProgressContent({
 
         startTransition(async () => {
             try {
-                const [newWeightHistory, newStrengthProgress] = await Promise.all([
-                    getWeightHistory(months),
-                    getStrengthProgress(months)
-                ]);
+                const newWeightHistory = await getWeightHistory(months);
                 setWeightHistory(newWeightHistory);
-                setStrengthProgress(newStrengthProgress);
             } catch (error) {
                 console.error('Failed to load progress data:', error);
-                // Keep existing data on error
             }
         });
     };
@@ -96,10 +88,7 @@ export default function ProgressContent({
         ? ((weightChange / weightHistory[0].weight) * 100).toFixed(1)
         : '0';
 
-    // Get unique exercises for strength chart
-    const exercises = [...new Set(strengthProgress.map(s => s.exercise))];
-    const primaryExercise = exercises[0] || 'No exercises';
-    const primaryExerciseData = strengthProgress.filter(s => s.exercise === primaryExercise);
+
 
     return (
         <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
@@ -227,50 +216,7 @@ export default function ProgressContent({
                     </div>
                 </div>
 
-                {/* Strength Progress Chart */}
-                <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6">
-                    <div className="flex justify-between items-center mb-6">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-[var(--color-accent)]/20 rounded-full flex items-center justify-center">
-                                <Dumbbell className="w-5 h-5 text-[var(--color-accent)]" />
-                            </div>
-                            <div>
-                                <h2 className="text-xl font-bold">Strength Progress</h2>
-                                <p className="text-sm text-[var(--muted-foreground)]">
-                                    {exercises.length > 0
-                                        ? `Showing: ${primaryExercise}`
-                                        : 'Log workouts with weights to track progress'
-                                    }
-                                </p>
-                            </div>
-                        </div>
-                        {exercises.length > 1 && (
-                            <div className="flex gap-2 flex-wrap">
-                                {exercises.slice(0, 3).map(ex => (
-                                    <span
-                                        key={ex}
-                                        className="px-3 py-1 bg-[var(--muted)] rounded-full text-xs text-[var(--muted-foreground)]"
-                                    >
-                                        {ex}
-                                    </span>
-                                ))}
-                                {exercises.length > 3 && (
-                                    <span className="px-3 py-1 bg-[var(--muted)] rounded-full text-xs text-[var(--muted-foreground)]">
-                                        +{exercises.length - 3} more
-                                    </span>
-                                )}
-                            </div>
-                        )}
-                    </div>
 
-                    <ProgressChart
-                        labels={primaryExerciseData.map(s => s.date)}
-                        data={primaryExerciseData.map(s => s.maxWeight)}
-                        label={primaryExercise}
-                        color="#f97316"
-                        unit="kg"
-                    />
-                </div>
             </main>
         </div>
     );
