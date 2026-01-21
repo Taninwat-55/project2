@@ -214,7 +214,7 @@ export default async function Dashboard({
     .filter(w => ["Running", "Cycling"].includes(w.type))
     .reduce((acc, w) => acc + (w.duration_minutes || 0), 0);
 
-  // Dynamic Weekly Goals
+  // Dynamic Weekly Goals (simplified to just workouts)
   const weeklyGoals = [
     {
       label: "Workouts",
@@ -222,20 +222,6 @@ export default async function Dashboard({
       target: weeklyGoalTarget,
       unit: "days",
       color: "bg-orange-500"
-    },
-    {
-      label: "Strength",
-      current: weeklyStrength,
-      target: strengthGoalTarget,
-      unit: "days",
-      color: "bg-blue-500"
-    },
-    {
-      label: "Cardio",
-      current: weeklyCardio,
-      target: cardioGoalTarget,
-      unit: "min",
-      color: "bg-purple-500"
     },
   ];
 
