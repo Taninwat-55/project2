@@ -261,7 +261,7 @@ export default async function Dashboard({
     {
       label: "Calories Consumed",
       value: todayNutrition.caloriesConsumed.toString(),
-      unit: `/ ${nutritionGoals.calorieGoal} kcal`,
+      unit: `/ ${nutritionGoals.calories} kcal`,
       change: "Today",
       up: true,
       icon: Utensils,
