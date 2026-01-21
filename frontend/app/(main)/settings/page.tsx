@@ -38,6 +38,7 @@ export default function SettingsPage() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [msg, setMsg] = useState<{ type: "success" | "error", text: string } | null>(null);
+    const [caloriesConsumed, setCaloriesConsumed] = useState(0);
     const router = useRouter();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -58,6 +59,9 @@ export default function SettingsPage() {
         dailyCalorieGoal: 0,
         language: "English (US)",
         timezone: "(GMT-8:00) Pacific Time (USA & Canada)",
+        // Fitness preferences for calorie calculation
+        primaryFocus: "maintain",
+        weeklyWeightGoal: 0,
     });
 
     const supabase = createBrowserClient(
@@ -97,6 +101,37 @@ export default function SettingsPage() {
                     dailyCalorieGoal: profile.daily_calorie_goal || 0,
                 }));
             }
+
+            // Fetch fitness preferences for calorie calculation
+            const { data: settings } = await supabase
+                .from("user_settings")
+                .select("primary_focus, weekly_weight_goal_kg")
+                .eq("user_id", user.id)
+                .single();
+
+            if (settings) {
+                setFormData((prev) => ({
+                    ...prev,
+                    primaryFocus: settings.primary_focus || "maintain",
+                    weeklyWeightGoal: settings.weekly_weight_goal_kg || 0,
+                }));
+            }
+
+            // Fetch today's consumed calories
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const { data: mealLogs } = await supabase
+                .from("meal_logs")
+                .select("calories")
+                .eq("user_id", user.id)
+                .gte("created_at", today.toISOString());
+
+            if (mealLogs) {
+                const totalConsumed = mealLogs.reduce((sum, log) => sum + (Number(log.calories) || 0), 0);
+                setCaloriesConsumed(totalConsumed);
+            }
+
             setLoading(false);
         };
         load();
@@ -263,7 +298,9 @@ export default function SettingsPage() {
                                         formData.height,
                                         age,
                                         formData.gender as Gender,
-                                        formData.activityLevel as ActivityLevel
+                                        formData.activityLevel as ActivityLevel,
+                                        formData.primaryFocus,
+                                        formData.weeklyWeightGoal
                                     );
                                     return calculatedCalories > 0 && (
                                         <div className="flex items-center justify-between pt-2 border-t border-[var(--border)]">
@@ -271,7 +308,9 @@ export default function SettingsPage() {
                                                 <Flame size={14} className="text-[var(--color-accent)]" />
                                                 <span className="text-[var(--muted-foreground)]">Daily Goal</span>
                                             </div>
-                                            <span className="text-sm font-medium text-[var(--color-accent)]">{calculatedCalories.toLocaleString()} kcal</span>
+                                            <span className="text-sm font-medium text-[var(--color-accent)]">
+                                                {caloriesConsumed.toLocaleString()} / {calculatedCalories.toLocaleString()} kcal
+                                            </span>
                                         </div>
                                     );
                                 })()}
