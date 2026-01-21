@@ -34,7 +34,7 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
   const navLinks = [
     { name: 'Home', href: '/' },
     { name: 'About', href: '/about' },
-    {name: 'Dashboard', href: '/dashboard' },
+    { name: 'Dashboard', href: '/dashboard' },
     { name: 'Contact', href: '/contact' },
     { name: 'Pricing', href: '/pricing' },
   ];
@@ -44,6 +44,20 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
+
+  // Logic to track if notifications are "on" (orange) or "off" (white)
+  const [notificationsOn, setNotificationsOn] = useState(true);
+  // Logic to trigger the physical animation
+  const [isRinging, setIsRinging] = useState(false);
+
+  const handleBellClick = () => {
+    setIsRinging(true);
+    // Toggles between orange and white
+    setNotificationsOn(!notificationsOn);
+
+    // Reset animation state after 500ms
+    setTimeout(() => setIsRinging(false), 500);
+  };
 
   useEffect(() => {
     // Get initial user
@@ -85,7 +99,11 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
     user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';
 
   return (
-    <header className={`${fixed ? 'sticky top-0' : 'relative'} w-full z-50 transition-all duration-300`}>
+    <header
+      className={`${
+        fixed ? 'sticky top-0' : 'relative'
+      } w-full z-50 transition-all duration-300`}
+    >
       <div className="max-w-[1400px] mx-auto px-6 md:px-12 py-6 flex justify-between items-center">
         {/* Logo Section */}
         <Link href="/" className="flex items-center gap-2 group">
@@ -116,9 +134,9 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{
-                      type: "spring",
+                      type: 'spring',
                       bounce: 0.2,
-                      duration: 0.4
+                      duration: 0.4,
                     }}
                   />
                 )}
@@ -133,8 +151,43 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
           {user ? (
             <>
               {/* Notification Bell */}
-              <button className="relative p-2 text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors cursor-pointer">
-                <Bell size={22} />
+              <button
+                onClick={handleBellClick}
+                className="relative p-2 transition-colors cursor-pointer"
+                aria-label="Toggle Notifications"
+              >
+                <motion.div
+                  animate={
+                    isRinging
+                      ? {
+                          rotate: [0, -20, 20, -15, 15, -5, 5, 0],
+                          scale: [1, 1.2, 1],
+                        }
+                      : {
+                          rotate: 0,
+                          scale: 1,
+                        }
+                  }
+                  transition={{ duration: 0.5, ease: 'easeInOut' }}
+                >
+                  <Bell
+                    size={22}
+                    // Simple logic: If on -> Orange, If off -> White
+                    className={`transition-colors duration-300 ${
+                      notificationsOn ? 'text-orange-500' : 'text-white'
+                    }`}
+                    // Fill the bell slightly when "on" for a more premium look
+                    fill={notificationsOn ? 'currentColor' : 'none'}
+                  />
+                </motion.div>
+
+                {/* Subtle glow effect only when notifications are ON */}
+                {notificationsOn && (
+                  <motion.div
+                    layoutId="glow"
+                    className="absolute inset-0 bg-orange-500/10 blur-lg rounded-full"
+                  />
+                )}
               </button>
 
               {/* Profile Avatar & Dropdown */}
@@ -151,41 +204,87 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
                   {isDropdownOpen && (
                     <motion.div
                       // 1. Start much smaller and higher up, growing from the top right
-                      initial={{ opacity: 0, scale: 0.85, y: -20, transformOrigin: 'top right' }}
+                      initial={{
+                        opacity: 0,
+                        scale: 0.85,
+                        y: -20,
+                        transformOrigin: 'top right',
+                      }}
                       // 2. Animate to full size and correct position
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       // 3. Exit quickly by shrinking
-                      exit={{ opacity: 0, scale: 0.9, y: -10, transition: { duration: 0.15, ease: "easeOut" } }}
+                      exit={{
+                        opacity: 0,
+                        scale: 0.9,
+                        y: -10,
+                        transition: { duration: 0.15, ease: 'easeOut' },
+                      }}
                       // 4. The Bubbly Spring Physics configuration
                       transition={{
-                        type: "spring",
+                        type: 'spring',
                         bounce: 0.55, // Adjust between 0.4 (subtle) and 0.7 (very bouncy). 0.55 is very "Apple-like".
-                        duration: 0.5
+                        duration: 0.5,
                       }}
                       className="absolute right-0 mt-3 w-52 bg-zinc-900/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 p-1.5"
                     >
                       {/* User Header - Compact Pill */}
                       <div className="px-3 py-2 mb-1 border-b border-white/5">
-                        <p className="text-[11px] font-black text-zinc-500 uppercase tracking-widest">Account</p>
-                        <p className="text-sm font-bold text-white truncate">{displayName}</p>
+                        <p className="text-[11px] font-black text-zinc-500 uppercase tracking-widest">
+                          Account
+                        </p>
+                        <p className="text-sm font-bold text-white truncate">
+                          {displayName}
+                        </p>
                       </div>
 
                       <div className="space-y-0.5">
                         {[
-                          { name: 'Dashboard', icon: <LayoutDashboard size={16} />, href: '/dashboard' },
-                          { name: 'Workouts', icon: <Dumbbell size={16} />, href: '/workouts' },
-                          { name: 'Nutrition', icon: <UtensilsCrossed size={16} />, href: '/nutrition' },
-                          { name: 'Progress', icon: <TrendingUp size={16} />, href: '/progress' },
-                          { name: 'Archive', icon: <Archive size={16} />, href: '/archive' },
-                          { name: 'History', icon: <History size={16} />, href: '/history' },
+                          {
+                            name: 'Dashboard',
+                            icon: <LayoutDashboard size={16} />,
+                            href: '/dashboard',
+                          },
+                          {
+                            name: 'Workouts',
+                            icon: <Dumbbell size={16} />,
+                            href: '/workouts',
+                          },
+                          {
+                            name: 'Nutrition',
+                            icon: <UtensilsCrossed size={16} />,
+                            href: '/nutrition',
+                          },
+                          {
+                            name: 'Progress',
+                            icon: <TrendingUp size={16} />,
+                            href: '/progress',
+                          },
+                          {
+                            name: 'Archive',
+                            icon: <Archive size={16} />,
+                            href: '/archive',
+                          },
+                          {
+                            name: 'History',
+                            icon: <History size={16} />,
+                            href: '/history',
+                          },
                         ].map((item) => (
-                          <Link key={item.name} href={item.href} onClick={() => setIsDropdownOpen(false)}>
+                          <Link
+                            key={item.name}
+                            href={item.href}
+                            onClick={() => setIsDropdownOpen(false)}
+                          >
                             <motion.div
                               whileTap={{ scale: 0.96 }}
                               className="flex items-center gap-3 px-3 py-2 rounded-xl text-zinc-400 hover:text-white hover:bg-white/10 transition-colors group cursor-pointer"
                             >
-                              <span className="group-hover:text-orange-500 transition-colors">{item.icon}</span>
-                              <span className="text-sm font-medium">{item.name}</span>
+                              <span className="group-hover:text-orange-500 transition-colors">
+                                {item.icon}
+                              </span>
+                              <span className="text-sm font-medium">
+                                {item.name}
+                              </span>
                             </motion.div>
                           </Link>
                         ))}
@@ -195,16 +294,32 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
 
                       <div className="space-y-0.5">
                         {[
-                          { name: 'Settings', icon: <Settings size={16} />, href: '/settings' },
-                          { name: 'Support', icon: <HelpCircle size={16} />, href: '/support' },
+                          {
+                            name: 'Settings',
+                            icon: <Settings size={16} />,
+                            href: '/settings',
+                          },
+                          {
+                            name: 'Support',
+                            icon: <HelpCircle size={16} />,
+                            href: '/support',
+                          },
                         ].map((item) => (
-                          <Link key={item.name} href={item.href} onClick={() => setIsDropdownOpen(false)}>
+                          <Link
+                            key={item.name}
+                            href={item.href}
+                            onClick={() => setIsDropdownOpen(false)}
+                          >
                             <motion.div
                               whileTap={{ scale: 0.96 }}
                               className="flex items-center gap-3 px-3 py-2 rounded-xl text-zinc-400 hover:text-white hover:bg-white/10 transition-colors group cursor-pointer"
                             >
-                              <span className="group-hover:text-orange-500 transition-colors">{item.icon}</span>
-                              <span className="text-sm font-medium">{item.name}</span>
+                              <span className="group-hover:text-orange-500 transition-colors">
+                                {item.icon}
+                              </span>
+                              <span className="text-sm font-medium">
+                                {item.name}
+                              </span>
                             </motion.div>
                           </Link>
                         ))}
@@ -222,7 +337,8 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
                   )}
                 </AnimatePresence>
               </div>
-            </>) : (
+            </>
+          ) : (
             <>
               <Link
                 href="/login"
