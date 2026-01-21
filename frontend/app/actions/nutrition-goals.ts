@@ -134,37 +134,33 @@ export async function getNutritionGoals(): Promise<NutritionGoals> {
     ...macros,
     hasProfile: true,
   };
-} // <--- Denna måsvinge saknades!
+} 
 
-export async function getTodayNutrition(): Promise<TodayNutrition> {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+// @/app/actions/nutrition-goals.ts
 
-  const emptyData: TodayNutrition = {
+export async function getTodayNutrition() {
+  const supabase = await createClient(); // Eller din DB-klient
+  
+  // Hämta alla måltider för idag
+  const { data: meals, error } = await supabase
+    .from('meal_logs')
+    .select('calories, protein_g, carbs_g, fat_g')
+    .gte('created_at', new Date().toISOString().split('T')[0]);
+
+  if (error) return { caloriesConsumed: 0, proteinConsumed: 0, carbsConsumed: 0, fatConsumed: 0 };
+
+  // Räkna ihop totalen
+  const totals = meals.reduce((acc, meal) => ({
+    caloriesConsumed: acc.caloriesConsumed + Number(meal.calories || 0),
+    proteinConsumed: acc.proteinConsumed + Number(meal.protein_g || 0),
+    carbsConsumed: acc.carbsConsumed + Number(meal.carbs_g || 0),
+    fatConsumed: acc.fatConsumed + Number(meal.fat_g || 0),
+  }), {
     caloriesConsumed: 0,
     proteinConsumed: 0,
     carbsConsumed: 0,
     fatConsumed: 0,
-    caloriesBurned: 0,
-  };
+  });
 
-  if (!user) return emptyData;
-
-  const today = new Date().toISOString().split("T")[0];
-
-  const { data: logs } = await supabase
-    .from("food_logs")
-    .select("calories, protein, carbs, fat")
-    .eq("user_id", user.id)
-    .eq("date", today);
-
-  if (!logs) return emptyData;
-
-  return logs.reduce((acc, log) => ({
-    caloriesConsumed: acc.caloriesConsumed + (Number(log.calories) || 0),
-    proteinConsumed: acc.proteinConsumed + (Number(log.protein) || 0),
-    carbsConsumed: acc.carbsConsumed + (Number(log.carbs) || 0),
-    fatConsumed: acc.fatConsumed + (Number(log.fat) || 0),
-    caloriesBurned: 0,
-  }), emptyData);
+  return { ...totals, caloriesBurned: 0 }; // Returnera objektet som din sida förväntar sig
 }
