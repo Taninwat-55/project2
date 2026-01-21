@@ -26,6 +26,7 @@ import ViewTemplateModal from "@/app/components/ViewTemplateModal";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
+// --- INTERFACES ---
 interface Ingredient {
   name: string;
   kcal: number;
@@ -59,48 +60,66 @@ export default function NutritionPage() {
   >("breakfast");
 
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState<MealTemplate | null>(
-    null
-  );
+  const [selectedTemplate, setSelectedTemplate] = useState<MealTemplate | null>(null);
   const [templates, setTemplates] = useState<MealTemplate[]>([]);
 
-  // Dynamic goals from user profile
+  // Uppdaterad för att matcha NutritionGoals interfacet exakt
   const [goals, setGoals] = useState<NutritionGoals>({
-    calorieGoal: 2000,
-    proteinG: 150,
-    carbsG: 200,
-    fatG: 55,
+    calories: 2000,
+    protein: 150,
+    carbs: 250,
+    fat: 70,
     hasProfile: false,
   });
 
-  // Today's consumed nutrition + burned calories
   const [consumed, setConsumed] = useState<TodayNutrition>({
     caloriesConsumed: 0,
     proteinConsumed: 0,
     carbsConsumed: 0,
     fatConsumed: 0,
-    caloriesBurned: 0, // Nu med brända kalorier!
+    caloriesBurned: 0,
   });
 
   const hydrationGoal = 2500;
-  const hydrationPercentage = Math.min(
-    100,
-    Math.round((hydration / hydrationGoal) * 100)
-  );
+  const hydrationPercentage = Math.min(100, Math.round((hydration / hydrationGoal) * 100));
 
-  // FETCH DATA FUNCTION
   const fetchData = async () => {
-    getTodayHydration().then(setHydration);
-    getNutritionGoals().then(setGoals);
-    getTodayNutrition().then(setConsumed);
-    getMealTemplates().then((data) =>
-      setTemplates(data as unknown as MealTemplate[])
-    );
+    const [hyd, nutGoals, todayNut, mealTemplates] = await Promise.all([
+      getTodayHydration(),
+      getNutritionGoals(),
+      getTodayNutrition(),
+      getMealTemplates()
+    ]);
+
+    setHydration(hyd);
+    setGoals(nutGoals);
+    setConsumed(todayNut);
+    setTemplates(mealTemplates as unknown as MealTemplate[]);
+  };
+// I din NutritionPage komponent:
+
+useEffect(() => {
+  // Definiera funktionen här inne för att undvika onödiga omrenderingar
+  const loadData = async () => {
+    try {
+      const [hyd, nutGoals, todayNut, mealTemplates] = await Promise.all([
+        getTodayHydration(),
+        getNutritionGoals(),
+        getTodayNutrition(),
+        getMealTemplates()
+      ]);
+
+      setHydration(hyd);
+      setGoals(nutGoals);
+      setConsumed(todayNut);
+      setTemplates(mealTemplates as unknown as MealTemplate[]);
+    } catch (error) {
+      console.error("Kunde inte hämta data:", error);
+    }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  loadData();
+}, []); // Tom array betyder att den bara körs vid första laddningen
 
   const handleLogTemplate = async (template: MealTemplate, mealType: string) => {
     const result = await logMealFromTemplate(template, mealType);
@@ -113,8 +132,7 @@ export default function NutritionPage() {
   };
 
   const openLogModal = (mealName: string) => {
-    const typeMap: Record<string, "breakfast" | "lunch" | "dinner" | "snack"> =
-    {
+    const typeMap: Record<string, "breakfast" | "lunch" | "dinner" | "snack"> = {
       Breakfast: "breakfast",
       Lunch: "lunch",
       Dinner: "dinner",
@@ -155,19 +173,19 @@ export default function NutritionPage() {
     ],
   });
 
-  // Beräkning: (Mål + Träning) - Ätit
-const totalCalorieBudget = (goals.calorieGoal || 2000) + (consumed.caloriesBurned || 0);
+  // BERÄKNINGAR (Använder de nya namnen)
+  const totalCalorieBudget = (goals.calories || 2000) + (consumed.caloriesBurned || 0);
   const caloriesRemaining = Math.max(0, totalCalorieBudget - consumed.caloriesConsumed);
 
-  const proteinStatus = consumed.proteinConsumed >= goals.proteinG * 0.8 ? "High" : consumed.proteinConsumed >= goals.proteinG * 0.5 ? "Good" : "Low";
-  const carbsStatus = consumed.carbsConsumed >= goals.carbsG * 0.8 ? "Near" : consumed.carbsConsumed >= goals.carbsG * 0.5 ? "Good" : "Low";
-  const fatStatus = consumed.fatConsumed >= goals.fatG * 0.8 ? "Near" : consumed.fatConsumed >= goals.fatG * 0.5 ? "Good" : "Low";
+  const proteinStatus = consumed.proteinConsumed >= goals.protein * 0.8 ? "High" : consumed.proteinConsumed >= goals.protein * 0.5 ? "Good" : "Low";
+  const carbsStatus = consumed.carbsConsumed >= goals.carbs * 0.8 ? "Near" : consumed.carbsConsumed >= goals.carbs * 0.5 ? "Good" : "Low";
+  const fatStatus = consumed.fatConsumed >= goals.fat * 0.8 ? "Near" : consumed.fatConsumed >= goals.fat * 0.5 ? "Good" : "Low";
 
   const macroCards = [
     {
       label: "Daily Calories",
       val: consumed.caloriesConsumed,
-      goal: totalCalorieBudget, // Visar totalt budget inkl träning
+      goal: totalCalorieBudget,
       unit: "kcal",
       color: "#f97316",
       footerLabel: "Remaining",
@@ -177,7 +195,7 @@ const totalCalorieBudget = (goals.calorieGoal || 2000) + (consumed.caloriesBurne
     {
       label: "Protein",
       val: consumed.proteinConsumed,
-      goal: goals.proteinG,
+      goal: goals.protein,
       unit: "g",
       color: "#206A9E",
       footerLabel: "Status",
@@ -186,7 +204,7 @@ const totalCalorieBudget = (goals.calorieGoal || 2000) + (consumed.caloriesBurne
     {
       label: "Carbs",
       val: consumed.carbsConsumed,
-      goal: goals.carbsG,
+      goal: goals.carbs,
       unit: "g",
       color: "#51A255",
       footerLabel: "Target",
@@ -195,7 +213,7 @@ const totalCalorieBudget = (goals.calorieGoal || 2000) + (consumed.caloriesBurne
     {
       label: "Fats",
       val: consumed.fatConsumed,
-      goal: goals.fatG,
+      goal: goals.fat,
       unit: "g",
       color: "#C7831F",
       footerLabel: "Balance",
@@ -235,8 +253,7 @@ const totalCalorieBudget = (goals.calorieGoal || 2000) + (consumed.caloriesBurne
                     {Math.round((m.val / (m.goal || 1)) * 100)}%
                   </span>
                   <span className="text-zinc-500 text-[10px] font-bold uppercase mt-1">
-                    {m.val}
-                    {m.unit}
+                    {m.val} {m.unit}
                   </span>
                 </div>
               </div>
