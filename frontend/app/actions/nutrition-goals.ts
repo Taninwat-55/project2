@@ -2,6 +2,8 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { getUserSettings } from "./settings";
+import { calculateDailyCalories, calculateAge } from "@/utils/bmr";
+import { ActivityLevel, Gender } from "@/types/database";
 
 // --- TYPER ---
 interface ProfileData {
@@ -28,52 +30,7 @@ export interface TodayNutrition {
   caloriesBurned: number;
 }
 
-// --- LOGIK FÖR BERÄKNING ---
-
-function calculateAge(dob: string): number {
-  const birthDate = new Date(dob);
-  const today = new Date();
-  let age = today.getFullYear() - birthDate.getFullYear();
-  const m = today.getMonth() - birthDate.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
-  return age;
-}
-
-function calculateDailyCalories(
-  weight: number,
-  height: number,
-  age: number,
-  gender: string,
-  activityLevel: string,
-  primaryFocus: string,
-  weeklyGoalKg: number 
-): number {
-  // 1. BMR
-  let bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
-  if (gender === "male") bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
-
-  // 2. TDEE (Maintenance)
-  const activityMultipliers: Record<string, number> = {
-    sedentary: 1.2,
-    lightly_active: 1.375,
-    moderate: 1.55,
-    very_active: 1.725,
-  };
-  const maintenance = bmr * (activityMultipliers[activityLevel] || 1.2);
-
-  // 3. JUSTERING
-  // 0.5kg motsvarar ca 300 kcal underskott med din formel (0.5 * 600)
-  const dailyAdjustment = Math.abs(weeklyGoalKg) * 600; 
-
-  if (primaryFocus === "weight_loss") {
-    return Math.round(maintenance - dailyAdjustment);
-  } else if (primaryFocus === "weight_gain") {
-    return Math.round(maintenance + dailyAdjustment);
-  }
-
-  return Math.round(maintenance);
-}
-
+// Macro calculation helper
 function calculateMacros(calories: number, weight: number): Omit<NutritionGoals, "hasProfile"> {
   // Dessa procent fungerar för alla kroppstyper:
   const proteinPercent = 0.21; // 21% Protein
@@ -117,13 +74,13 @@ export async function getNutritionGoals(): Promise<NutritionGoals> {
   }
 
   const age = profile.date_of_birth ? calculateAge(profile.date_of_birth) : 25;
-  
+
   const calorieGoal = calculateDailyCalories(
     profile.weight_kg,
     profile.height_cm,
     age,
-    profile.gender || "female",
-    settings.activity_level,
+    (profile.gender || "female") as Gender,
+    settings.activity_level as ActivityLevel,
     settings.primary_focus,
     settings.weekly_weight_goal_kg
   );
@@ -150,21 +107,23 @@ export async function getTodayNutrition(): Promise<TodayNutrition> {
 
   if (!user) return emptyData;
 
-  const today = new Date().toISOString().split("T")[0];
+  // Get the start of today
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
   const { data: logs } = await supabase
-    .from("food_logs")
-    .select("calories, protein, carbs, fat")
+    .from("meal_logs")
+    .select("calories, protein_g, carbs_g, fat_g")
     .eq("user_id", user.id)
-    .eq("date", today);
+    .gte("created_at", today.toISOString());
 
   if (!logs) return emptyData;
 
   return logs.reduce((acc, log) => ({
     caloriesConsumed: acc.caloriesConsumed + (Number(log.calories) || 0),
-    proteinConsumed: acc.proteinConsumed + (Number(log.protein) || 0),
-    carbsConsumed: acc.carbsConsumed + (Number(log.carbs) || 0),
-    fatConsumed: acc.fatConsumed + (Number(log.fat) || 0),
+    proteinConsumed: acc.proteinConsumed + (Number(log.protein_g) || 0),
+    carbsConsumed: acc.carbsConsumed + (Number(log.carbs_g) || 0),
+    fatConsumed: acc.fatConsumed + (Number(log.fat_g) || 0),
     caloriesBurned: 0,
   }), emptyData);
 }
