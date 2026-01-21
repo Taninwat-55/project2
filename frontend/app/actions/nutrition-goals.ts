@@ -111,19 +111,37 @@ export async function getTodayNutrition(): Promise<TodayNutrition> {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
+  // Fetch today's meal logs
   const { data: logs } = await supabase
     .from("meal_logs")
     .select("calories, protein_g, carbs_g, fat_g")
     .eq("user_id", user.id)
     .gte("created_at", today.toISOString());
 
-  if (!logs) return emptyData;
+  // Fetch today's workouts for calories burned
+  const { data: workouts } = await supabase
+    .from("workouts")
+    .select("calories_burned")
+    .eq("user_id", user.id)
+    .gte("performed_at", today.toISOString());
 
-  return logs.reduce((acc, log) => ({
+  // Calculate total calories burned from workouts
+  const totalCaloriesBurned = workouts?.reduce(
+    (acc, w) => acc + (Number(w.calories_burned) || 0),
+    0
+  ) || 0;
+
+  if (!logs) {
+    return { ...emptyData, caloriesBurned: totalCaloriesBurned };
+  }
+
+  const nutrition = logs.reduce((acc, log) => ({
     caloriesConsumed: acc.caloriesConsumed + (Number(log.calories) || 0),
     proteinConsumed: acc.proteinConsumed + (Number(log.protein_g) || 0),
     carbsConsumed: acc.carbsConsumed + (Number(log.carbs_g) || 0),
     fatConsumed: acc.fatConsumed + (Number(log.fat_g) || 0),
-    caloriesBurned: 0,
-  }), emptyData);
+    caloriesBurned: totalCaloriesBurned,
+  }), { ...emptyData, caloriesBurned: totalCaloriesBurned });
+
+  return nutrition;
 }
