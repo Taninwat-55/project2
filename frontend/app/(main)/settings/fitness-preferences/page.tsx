@@ -48,8 +48,7 @@ export default function FitnessPreferencesPage() {
     const [energyUnit, setEnergyUnit] = useState<"calories" | "kilojoules">("calories");
     const [primaryFocus, setPrimaryFocus] = useState("general_fitness");
     const [weeklyGoal, setWeeklyGoal] = useState(4);
-    const [strengthGoalDays, setStrengthGoalDays] = useState(3);
-    const [cardioGoalMinutes, setCardioGoalMinutes] = useState(120);
+    const [weeklyWeightGoal, setWeeklyWeightGoal] = useState(0);
     const [activityLevel, setActivityLevel] = useState("lightly_active");
 
     const supabase = createBrowserClient(
@@ -73,8 +72,7 @@ export default function FitnessPreferencesPage() {
             setEnergyUnit(settings.energy_unit);
             setPrimaryFocus(settings.primary_focus);
             setWeeklyGoal(settings.weekly_goal);
-            setStrengthGoalDays(settings.strength_goal_days ?? 3);
-            setCardioGoalMinutes(settings.cardio_goal_minutes ?? 120);
+            setWeeklyWeightGoal(settings.weekly_weight_goal_kg ?? 0);
             setActivityLevel(settings.activity_level);
 
             setLoading(false);
@@ -96,8 +94,9 @@ export default function FitnessPreferencesPage() {
             energy_unit: energyUnit,
             primary_focus: primaryFocus,
             weekly_goal: weeklyGoal,
-            strength_goal_days: strengthGoalDays,
-            cardio_goal_minutes: cardioGoalMinutes,
+            weekly_weight_goal_kg: weeklyWeightGoal,
+            strength_goal_days: 0, // Legacy, no longer used
+            cardio_goal_minutes: 0, // Legacy, no longer used
             activity_level: activityLevel,
         });
 
@@ -276,80 +275,61 @@ export default function FitnessPreferencesPage() {
                             <p className="text-[var(--muted-foreground)] text-sm mb-6">Set your target to help us personalize your plan.</p>
 
                             <div className="grid md:grid-cols-2 gap-6">
-                                {/* Primary Focus */}
+                                {/* Primary Focus - Simplified to 3 Weight Options */}
                                 <div>
-                                    <label className="text-sm text-[var(--muted-foreground)] mb-2 block">Primary Focus</label>
-                                    <select
-                                        value={primaryFocus}
-                                        onChange={(e) => setPrimaryFocus(e.target.value)}
-                                        className="w-full bg-[var(--muted)] border border-[var(--border)] rounded-xl py-3 px-4 text-sm text-[var(--foreground)] outline-none focus:border-[var(--color-accent)] transition-colors appearance-none cursor-pointer"
-                                    >
-                                        <option value="weight_loss">Weight Loss</option>
-                                        <option value="muscle_gain">Muscle Gain</option>
-                                        <option value="endurance">Endurance</option>
-                                        <option value="flexibility">Flexibility</option>
-                                        <option value="general_fitness">General Fitness</option>
-                                    </select>
-                                </div>
-
-                                {/* Weekly Workout Goal (Generic) */}
-                                <div>
-                                    <div className="flex justify-between items-center mb-2">
-                                        <label className="text-sm text-[var(--muted-foreground)]">Weekly Workout Goal</label>
-                                        <span className="text-sm text-[var(--color-accent)] font-medium">{weeklyGoal} days</span>
-                                    </div>
-                                    <input
-                                        type="range"
-                                        min="1"
-                                        max="7"
-                                        value={weeklyGoal}
-                                        onChange={(e) => setWeeklyGoal(Number(e.target.value))}
-                                        className="w-full h-2 bg-[var(--muted)] rounded-full appearance-none cursor-pointer accent-[var(--color-accent)]"
-                                    />
-                                    <div className="flex justify-between text-xs text-[var(--color-accent)] mt-1">
-                                        <span>1 day</span>
-                                        <span>7 days</span>
-                                    </div>
-                                </div>
-
-                                {/* Strength Goal */}
-                                <div>
-                                    <div className="flex justify-between items-center mb-2">
-                                        <label className="text-sm text-[var(--muted-foreground)]">Strength Goal (Days)</label>
-                                        <span className="text-sm text-[var(--color-accent)] font-medium">{strengthGoalDays} days</span>
-                                    </div>
-                                    <input
-                                        type="range"
-                                        min="0"
-                                        max="7"
-                                        value={strengthGoalDays}
-                                        onChange={(e) => setStrengthGoalDays(Number(e.target.value))}
-                                        className="w-full h-2 bg-[var(--muted)] rounded-full appearance-none cursor-pointer accent-[var(--color-accent)]"
-                                    />
-                                    <div className="flex justify-between text-xs text-[var(--muted-foreground)] mt-1">
-                                        <span>0</span>
-                                        <span>7</span>
+                                    <label className="text-sm text-[var(--muted-foreground)] mb-2 block">Weight Goal</label>
+                                    <div className="flex bg-[var(--muted)] rounded-xl p-1">
+                                        <button
+                                            onClick={() => setPrimaryFocus("weight_loss")}
+                                            className={`flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-colors ${primaryFocus === "weight_loss"
+                                                ? "bg-[var(--color-accent)] text-white"
+                                                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                                                }`}
+                                        >
+                                            Lose Weight
+                                        </button>
+                                        <button
+                                            onClick={() => setPrimaryFocus("maintain")}
+                                            className={`flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-colors ${primaryFocus === "maintain"
+                                                ? "bg-[var(--color-accent)] text-white"
+                                                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                                                }`}
+                                        >
+                                            Maintain
+                                        </button>
+                                        <button
+                                            onClick={() => setPrimaryFocus("weight_gain")}
+                                            className={`flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-colors ${primaryFocus === "weight_gain"
+                                                ? "bg-[var(--color-accent)] text-white"
+                                                : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                                                }`}
+                                        >
+                                            Gain Weight
+                                        </button>
                                     </div>
                                 </div>
 
-                                {/* Cardio Goal */}
+                                {/* Weekly Weight Goal Slider */}
                                 <div>
                                     <div className="flex justify-between items-center mb-2">
-                                        <label className="text-sm text-[var(--muted-foreground)]">Cardio Goal (Minutes)</label>
-                                        <span className="text-sm text-[var(--color-accent)] font-medium">{cardioGoalMinutes} min</span>
+                                        <label className="text-sm text-[var(--muted-foreground)]">Weekly Weight Target</label>
+                                        <span className="text-sm text-[var(--color-accent)] font-medium">
+                                            {weeklyWeightGoal > 0 ? "+" : ""}{weeklyWeightGoal.toFixed(1)} kg
+                                        </span>
                                     </div>
                                     <input
                                         type="range"
-                                        min="0"
-                                        max="300"
-                                        step="10"
-                                        value={cardioGoalMinutes}
-                                        onChange={(e) => setCardioGoalMinutes(Number(e.target.value))}
+                                        min="-10"
+                                        max="10"
+                                        step="0.5"
+                                        value={weeklyWeightGoal}
+                                        onChange={(e) => setWeeklyWeightGoal(Number(e.target.value))}
                                         className="w-full h-2 bg-[var(--muted)] rounded-full appearance-none cursor-pointer accent-[var(--color-accent)]"
                                     />
                                     <div className="flex justify-between text-xs text-[var(--muted-foreground)] mt-1">
+                                        <span>-10 kg</span>
                                         <span>0</span>
-                                        <span>300</span>
+                                        <span>+10 kg</span>
                                     </div>
                                 </div>
                             </div>

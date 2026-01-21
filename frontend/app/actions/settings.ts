@@ -11,6 +11,7 @@ export interface UserSettings {
     energy_unit: "calories" | "kilojoules";
     primary_focus: string;
     weekly_goal: number;
+    weekly_weight_goal_kg: number;
     strength_goal_days: number;
     cardio_goal_minutes: number;
     activity_level: string;
@@ -44,6 +45,7 @@ const defaultSettings: UserSettings = {
     energy_unit: "calories",
     primary_focus: "general_fitness",
     weekly_goal: 4,
+    weekly_weight_goal_kg: 0,
     strength_goal_days: 3,
     cardio_goal_minutes: 120,
     activity_level: "lightly_active",
@@ -125,6 +127,7 @@ export async function updateFitnessPreferences(data: {
     energy_unit: string;
     primary_focus: string;
     weekly_goal: number;
+    weekly_weight_goal_kg: number;
     strength_goal_days: number;
     cardio_goal_minutes: number;
     activity_level: string;
@@ -135,6 +138,7 @@ export async function updateFitnessPreferences(data: {
         energy_unit: data.energy_unit as "calories" | "kilojoules",
         primary_focus: data.primary_focus,
         weekly_goal: data.weekly_goal,
+        weekly_weight_goal_kg: data.weekly_weight_goal_kg,
         strength_goal_days: data.strength_goal_days,
         cardio_goal_minutes: data.cardio_goal_minutes,
         activity_level: data.activity_level,
