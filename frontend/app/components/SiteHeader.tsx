@@ -34,7 +34,9 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
   const navLinks = [
     { name: 'Home', href: '/' },
     { name: 'About', href: '/about' },
+    {name: 'Dashboard', href: '/dashboard' },
     { name: 'Contact', href: '/contact' },
+    { name: 'Pricing', href: '/pricing' },
   ];
 
   // Create Supabase browser client
@@ -97,7 +99,7 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
 
         {/* The Sticky Pill Navbar with Bubbly Animation */}
         <nav className="hidden md:flex items-center gap-2 px-3 py-2 bg-zinc-900/40 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl relative">
-          {(user ? [{ name: 'Dashboard', href: '/dashboard' }, ...navLinks] : navLinks).map((link) => (
+          {(user ? [...navLinks] : navLinks).map((link) => (
             <Link
               key={link.href}
               href={link.href}
