@@ -314,22 +314,22 @@ export default function FitnessPreferencesPage() {
                                     <div className="flex justify-between items-center mb-2">
                                         <label className="text-sm text-[var(--muted-foreground)]">Weekly Weight Target</label>
                                         <span className="text-sm text-[var(--color-accent)] font-medium">
-                                            {weeklyWeightGoal > 0 ? "+" : ""}{weeklyWeightGoal.toFixed(1)} kg
+                                            {weeklyWeightGoal.toFixed(1)} kg
                                         </span>
                                     </div>
                                     <input
                                         type="range"
-                                        min="-10"
-                                        max="10"
-                                        step="0.5"
+                                        min="0.1"
+                                        max="0.5"
+                                        step="0.1"
                                         value={weeklyWeightGoal}
                                         onChange={(e) => setWeeklyWeightGoal(Number(e.target.value))}
                                         className="w-full h-2 bg-[var(--muted)] rounded-full appearance-none cursor-pointer accent-[var(--color-accent)]"
                                     />
                                     <div className="flex justify-between text-xs text-[var(--muted-foreground)] mt-1">
-                                        <span>-10 kg</span>
-                                        <span>0</span>
-                                        <span>+10 kg</span>
+                                        <span>0.1 kg</span>
+                                        <span>0.3 kg</span>
+                                        <span>0.5 kg</span>
                                     </div>
                                 </div>
                             </div>

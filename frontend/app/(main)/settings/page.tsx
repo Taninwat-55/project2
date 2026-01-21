@@ -23,6 +23,7 @@ import {
 import { signOut } from "@/app/(auth)/actions";
 import { updateProfile, updateEmail, updatePassword } from "@/app/actions/profile";
 import { ActivityLevel, Gender } from "@/types/database";
+import { calculateDailyCalories, calculateAge } from "@/utils/bmr";
 
 const sidebarTabs = [
     { id: "account", label: "Account", icon: UserIcon, href: "/settings" },
@@ -254,15 +255,26 @@ export default function SettingsPage() {
                                     </div>
                                     <span className="text-sm font-medium capitalize">{formData.gender}</span>
                                 </div>
-                                {formData.dailyCalorieGoal > 0 && (
-                                    <div className="flex items-center justify-between pt-2 border-t border-[var(--border)]">
-                                        <div className="flex items-center gap-2 text-sm">
-                                            <Flame size={14} className="text-[var(--color-accent)]" />
-                                            <span className="text-[var(--muted-foreground)]">Daily Goal</span>
+                                {(() => {
+                                    // Calculate dynamic calorie goal
+                                    const age = formData.dateOfBirth ? calculateAge(formData.dateOfBirth) : 30;
+                                    const calculatedCalories = calculateDailyCalories(
+                                        formData.weight,
+                                        formData.height,
+                                        age,
+                                        formData.gender as Gender,
+                                        formData.activityLevel as ActivityLevel
+                                    );
+                                    return calculatedCalories > 0 && (
+                                        <div className="flex items-center justify-between pt-2 border-t border-[var(--border)]">
+                                            <div className="flex items-center gap-2 text-sm">
+                                                <Flame size={14} className="text-[var(--color-accent)]" />
+                                                <span className="text-[var(--muted-foreground)]">Daily Goal</span>
+                                            </div>
+                                            <span className="text-sm font-medium text-[var(--color-accent)]">{calculatedCalories.toLocaleString()} kcal</span>
                                         </div>
-                                        <span className="text-sm font-medium text-[var(--color-accent)]">{formData.dailyCalorieGoal.toLocaleString()} kcal</span>
-                                    </div>
-                                )}
+                                    );
+                                })()}
                             </div>
                         </div>
 
