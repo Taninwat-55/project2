@@ -15,13 +15,23 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      
+      // SPOONACULAR
+      {
+        protocol: 'https',
+        hostname: 'spoonacular.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'img.spoonacular.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
   /* config options here */
-  // output: "export",
-  // images: {
-  //   unoptimized: true,
-  // },
 };
 
 export default nextConfig;
