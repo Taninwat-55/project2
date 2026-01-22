@@ -30,14 +30,21 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
   const [hoveredLink, setHoveredLink] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Navbar Links Array for animation mapping
-  const navLinks = [
+  // Base navbar links (always visible)
+  const baseNavLinks = [
     { name: 'Home', href: '/' },
     { name: 'About', href: '/about' },
-    { name: 'Dashboard', href: '/dashboard' },
     { name: 'Contact', href: '/contact' },
     { name: 'Pricing', href: '/pricing' },
   ];
+
+  // Dashboard link (only shown when logged in)
+  const dashboardLink = { name: 'Dashboard', href: '/dashboard' };
+
+  // Conditionally add Dashboard link when user is logged in
+  const navLinks = user 
+    ? [...baseNavLinks.slice(0, 2), dashboardLink, ...baseNavLinks.slice(2)]
+    : baseNavLinks;
 
   // Create Supabase browser client
   const supabase = createBrowserClient(
@@ -117,7 +124,7 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
 
         {/* The Sticky Pill Navbar with Bubbly Animation */}
         <nav className="hidden md:flex items-center gap-2 px-3 py-2 bg-zinc-900/40 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl relative">
-          {(user ? [...navLinks] : navLinks).map((link) => (
+          {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
