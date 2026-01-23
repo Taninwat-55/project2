@@ -53,7 +53,7 @@ export default function LogMealModal({ isOpen, onClose, selectedType }: Props) {
   // HANDLER MED CONSOLE LOGS 
   const handleAdd = async () => {
     if (!formData.name || !formData.kcal) {
-      alert("Fyll i namn och kalorier!");
+      alert("please fill in all required fields!");
       return;
     }
 
