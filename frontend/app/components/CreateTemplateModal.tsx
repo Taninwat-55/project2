@@ -81,7 +81,7 @@ export default function CreateTemplateModal({ isOpen, onClose, onSave }: Props) 
   // NY FUNKTION FÖR ATT HANTERA SPARNING TILL DB 
   const handleInternalSave = async () => {
     if (!templateName || ingredients.length === 0) {
-      alert("Fyll i namn och lägg till ingredienser!");
+      alert("Please fill in all required fields.");
       return;
     }
 

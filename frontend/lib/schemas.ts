@@ -2,8 +2,8 @@ import { z } from "zod";
 
 // 1. Meal Schema
 export const MealSchema = z.object({
-  name: z.string().min(1, "Namn krävs"),
-  calories: z.number().int().nonnegative("Kalorier måste vara 0 eller mer"),
+  name: z.string().min(1, "Name is required"),
+  calories: z.number().int().nonnegative("Calories must be a positive number").optional().or(z.literal(0)),
   protein: z.number().nonnegative().default(0),
   carbs: z.number().nonnegative().default(0),
   fat: z.number().nonnegative().default(0),
