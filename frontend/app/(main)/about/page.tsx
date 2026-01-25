@@ -189,47 +189,6 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
-
-      {/* --- FOOTER --- */}
-      <footer className="py-24 px-6 border-t border-zinc-900">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-16 text-sm">
-          <div className="space-y-6">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-full border-2 border-orange-500 flex items-center justify-center text-orange-500 font-bold text-xl">
-                N
-              </div>
-              <span className="font-bold text-2xl tracking-wide">Nexus</span>
-            </Link>
-            <p className="text-zinc-500 leading-relaxed text-base">
-              Empowering athletes everywhere to reach their peak performance through data and discipline.
-            </p>
-          </div>
-          <div>
-            <h5 className="font-bold text-lg mb-8">Product</h5>
-            <ul className="text-zinc-500 space-y-4 text-base">
-              <li><Link href="#" className="hover:text-orange-500">Features</Link></li>
-              <li><Link href="#" className="hover:text-orange-500">Testimonials</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h5 className="font-bold text-lg mb-8">Company</h5>
-            <ul className="text-zinc-500 space-y-4 text-base">
-              <li><Link href="/about" className="hover:text-orange-500">About Us</Link></li>
-              <li><Link href="#" className="hover:text-orange-500">Careers</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h5 className="font-bold text-lg mb-8">Support</h5>
-            <ul className="text-zinc-500 space-y-4 text-base">
-              <li><Link href="#" className="hover:text-orange-500">Help Center</Link></li>
-              <li><Link href="/contact" className="hover:text-orange-500">Contact Us</Link></li>
-            </ul>
-          </div>
-        </div>
-        <div className="text-center mt-24 pt-8 border-t border-zinc-900/50 text-zinc-600">
-          &copy; {new Date().getFullYear()} Nexus Fitness App. All rights reserved.
-        </div>
-      </footer>
     </div>
   );
 }
