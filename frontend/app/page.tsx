@@ -548,7 +548,7 @@ export default function LandingPage() {
               </div>
 
               <h2 className="text-3xl font-black text-white mb-4 uppercase tracking-tight">
-                Join the <span className="text-orange-500">Tribe</span>
+                Join the <span className="text-orange-500">Community</span>
               </h2>
 
               <p className="text-zinc-400 leading-relaxed mb-8">
