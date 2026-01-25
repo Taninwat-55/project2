@@ -395,12 +395,13 @@ export default function SupportPage() {
                     })}
                   </div>
                 </div>
-                <button
-                  onClick={() => setShowContactForm(true)}
-                  className="flex items-center gap-2 px-5 py-3 bg-[var(--color-accent)] rounded-full text-sm font-bold"
+                <Link
+                  href="/contact"
+                  className="flex items-center w-fit gap-2 px-5 py-4 bg-[var(--color-accent)] rounded-2xl text-sm font-bold hover:bg-orange-700 active:scale-95 transition-all text-white"
                 >
-                  <Mail size={18} /> Email Support
-                </button>
+                  <Mail size={16} />
+                  Email Support
+                </Link>
               </>
             )}
           </div>
