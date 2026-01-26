@@ -210,3 +210,24 @@ export async function logMealFromTemplate(
   revalidatePath("/nutrition");
   return { success: true };
 }
+
+export async function getRandomRecipes(number = 3) {
+  const API_KEY = process.env.SPOONACULAR_API_KEY;
+  
+  try {
+    // Vi lägger till tags=main course för att få riktiga måltider 
+    // och nutrition=true för att få kalorier/makros direkt
+    const res = await fetch(
+      `https://api.spoonacular.com/recipes/random?number=${number}&tags=main+course&apiKey=${API_KEY}`,
+      { next: { revalidate: 3600 } } // Cache i en timme för att spara API-anrop
+    );
+
+    if (!res.ok) throw new Error("Misslyckades att hämta recept");
+
+    const data = await res.json();
+    return data.recipes;
+  } catch (error) {
+    console.error("Spoonacular Error:", error);
+    return [];
+  }
+}
