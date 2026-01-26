@@ -101,7 +101,7 @@ export default function RecipeLogCard({
       </div>
 
       <button onClick={handleLog} disabled={loading} className="w-full mt-10 py-5 bg-orange-600 hover:bg-orange-500 text-white rounded-[2rem] font-black text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 disabled:opacity-50">
-        {loading ? "PROCESSING..." : <><Plus size={18} /> Add to performance</>}
+        {loading ? "PROCESSING..." : <><Plus size={18} /> Add item</>}
       </button>
     </div>
   );

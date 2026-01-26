@@ -27,7 +27,7 @@ interface QuickAddModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAdded: () => void;
-  mealType: string;
+  mealType: MealType;
 }
 
 type MealType = "breakfast" | "lunch" | "dinner" | "snack";
@@ -90,7 +90,7 @@ export default function QuickAddModal({ isOpen, onClose, onAdded, mealType }: Qu
 
   const handleManualSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Säkerställ att mealType är en giltig typ
     const validMealType = mealType as MealType;
 
@@ -121,14 +121,14 @@ export default function QuickAddModal({ isOpen, onClose, onAdded, mealType }: Qu
               Add <span className="text-orange-500">{mealType}</span>
             </h2>
             <div className="flex gap-4 mt-4">
-              <button 
+              <button
                 type="button"
                 onClick={() => setActiveTab("templates")}
                 className={`text-[10px] font-bold uppercase tracking-widest transition ${activeTab === "templates" ? "text-orange-500" : "text-zinc-500 hover:text-white"}`}
               >
                 Templates
               </button>
-              <button 
+              <button
                 type="button"
                 onClick={() => setActiveTab("manual")}
                 className={`text-[10px] font-bold uppercase tracking-widest transition ${activeTab === "manual" ? "text-orange-500" : "text-zinc-500 hover:text-white"}`}
@@ -172,10 +172,10 @@ export default function QuickAddModal({ isOpen, onClose, onAdded, mealType }: Qu
             <form onSubmit={handleManualSubmit} className="space-y-4">
               <div>
                 <label className="text-[10px] font-bold text-zinc-500 uppercase ml-2 mb-1 block">Item Name</label>
-                <input 
+                <input
                   required
                   value={manualData.name}
-                  onChange={(e) => setManualData({...manualData, name: e.target.value})}
+                  onChange={(e) => setManualData({ ...manualData, name: e.target.value })}
                   className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition"
                   placeholder="e.g. Chicken Salad"
                 />
@@ -183,19 +183,19 @@ export default function QuickAddModal({ isOpen, onClose, onAdded, mealType }: Qu
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-[10px] font-bold text-zinc-500 uppercase ml-2 mb-1 block">Calories</label>
-                  <input 
+                  <input
                     type="number" required
                     value={manualData.calories}
-                    onChange={(e) => setManualData({...manualData, calories: e.target.value})}
+                    onChange={(e) => setManualData({ ...manualData, calories: e.target.value })}
                     className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition"
                   />
                 </div>
                 <div>
                   <label className="text-[10px] font-bold text-zinc-500 uppercase ml-2 mb-1 block">Protein (g)</label>
-                  <input 
+                  <input
                     type="number" required
                     value={manualData.protein}
-                    onChange={(e) => setManualData({...manualData, protein: e.target.value})}
+                    onChange={(e) => setManualData({ ...manualData, protein: e.target.value })}
                     className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition"
                   />
                 </div>
@@ -203,24 +203,24 @@ export default function QuickAddModal({ isOpen, onClose, onAdded, mealType }: Qu
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-[10px] font-bold text-zinc-500 uppercase ml-2 mb-1 block">Carbs (g)</label>
-                  <input 
+                  <input
                     type="number" required
                     value={manualData.carbs}
-                    onChange={(e) => setManualData({...manualData, carbs: e.target.value})}
+                    onChange={(e) => setManualData({ ...manualData, carbs: e.target.value })}
                     className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition"
                   />
                 </div>
                 <div>
                   <label className="text-[10px] font-bold text-zinc-500 uppercase ml-2 mb-1 block">Fats (g)</label>
-                  <input 
+                  <input
                     type="number" required
                     value={manualData.fat}
-                    onChange={(e) => setManualData({...manualData, fat: e.target.value})}
+                    onChange={(e) => setManualData({ ...manualData, fat: e.target.value })}
                     className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-orange-500 transition"
                   />
                 </div>
               </div>
-              <button 
+              <button
                 type="submit"
                 className="w-full bg-orange-500 text-black font-black uppercase italic py-4 rounded-2xl mt-4 hover:bg-orange-400 transition active:scale-95"
               >
