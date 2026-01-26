@@ -8,11 +8,13 @@ import {
   BookmarkPlus,
   Loader2,
   CheckCircle2,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 
 import AddWorkoutModal from '@/app/components/AddWorkoutModal';
 import { saveToArchive, deleteWorkout } from '@/app/actions/workouts';
-import { Trash2 } from "lucide-react";
 
 // --------------------------------------------------
 // Types
@@ -45,10 +47,24 @@ export default function WorkoutsContent({
   const [savingId, setSavingId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
-  // Sync state when server data changes (after router.refresh())
+  // --- PAGINATION STATE ---
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; 
+
+  // Sync state when server data changes and reset page to 1
   useEffect(() => {
     setWorkouts(initialWorkouts);
+    setCurrentPage(1);
   }, [initialWorkouts]);
+
+  // --- PAGINATION LOGIC ---
+  const totalPages = Math.ceil(workouts.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentWorkouts = workouts.slice(indexOfFirstItem, indexOfLastItem);
+
+  const goToNextPage = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  const goToPreviousPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
 
   // --------------------------------------------------
   // SAVE (only used on workouts page)
@@ -57,7 +73,7 @@ export default function WorkoutsContent({
     setSavingId(workout.id);
 
     const result = await saveToArchive({
-      id: workout.id, // CRITICAL: This must be the actual ID from the DB
+      id: workout.id,
       title: workout.title,
       duration: workout.duration,
       calories: workout.calories,
@@ -73,12 +89,11 @@ export default function WorkoutsContent({
   };
 
   // --------------------------------------------------
-  // DELETE (only used on archive page)
+  // DELETE (Global)
+  // --------------------------------------------------
   const handleDelete = async (id: string) => {
-    // 1. Immediate log to see if the button even works
     console.log("Button clicked for ID:", id);
 
-    // 2. Alert to interrupt the UI
     if (!window.confirm("Confirm Permanent Delete?")) return;
 
     setSavingId(id);
@@ -89,7 +104,6 @@ export default function WorkoutsContent({
 
       if (result.success) {
         setMessage("Deleted!");
-        // FORCE REFRESH: This is the most reliable way to clear the UI
         window.location.reload();
       } else {
         alert("Error: " + result.error);
@@ -103,25 +117,25 @@ export default function WorkoutsContent({
 
   const statsData = stats
     ? [
-      {
-        label: 'Workouts this week',
-        value: stats.thisWeek.toString(),
-        icon: Dumbbell,
-        color: 'bg-orange-500/20 text-orange-500',
-      },
-      {
-        label: 'Calories burned',
-        value: stats.calories,
-        icon: Flame,
-        color: 'bg-red-500/20 text-red-500',
-      },
-      {
-        label: 'Active Minutes',
-        value: stats.activeMinutes,
-        icon: Clock,
-        color: 'bg-green-500/20 text-green-500',
-      },
-    ]
+        {
+          label: 'Workouts this week',
+          value: stats.thisWeek.toString(),
+          icon: Dumbbell,
+          color: 'bg-orange-500/20 text-orange-500',
+        },
+        {
+          label: 'Calories burned',
+          value: stats.calories,
+          icon: Flame,
+          color: 'bg-red-500/20 text-red-500',
+        },
+        {
+          label: 'Active Minutes',
+          value: stats.activeMinutes,
+          icon: Clock,
+          color: 'bg-green-500/20 text-green-500',
+        },
+      ]
     : [];
 
   return (
@@ -153,7 +167,7 @@ export default function WorkoutsContent({
           {mode === 'workouts' && <AddWorkoutModal />}
         </div>
 
-        {/* Stats Section (Shows only on main Workouts page) */}
+        {/* Stats Section */}
         {stats && mode === 'workouts' && (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
             {statsData.map((stat) => (
@@ -181,77 +195,119 @@ export default function WorkoutsContent({
 
         {/* Workout List Section */}
         <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5">
-          <h3 className="text-lg font-bold mb-4 text-white">
-            {mode === 'archive' ? 'Saved History' : 'Recent History'}
-          </h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-bold text-white">
+              {mode === 'archive' ? 'Saved History' : 'Recent History'}
+            </h3>
+            {totalPages > 1 && (
+              <span className="text-xs text-[var(--muted-foreground)]">
+                Page {currentPage} of {totalPages}
+              </span>
+            )}
+          </div>
 
           {workouts.length === 0 ? (
             <div className="py-10 text-center text-[var(--muted-foreground)]">
               No workouts found.
             </div>
           ) : (
-            <div className="space-y-4">
-              {workouts.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex items-center justify-between py-4 border-b border-[var(--border)]/50 last:border-0"
-                >
-                  {/* Left Side: Title and Date */}
-                  <div className="flex items-center gap-4">
-                    <div className="w-2 h-2 rounded-full bg-orange-500" />
-                    <div>
-                      {item.day && (
-                        <div className="text-xs text-[var(--muted-foreground)]">
-                          {item.day}
+            <>
+              <div className="space-y-4">
+                {currentWorkouts.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between py-4 border-b border-[var(--border)]/50 last:border-0"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-2 h-2 rounded-full bg-orange-500" />
+                      <div>
+                        {item.day && (
+                          <div className="text-xs text-[var(--muted-foreground)]">
+                            {item.day}
+                          </div>
+                        )}
+                        <div className="text-base font-medium text-white">
+                          {item.title}
                         </div>
-                      )}
-                      <div className="text-base font-medium text-white">
-                        {item.title}
                       </div>
                     </div>
-                  </div>
 
-                  {/* Right Side: Metrics and Actions */}
-                  <div className="flex items-center gap-3">
-                    <span className="px-3 py-1 bg-[var(--muted)] rounded-full text-xs text-[var(--muted-foreground)]">
-                      {item.duration}
-                    </span>
+                    <div className="flex items-center gap-3">
+                      <span className="px-3 py-1 bg-[var(--muted)] rounded-full text-xs text-[var(--muted-foreground)]">
+                        {item.duration}
+                      </span>
 
-                    <div className="flex items-center gap-2">
-                      {/* SAVE BUTTON: Only visible in 'workouts' mode */}
-                      {mode === 'workouts' && (
+                      <div className="flex items-center gap-2">
+                        {mode === 'workouts' && (
+                          <button
+                            onClick={() => handleSave(item)}
+                            disabled={savingId === item.id}
+                            title="Save to Archive"
+                            className="p-2 rounded-lg bg-orange-500/10 text-orange-500 hover:bg-orange-500 hover:text-white transition-all disabled:opacity-50"
+                          >
+                            {savingId === item.id ? (
+                              <Loader2 size={16} className="animate-spin" />
+                            ) : (
+                              <BookmarkPlus size={16} />
+                            )}
+                          </button>
+                        )}
+
                         <button
-                          onClick={() => handleSave(item)}
+                          onClick={() => handleDelete(item.id)}
                           disabled={savingId === item.id}
-                          title="Save to Archive"
-                          className="p-2 rounded-lg bg-orange-500/10 text-orange-500 hover:bg-orange-500 hover:text-white transition-all disabled:opacity-50"
+                          title="Delete Permanently"
+                          className="p-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all disabled:opacity-50"
                         >
                           {savingId === item.id ? (
                             <Loader2 size={16} className="animate-spin" />
                           ) : (
-                            <BookmarkPlus size={16} />
+                            <Trash2 size={16} />
                           )}
                         </button>
-                      )}
-
-                      {/* DELETE BUTTON: Visible in both modes */}
-                      <button
-                        onClick={() => handleDelete(item.id)}
-                        disabled={savingId === item.id}
-                        title="Delete Permanently"
-                        className="p-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all disabled:opacity-50"
-                      >
-                        {savingId === item.id ? (
-                          <Loader2 size={16} className="animate-spin" />
-                        ) : (
-                          <Trash2 size={16} />
-                        )}
-                      </button>
+                      </div>
                     </div>
                   </div>
+                ))}
+              </div>
+
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-4 mt-8 pt-4 border-t border-[var(--border)]/50">
+                  <button
+                    onClick={goToPreviousPage}
+                    disabled={currentPage === 1}
+                    className="p-2 rounded-xl bg-[var(--muted)] text-[var(--foreground)] hover:bg-orange-500 hover:text-white transition-all disabled:opacity-20"
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
+
+                  <div className="flex gap-2">
+                    {[...Array(totalPages)].map((_, i) => (
+                      <button
+                        key={i + 1}
+                        onClick={() => setCurrentPage(i + 1)}
+                        className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
+                          currentPage === i + 1
+                            ? 'bg-orange-500 text-white'
+                            : 'bg-[var(--muted)] text-[var(--muted-foreground)] hover:text-white'
+                        }`}
+                      >
+                        {i + 1}
+                      </button>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={goToNextPage}
+                    disabled={currentPage === totalPages}
+                    className="p-2 rounded-xl bg-[var(--muted)] text-[var(--foreground)] hover:bg-orange-500 hover:text-white transition-all disabled:opacity-20"
+                  >
+                    <ChevronRight size={20} />
+                  </button>
                 </div>
-              ))}
-            </div>
+              )}
+            </>
           )}
         </div>
       </main>
