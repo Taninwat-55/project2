@@ -5,12 +5,12 @@ import {
   Archive,
   Clock,
   CalendarDays,
-  Flame,
   ChevronLeft,
   ChevronRight,
   PlusCircle,
 } from 'lucide-react';
 import { getArchivedWorkouts } from '@/app/actions/workouts';
+import ArchiveGrid from '@/app/components/ArchiveGrid'; // Import the new component
 
 interface Workout {
   id: string;
@@ -35,10 +35,8 @@ export default async function ArchivePage({
 
   if (!user) redirect('/login');
 
-  // 2. Fetch Data
   const workoutsData = await getArchivedWorkouts();
 
-  // 3. Clean and Sort Data (Newest First)
   const allWorkouts = (Array.isArray(workoutsData) ? workoutsData : [])
     .map((w: unknown) => w as Workout)
     .sort((a, b) => {
@@ -47,7 +45,7 @@ export default async function ArchivePage({
       return dateB - dateA;
     });
 
-  // 4. Stats Calculation
+  // Stats Calculation
   const totalWorkouts = allWorkouts.length;
   const totalMinutes = allWorkouts.reduce((acc, curr) => acc + (Number(curr.duration) || 0), 0);
   const totalHours = Math.floor(totalMinutes / 60);
@@ -73,7 +71,7 @@ export default async function ArchivePage({
     { label: 'EARLIEST RECORD', value: earliestMonth, unit: earliestYear, icon: CalendarDays },
   ];
 
-  // 5. Pagination Logic
+  // Pagination Logic
   const params = await searchParams;
   const currentPage = Number(params.page) || 1;
   const itemsPerPage = 6;
@@ -114,7 +112,7 @@ export default async function ArchivePage({
           ))}
         </div>
 
-        {/* Workout Cards Grid */}
+        {/* Workout Grid (Now using the Interactive Client Component) */}
         {allWorkouts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-[var(--border)] rounded-3xl bg-[var(--card)]/30">
             <Archive size={48} className="text-[var(--muted-foreground)] mb-4 opacity-20" />
@@ -125,65 +123,21 @@ export default async function ArchivePage({
             </Link>
           </div>
         ) : (
-          <div className="grid md:grid-cols-3 gap-6 mb-12">
-            {displayedWorkouts.map((workout) => {
-              const rawDate = workout.created_at || workout.date;
-              const dateObj = rawDate ? new Date(rawDate) : null;
-              const dateLabel = dateObj && !isNaN(dateObj.getTime())
-                ? dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-                : 'Recent';
-
-              return (
-                <div key={workout.id} className="bg-[var(--card)] border border-[var(--border)] rounded-2xl overflow-hidden hover:border-orange-500/50 transition-all group flex flex-col h-full shadow-lg">
-                  <div className="relative h-48 overflow-hidden shrink-0">
-                    <div
-                      className="absolute inset-0 bg-cover bg-center group-hover:scale-110 transition-transform duration-700"
-                      style={{
-                        backgroundImage: `url('${workout.image_url || `https://loremflickr.com/800/600/${(workout.category || 'fitness').toLowerCase()},gym/all?lock=${workout.id}`}')`,
-                      }}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                    <span className="absolute top-4 left-4 px-2 py-1 bg-orange-600 rounded text-[10px] font-black text-white uppercase tracking-tighter">
-                      {workout.category || 'Training'}
-                    </span>
-                    <span className="absolute bottom-4 right-4 px-2 py-1 bg-white/10 backdrop-blur-md border border-white/20 rounded text-[10px] font-bold text-white uppercase">
-                      {dateLabel}
-                    </span>
-                  </div>
-
-                  <div className="p-6 flex flex-col flex-1 text-white">
-                    <h3 className="text-xl font-bold mb-2 group-hover:text-orange-500 transition-colors">{workout.title}</h3>
-                    <p className="text-sm text-[var(--muted-foreground)] mb-6 line-clamp-2 flex-1 italic">
-                      {workout.description || 'A dedicated training session focused on performance.'}
-                    </p>
-                    <div className="flex items-center justify-between border-t border-[var(--border)] pt-4">
-                      <div className="flex items-center gap-4 text-xs font-bold">
-                        <span className="flex items-center gap-1 text-[var(--muted-foreground)]"><Clock size={14} className="text-orange-500" /> {workout.duration}m</span>
-                        <span className="flex items-center gap-1 text-[var(--muted-foreground)]"><Flame size={14} className="text-orange-500" /> {workout.calories || workout.kcal || 0} kcal</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          <ArchiveGrid workouts={displayedWorkouts} />
         )}
 
-        {/* Modern Pagination Bar */}
+        {/* Pagination Bar */}
         {allWorkouts.length > itemsPerPage && (
           <div className="mt-16 flex justify-center">
             <div className="flex items-center gap-4 md:gap-6 px-4 md:px-6 py-3 bg-[var(--card)] border border-[var(--border)] rounded-2xl shadow-xl backdrop-blur-md">
               <Link
                 href={`?page=${Math.max(1, currentPage - 1)}`}
-                className={`flex items-center gap-2 text-sm font-bold transition-all ${currentPage === 1 ? 'opacity-20 pointer-events-none' : 'text-white hover:text-orange-500'
-                  }`}
+                className={`flex items-center gap-2 text-sm font-bold transition-all ${currentPage === 1 ? 'opacity-20 pointer-events-none' : 'text-white hover:text-orange-500'}`}
               >
                 <ChevronLeft size={20} strokeWidth={2.5} />
                 <span>Previous</span>
               </Link>
-
               <div className="h-6 w-[1px] bg-[var(--border)]" />
-
               <div className="flex items-center gap-3 text-white">
                 <span className="text-[10px] uppercase font-black text-[var(--muted-foreground)]">Page</span>
                 <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-orange-500 text-white text-sm font-bold">
@@ -191,13 +145,10 @@ export default async function ArchivePage({
                 </span>
                 <span className="text-[var(--muted-foreground)] text-sm">/ {totalPages}</span>
               </div>
-
               <div className="h-6 w-[1px] bg-[var(--border)]" />
-
               <Link
                 href={`?page=${Math.min(totalPages, currentPage + 1)}`}
-                className={`flex items-center gap-2 text-sm font-bold transition-all ${currentPage === totalPages ? 'opacity-20 pointer-events-none' : 'text-white hover:text-orange-500'
-                  }`}
+                className={`flex items-center gap-2 text-sm font-bold transition-all ${currentPage === totalPages ? 'opacity-20 pointer-events-none' : 'text-white hover:text-orange-500'}`}
               >
                 <span>Next</span>
                 <ChevronRight size={20} strokeWidth={2.5} />
