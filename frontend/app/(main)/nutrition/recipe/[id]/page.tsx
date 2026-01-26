@@ -25,14 +25,27 @@ export default function RecipeDetailsPage({ params }: { params: Promise<{ id: st
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [checkedIngredients, setCheckedIngredients] = useState<string[]>([]);
+  
 
-  useEffect(() => {
-    params.then(p => {
-      getRecipeDetails(p.id).then(data => setRecipe(data as Recipe));
-    });
-  }, [params]);
+useEffect(() => {
+  const init = async () => {
+    try {
+      const resolvedParams = await params;
+      const data = await getRecipeDetails(resolvedParams.id);
+      if (data) {
+        setRecipe(data as Recipe);
+      } else {
+        console.error("No data returned for recipe");
+      }
+    } catch (err) {
+      console.error("Failed to load recipe details", err);
+      // Här kan du sätta ett state för att visa ett felmeddelande på sidan
+    }
+  };
+  init();
+}, [params]);
 
-  if (!recipe) return <div className="min-h-screen bg-black flex items-center justify-center italic font-black uppercase tracking-widest text-orange-500 animate-pulse">Initialising Nexus...</div>;
+  if (!recipe) return <div className="min-h-screen bg-black flex items-center justify-center italic font-black uppercase tracking-widest text-orange-500 animate-pulse">Loading Recipe...</div>;
 
   const findNutrient = (name: string) => recipe.nutrition?.nutrients?.find((n) => n.name === name);
   const p = Math.round(findNutrient("Protein")?.amount || 0);
