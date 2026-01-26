@@ -24,6 +24,9 @@ import LogMealModal from "@/app/components/LogMealModal";
 import CreateTemplateModal from "@/app/components/CreateTemplateModal";
 import ViewTemplateModal from "@/app/components/ViewTemplateModal";
 
+// Import av den nya komponenten
+import RecommendedFuel from "@/app/components/RecommendedFuel";
+
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 // --- INTERFACES ---
@@ -60,10 +63,11 @@ export default function NutritionPage() {
   >("breakfast");
 
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState<MealTemplate | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<MealTemplate | null>(
+    null,
+  );
   const [templates, setTemplates] = useState<MealTemplate[]>([]);
 
-  // Uppdaterad för att matcha NutritionGoals interfacet exakt
   const [goals, setGoals] = useState<NutritionGoals>({
     calories: 2000,
     protein: 150,
@@ -81,47 +85,46 @@ export default function NutritionPage() {
   });
 
   const hydrationGoal = 2500;
-  const hydrationPercentage = Math.min(100, Math.round((hydration / hydrationGoal) * 100));
+  const hydrationPercentage = Math.min(
+    100,
+    Math.round((hydration / hydrationGoal) * 100),
+  );
 
+  // Denna funktion hämtar all data och uppdaterar statet på sidan
   const fetchData = async () => {
-    const [hyd, nutGoals, todayNut, mealTemplates] = await Promise.all([
-      getTodayHydration(),
-      getNutritionGoals(),
-      getTodayNutrition(),
-      getMealTemplates()
-    ]);
+    try {
+      const [hyd, nutGoals, todayNut, mealTemplates] = await Promise.all([
+        getTodayHydration(),
+        getNutritionGoals(),
+        getTodayNutrition(),
+        getMealTemplates(),
+      ]);
 
-    setHydration(hyd);
-    setGoals(nutGoals);
-    setConsumed(todayNut);
-    setTemplates(mealTemplates as unknown as MealTemplate[]);
+      setHydration(hyd);
+      setGoals(nutGoals);
+      setConsumed(todayNut);
+      setTemplates(mealTemplates as unknown as MealTemplate[]);
+    } catch (error) {
+      console.error("Kunde inte hämta data:", error);
+    }
   };
-  // I din NutritionPage komponent:
 
-  useEffect(() => {
-    // Definiera funktionen här inne för att undvika onödiga omrenderingar
-    const loadData = async () => {
-      try {
-        const [hyd, nutGoals, todayNut, mealTemplates] = await Promise.all([
-          getTodayHydration(),
-          getNutritionGoals(),
-          getTodayNutrition(),
-          getMealTemplates()
-        ]);
+useEffect(() => {
+  const loadData = async () => {
+    try {
+      await fetchData();
+    } catch (error) {
+      console.error("Error loading initial nutrition data:", error);
+    }
+  };
 
-        setHydration(hyd);
-        setGoals(nutGoals);
-        setConsumed(todayNut);
-        setTemplates(mealTemplates as unknown as MealTemplate[]);
-      } catch (error) {
-        console.error("Kunde inte hämta data:", error);
-      }
-    };
+  loadData();
+}, []); 
 
-    loadData();
-  }, []); // Tom array betyder att den bara körs vid första laddningen
-
-  const handleLogTemplate = async (template: MealTemplate, mealType: "breakfast" | "lunch" | "dinner" | "snack") => {
+  const handleLogTemplate = async (
+    template: MealTemplate,
+    mealType: "breakfast" | "lunch" | "dinner" | "snack",
+  ) => {
     const result = await logMealFromTemplate(template, mealType);
     if (result.success) {
       setIsViewModalOpen(false);
@@ -132,12 +135,13 @@ export default function NutritionPage() {
   };
 
   const openLogModal = (mealName: string) => {
-    const typeMap: Record<string, "breakfast" | "lunch" | "dinner" | "snack"> = {
-      Breakfast: "breakfast",
-      Lunch: "lunch",
-      Dinner: "dinner",
-      Snack: "snack",
-    };
+    const typeMap: Record<string, "breakfast" | "lunch" | "dinner" | "snack"> =
+      {
+        Breakfast: "breakfast",
+        Lunch: "lunch",
+        Dinner: "dinner",
+        Snack: "snack",
+      };
     setActiveMealType(typeMap[mealName] || "breakfast");
     setIsLogModalOpen(true);
   };
@@ -173,13 +177,31 @@ export default function NutritionPage() {
     ],
   });
 
-  // BERÄKNINGAR (Använder de nya namnen)
-  const totalCalorieBudget = (goals.calories || 2000) + (consumed.caloriesBurned || 0);
-  const caloriesRemaining = Math.max(0, totalCalorieBudget - consumed.caloriesConsumed);
+  const totalCalorieBudget =
+    (goals.calories || 2000) + (consumed.caloriesBurned || 0);
+  const caloriesRemaining = Math.max(
+    0,
+    totalCalorieBudget - consumed.caloriesConsumed,
+  );
 
-  const proteinStatus = consumed.proteinConsumed >= goals.protein * 0.8 ? "High" : consumed.proteinConsumed >= goals.protein * 0.5 ? "Good" : "Low";
-  const carbsStatus = consumed.carbsConsumed >= goals.carbs * 0.8 ? "Near" : consumed.carbsConsumed >= goals.carbs * 0.5 ? "Good" : "Low";
-  const fatStatus = consumed.fatConsumed >= goals.fat * 0.8 ? "Near" : consumed.fatConsumed >= goals.fat * 0.5 ? "Good" : "Low";
+  const proteinStatus =
+    consumed.proteinConsumed >= goals.protein * 0.8
+      ? "High"
+      : consumed.proteinConsumed >= goals.protein * 0.5
+        ? "Good"
+        : "Low";
+  const carbsStatus =
+    consumed.carbsConsumed >= goals.carbs * 0.8
+      ? "Near"
+      : consumed.carbsConsumed >= goals.carbs * 0.5
+        ? "Good"
+        : "Low";
+  const fatStatus =
+    consumed.fatConsumed >= goals.fat * 0.8
+      ? "Near"
+      : consumed.fatConsumed >= goals.fat * 0.5
+        ? "Good"
+        : "Low";
 
   const macroCards = [
     {
@@ -190,7 +212,10 @@ export default function NutritionPage() {
       color: "#f97316",
       footerLabel: "Remaining",
       footerVal: caloriesRemaining.toString(),
-      extra: consumed.caloriesBurned > 0 ? `+${consumed.caloriesBurned} from exercise` : null
+      extra:
+        consumed.caloriesBurned > 0
+          ? `+${consumed.caloriesBurned} from exercise`
+          : null,
     },
     {
       label: "Protein",
@@ -228,13 +253,13 @@ export default function NutritionPage() {
           <h1 className="text-5xl font-extrabold mb-2 tracking-tight">
             Your <span className="text-orange-500">Nutrition</span>
           </h1>
-          <p className="text-zinc-500">
+          <p className="text-zinc-500 text-left">
             Track your progress and push your limits.
           </p>
         </div>
 
         {/* STATS GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {macroCards.map((m) => (
             <div
               key={m.label}
@@ -280,7 +305,10 @@ export default function NutritionPage() {
           ))}
         </div>
 
-        {/* LOG SECTION */}
+        {/* NY SEKTION: RECOMMENDED FUEL (Ersätter hårdkodad rotation) */}
+        <RecommendedFuel onLogSuccess={fetchData} />
+
+        {/* LOG SECTION & TEMPLATES */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
           <div className="lg:col-span-2 bg-zinc-900/40 p-8 rounded-[2.5rem] border border-zinc-800/50 text-left">
             <div className="flex justify-between items-center mb-8">
@@ -332,14 +360,13 @@ export default function NutritionPage() {
             </div>
           </div>
 
-          {/* MEAL TEMPLATES COLUMN */}
           <div className="bg-zinc-900/40 p-8 rounded-[2.5rem] border border-zinc-800/50 flex flex-col text-left">
             <h2 className="text-xl font-bold mb-8 italic uppercase tracking-tight">
               Meal <span className="text-orange-500">Templates</span>
             </h2>
             <div className="space-y-4 mb-6 overflow-y-auto max-h-[400px] pr-2 custom-scrollbar">
               {templates.length === 0 ? (
-                <p className="text-zinc-600 text-xs italic py-4">
+                <p className="text-zinc-600 text-xs italic py-4 text-left">
                   No templates yet...
                 </p>
               ) : (
@@ -402,7 +429,7 @@ export default function NutritionPage() {
                 <button
                   key={amt}
                   onClick={() => handleAddWater(amt)}
-                  className="bg-white/10 hover:bg-white/20 p-8 rounded-[2rem] flex flex-col items-center gap-2 backdrop-blur-md border border-white/10 transition active:scale-95 group"
+                  className="bg-white/10 hover:bg-white/20 p-8 rounded-[2rem] flex flex-col items-center gap-2 backdrop-blur-md border border-white/10 transition active:scale-95 group text-white"
                 >
                   <Droplet
                     size={28}
@@ -424,26 +451,24 @@ export default function NutritionPage() {
         onClose={handleModalClose}
         selectedType={activeMealType}
       />
-
       <CreateTemplateModal
         isOpen={isTemplateModalOpen}
         onClose={() => setIsTemplateModalOpen(false)}
         onSave={handleModalClose}
       />
-
       <ViewTemplateModal
         isOpen={isViewModalOpen}
         template={
           selectedTemplate
             ? {
-              ...selectedTemplate,
-              totals: {
-                kcal: selectedTemplate.total_kcal || 0,
-                p: selectedTemplate.total_protein || 0,
-                c: selectedTemplate.total_carbs || 0,
-                f: selectedTemplate.total_fat || 0,
-              },
-            }
+                ...selectedTemplate,
+                totals: {
+                  kcal: selectedTemplate.total_kcal || 0,
+                  p: selectedTemplate.total_protein || 0,
+                  c: selectedTemplate.total_carbs || 0,
+                  f: selectedTemplate.total_fat || 0,
+                },
+              }
             : null
         }
         onClose={() => setIsViewModalOpen(false)}
