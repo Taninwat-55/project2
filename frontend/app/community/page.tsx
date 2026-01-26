@@ -12,6 +12,7 @@ import {
   CheckCircle2,
   Flame,
 } from 'lucide-react';
+import SiteHeader from '../components/SiteHeader';
 
 // --- TYPES ---
 interface Comment {
@@ -283,6 +284,8 @@ useEffect(() => {
     : leaderboardData.slice(0, 3);
 
   return (
+    <>
+    <SiteHeader />
     <div className="min-h-screen bg-black text-white p-6 lg:p-12">
       {/* HEART ANIMATION CSS */}
       <style jsx global>{`
@@ -663,5 +666,6 @@ useEffect(() => {
         </div>
       </div>
     </div>
+    </>
   );
 }
