@@ -96,36 +96,36 @@ export default function NutritionPage() {
     setConsumed(todayNut);
     setTemplates(mealTemplates as unknown as MealTemplate[]);
   };
-// I din NutritionPage komponent:
+  // I din NutritionPage komponent:
 
-useEffect(() => {
-  // Definiera funktionen här inne för att undvika onödiga omrenderingar
-  const loadData = async () => {
-    try {
-      const [hyd, nutGoals, todayNut, mealTemplates] = await Promise.all([
-        getTodayHydration(),
-        getNutritionGoals(),
-        getTodayNutrition(),
-        getMealTemplates()
-      ]);
+  useEffect(() => {
+    // Definiera funktionen här inne för att undvika onödiga omrenderingar
+    const loadData = async () => {
+      try {
+        const [hyd, nutGoals, todayNut, mealTemplates] = await Promise.all([
+          getTodayHydration(),
+          getNutritionGoals(),
+          getTodayNutrition(),
+          getMealTemplates()
+        ]);
 
-      setHydration(hyd);
-      setGoals(nutGoals);
-      setConsumed(todayNut);
-      setTemplates(mealTemplates as unknown as MealTemplate[]);
-    } catch (error) {
-      console.error("Kunde inte hämta data:", error);
-    }
-  };
+        setHydration(hyd);
+        setGoals(nutGoals);
+        setConsumed(todayNut);
+        setTemplates(mealTemplates as unknown as MealTemplate[]);
+      } catch (error) {
+        console.error("Kunde inte hämta data:", error);
+      }
+    };
 
-  loadData();
-}, []); // Tom array betyder att den bara körs vid första laddningen
+    loadData();
+  }, []); // Tom array betyder att den bara körs vid första laddningen
 
-  const handleLogTemplate = async (template: MealTemplate, mealType: string) => {
+  const handleLogTemplate = async (template: MealTemplate, mealType: "breakfast" | "lunch" | "dinner" | "snack") => {
     const result = await logMealFromTemplate(template, mealType);
     if (result.success) {
       setIsViewModalOpen(false);
-      fetchData(); 
+      fetchData();
     } else {
       alert("Error logging template: " + result.error);
     }
@@ -151,7 +151,7 @@ useEffect(() => {
   const handleModalClose = () => {
     setIsLogModalOpen(false);
     setIsTemplateModalOpen(false);
-    fetchData(); 
+    fetchData();
   };
 
   const macroOptions: ChartOptions<"doughnut"> = {
@@ -436,14 +436,14 @@ useEffect(() => {
         template={
           selectedTemplate
             ? {
-                ...selectedTemplate,
-                totals: {
-                  kcal: selectedTemplate.total_kcal || 0,
-                  p: selectedTemplate.total_protein || 0,
-                  c: selectedTemplate.total_carbs || 0,
-                  f: selectedTemplate.total_fat || 0,
-                },
-              }
+              ...selectedTemplate,
+              totals: {
+                kcal: selectedTemplate.total_kcal || 0,
+                p: selectedTemplate.total_protein || 0,
+                c: selectedTemplate.total_carbs || 0,
+                f: selectedTemplate.total_fat || 0,
+              },
+            }
             : null
         }
         onClose={() => setIsViewModalOpen(false)}

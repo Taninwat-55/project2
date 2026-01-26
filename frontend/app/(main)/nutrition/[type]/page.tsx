@@ -14,7 +14,7 @@ import {
 } from "chart.js";
 import { getTodayMeals, deleteMealLog } from "@/app/actions/nutrition";
 import EditMealModal from "@/app/components/EditMealModal";
-import QuickAddModal from "@/app/components/QuickAddModal"; 
+import QuickAddModal from "@/app/components/QuickAddModal";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -28,9 +28,12 @@ interface MealLog {
   meal_type: string;
 }
 
+type MealType = "breakfast" | "lunch" | "dinner" | "snack";
+
 export default function MealTypePage() {
   const params = useParams();
-  const mealType = params.type as string;
+  // We assume the URL is correct, or we could validte it. For now, casting is sufficient to fix build.
+  const mealType = params.type as MealType;
 
   const [loggedItems, setLoggedItems] = useState<MealLog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -98,7 +101,7 @@ export default function MealTypePage() {
   return (
     <div className="bg-black min-h-screen text-white font-sans selection:bg-orange-500/30 pb-20">
       <main className="max-w-6xl mx-auto p-8">
-        
+
         <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div className="text-left">
             <Link href="/nutrition" className="flex items-center gap-2 text-zinc-500 hover:text-white mb-4 text-[10px] font-bold uppercase tracking-widest transition">
@@ -110,7 +113,7 @@ export default function MealTypePage() {
           </div>
 
           {/* QUICK ADD BUTTON */}
-          <button 
+          <button
             onClick={() => setIsQuickAddOpen(true)}
             className="flex items-center gap-2 bg-white text-black px-6 py-3 rounded-2xl font-black uppercase italic text-sm hover:bg-orange-500 transition-all active:scale-95"
           >
@@ -217,17 +220,17 @@ export default function MealTypePage() {
         </div>
       </main>
 
-      <EditMealModal 
+      <EditMealModal
         key={selectedItem?.id || 'empty'}
-        isOpen={isEditOpen} 
-        onClose={() => setIsEditOpen(false)} 
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
         onDelete={handleDelete}
         onUpdate={fetchData}
-        itemData={selectedItem} 
+        itemData={selectedItem}
       />
 
       {/* NY QUICK ADD MODAL */}
-      <QuickAddModal 
+      <QuickAddModal
         isOpen={isQuickAddOpen}
         onClose={() => setIsQuickAddOpen(false)}
         onAdded={fetchData}

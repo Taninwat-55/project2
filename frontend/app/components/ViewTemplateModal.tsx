@@ -27,12 +27,14 @@ interface MealTemplate {
   ingredients: Ingredient[];
 }
 
+type MealType = "breakfast" | "lunch" | "dinner" | "snack";
+
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  template: MealTemplate | null; // Bytte ut any mot MealTemplate
+  template: MealTemplate | null;
   onDelete?: (id: string) => void;
-  onLog: (template: MealTemplate, mealType: string) => void;
+  onLog: (template: MealTemplate, mealType: MealType) => void;
 }
 
 export default function ViewTemplateModal({ isOpen, onClose, template, onDelete, onLog }: Props) {
@@ -41,8 +43,8 @@ export default function ViewTemplateModal({ isOpen, onClose, template, onDelete,
   const chartData = {
     datasets: [{
       data: [
-        template.totals?.p || 0, 
-        template.totals?.c || 0, 
+        template.totals?.p || 0,
+        template.totals?.c || 0,
         template.totals?.f || 0
       ],
       backgroundColor: ['#206A9E', '#51A255', '#C7831F'],
@@ -62,7 +64,7 @@ export default function ViewTemplateModal({ isOpen, onClose, template, onDelete,
     cutout: '80%',
   };
 
-  const mealTypes = [
+  const mealTypes: { label: string; id: MealType }[] = [
     { label: 'Breakfast', id: 'breakfast' },
     { label: 'Lunch', id: 'lunch' },
     { label: 'Dinner', id: 'dinner' },
@@ -72,10 +74,10 @@ export default function ViewTemplateModal({ isOpen, onClose, template, onDelete,
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
       <div className="relative w-full max-w-5xl bg-zinc-900 border border-zinc-800 rounded-[3rem] p-12 shadow-2xl overflow-hidden">
-        
+
         {/* Stäng-knapp */}
         <button onClick={onClose} className="absolute top-8 right-10 text-zinc-500 hover:text-white transition">
-           <X size={24} />
+          <X size={24} />
         </button>
 
         {/* Header */}
@@ -87,14 +89,14 @@ export default function ViewTemplateModal({ isOpen, onClose, template, onDelete,
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-          
+
           {/* VÄNSTRA KOLUMNEN: Ingredienser */}
           <div className="flex flex-col">
             <div className="bg-black/20 p-8 rounded-3xl border border-zinc-800/50 flex-grow h-[400px] flex flex-col">
               <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-6 flex items-center gap-2">
                 <Utensils size={14} /> Ingredients
               </h3>
-              
+
               <div className="space-y-3 overflow-y-auto pr-2 custom-scrollbar flex-grow">
                 {template.ingredients?.map((ing, idx) => (
                   <div key={idx} className="flex justify-between items-center p-4 bg-zinc-800/30 border border-zinc-700/50 rounded-2xl">
@@ -109,7 +111,7 @@ export default function ViewTemplateModal({ isOpen, onClose, template, onDelete,
               </div>
 
               <div className="mt-6 pt-6 border-t border-zinc-800/50">
-                <button 
+                <button
                   onClick={() => onDelete && onDelete(template.id)}
                   className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-zinc-600 hover:text-red-500 transition"
                 >
@@ -123,7 +125,7 @@ export default function ViewTemplateModal({ isOpen, onClose, template, onDelete,
           <div className="flex flex-col space-y-6">
             <div className="bg-black/20 p-8 rounded-3xl border border-zinc-800/50 flex flex-col items-center justify-center relative">
               <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 absolute top-8">Macro Distribution</h3>
-              
+
               <div className="relative w-40 h-40 my-6">
                 <Doughnut data={chartData} options={chartOptions} />
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -134,34 +136,34 @@ export default function ViewTemplateModal({ isOpen, onClose, template, onDelete,
 
               <div className="w-full grid grid-cols-3 gap-2">
                 <div className="text-center p-3 bg-zinc-800/30 rounded-2xl border border-zinc-700/50">
-                   <div className="text-blue-400 text-[10px] font-black uppercase mb-1 tracking-tighter">Protein</div>
-                   <div className="text-sm font-bold text-white">{template.totals?.p}g</div>
+                  <div className="text-blue-400 text-[10px] font-black uppercase mb-1 tracking-tighter">Protein</div>
+                  <div className="text-sm font-bold text-white">{template.totals?.p}g</div>
                 </div>
                 <div className="text-center p-3 bg-zinc-800/30 rounded-2xl border border-zinc-700/50">
-                   <div className="text-green-500 text-[10px] font-black uppercase mb-1 tracking-tighter">Carbs</div>
-                   <div className="text-sm font-bold text-white">{template.totals?.c}g</div>
+                  <div className="text-green-500 text-[10px] font-black uppercase mb-1 tracking-tighter">Carbs</div>
+                  <div className="text-sm font-bold text-white">{template.totals?.c}g</div>
                 </div>
                 <div className="text-center p-3 bg-zinc-800/30 rounded-2xl border border-zinc-700/50">
-                   <div className="text-yellow-600 text-[10px] font-black uppercase mb-1 tracking-tighter">Fats</div>
-                   <div className="text-sm font-bold text-white">{template.totals?.f}g</div>
+                  <div className="text-yellow-600 text-[10px] font-black uppercase mb-1 tracking-tighter">Fats</div>
+                  <div className="text-sm font-bold text-white">{template.totals?.f}g</div>
                 </div>
               </div>
             </div>
 
             {/* LOG-KNAPPAR */}
             <div className="bg-black/20 p-8 rounded-3xl border border-zinc-800/50">
-               <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-6 text-center">Log to Daily Diary</h3>
-               <div className="grid grid-cols-2 gap-3">
-                  {mealTypes.map((meal) => (
-                    <button 
-                      key={meal.id}
-                      onClick={() => onLog(template, meal.id)}
-                      className="py-4 bg-zinc-800/50 hover:bg-orange-600 border border-zinc-800 hover:border-orange-500 rounded-2xl font-black text-[10px] uppercase tracking-widest text-zinc-400 hover:text-white transition-all active:scale-95"
-                    >
-                      {meal.label}
-                    </button>
-                  ))}
-               </div>
+              <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 mb-6 text-center">Log to Daily Diary</h3>
+              <div className="grid grid-cols-2 gap-3">
+                {mealTypes.map((meal) => (
+                  <button
+                    key={meal.id}
+                    onClick={() => onLog(template, meal.id)}
+                    className="py-4 bg-zinc-800/50 hover:bg-orange-600 border border-zinc-800 hover:border-orange-500 rounded-2xl font-black text-[10px] uppercase tracking-widest text-zinc-400 hover:text-white transition-all active:scale-95"
+                  >
+                    {meal.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
