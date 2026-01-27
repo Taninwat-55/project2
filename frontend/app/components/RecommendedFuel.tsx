@@ -1,77 +1,86 @@
-"use client";
+'use client'; 
 
-import Link from "next/link";
-import { useState, useEffect } from "react";
-import Image from "next/image";
-import { Plus, RefreshCcw, Zap, Loader2, X } from "lucide-react";
-import { getRandomRecipes, logMeal } from "@/app/actions/nutrition";
+import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import { Plus, RefreshCcw, Zap, Loader2, X } from 'lucide-react'; 
+import { getRandomRecipes, logMeal } from '@/app/actions/nutrition'; 
 
-// Definierar typerna för att TypeScript ska vara nöjd
-type MealType = "breakfast" | "lunch" | "dinner" | "snack";
+// --- TYPER ---
+type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack';
 
 interface RecommendedRecipe {
   id: number;
   title: string;
   image: string;
   nutrition?: {
-    nutrients: { name: string; amount: number }[];
+    nutrients: { name: string; amount: number }[]; // Innehåller värden som "Calories", "Protein" etc.
   };
 }
 
 export default function RecommendedFuel({
-  onLogSuccess,
+  onLogSuccess, // Callback som triggas när en måltid har loggats (för att uppdatera förälder-komponenten)
 }: {
   onLogSuccess: () => void;
 }) {
-  const [recipes, setRecipes] = useState<RecommendedRecipe[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  // --- STATES ---
+  const [recipes, setRecipes] = useState<RecommendedRecipe[]>([]); // Sparar recepten från API:et
+  const [loading, setLoading] = useState(true); // Initial laddning vid sidvisning
+  const [isRefreshing, setIsRefreshing] = useState(false); // Visuell feedback när man hämtar nya recept
   const [activeRecipe, setActiveRecipe] = useState<RecommendedRecipe | null>(
     null,
-  );
-  const [isLogging, setIsLogging] = useState(false);
+  ); // Håller det recept man klickat på (öppnar popup)
+  const [isLogging, setIsLogging] = useState(false); // Status medan Server Action körs
 
+  // --- HÄMTA DATA ---
   const fetchRecipes = async () => {
     setIsRefreshing(true);
     try {
-      const data = await getRandomRecipes(3);
+      const data = await getRandomRecipes(3); // Hämtar 3 slumpmässiga recept via Server Action
       setRecipes(data);
     } catch (error) {
-      console.error("Failed to fetch recipes", error);
+      console.error('Failed to fetch recipes', error);
     } finally {
       setLoading(false);
       setIsRefreshing(false);
     }
   };
 
+  // Hämtar recept direkt när komponenten monteras
   useEffect(() => {
     fetchRecipes();
   }, []);
 
+  // --- HANDLERS ---
   const confirmLogMeal = async (mealType: MealType) => {
     if (!activeRecipe) return;
 
     setIsLogging(true);
+
+    // Hjälpfunktion för att leta upp specifika näringsvärden i arrayen från API:et
     const findNut = (name: string) =>
       activeRecipe.nutrition?.nutrients?.find((n) => n.name === name)?.amount ||
       0;
 
+    // Loggar måltiden till databasen
     const result = await logMeal({
       name: activeRecipe.title,
       type: mealType,
-      calories: Math.round(findNut("Calories") || 500),
-      protein: Math.round(findNut("Protein") || 30),
-      carbs: Math.round(findNut("Carbohydrates") || 55),
-      fat: Math.round(findNut("Fat") || 15),
+      // Vi avrundar värdena och sätter "fallbacks" om data saknas (t.ex. 500 kcal)
+      calories: Math.round(findNut('Calories') || 500),
+      protein: Math.round(findNut('Protein') || 30),
+      carbs: Math.round(findNut('Carbohydrates') || 55),
+      fat: Math.round(findNut('Fat') || 15),
     });
 
     if (result.success) {
-      onLogSuccess();
-      setActiveRecipe(null);
+      onLogSuccess(); // Meddelar dashboarden att data har ändrats
+      setActiveRecipe(null); // Stänger popupen
     }
     setIsLogging(false);
   };
 
+  // --- LADDNINGSVY ---
   if (loading)
     return (
       <div className="h-64 flex items-center justify-center border border-zinc-800/50 rounded-[2.5rem] bg-zinc-900/20">
@@ -81,29 +90,31 @@ export default function RecommendedFuel({
 
   return (
     <section className="mb-12 relative">
-      {/* MEAL PICKER POPUP */}
+      {/* --- MEAL PICKER POPUP (MODAL) --- */}
+      {/* Visas bara när activeRecipe har ett värde */}
       {activeRecipe && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-zinc-900 border border-zinc-800 p-8 rounded-[2.5rem] max-w-sm w-full shadow-2xl">
+          <div className="bg-zinc-900 border border-zinc-800 p-8 rounded-[2.5rem] max-w-sm w-full shadow-2xl animate-in zoom-in duration-200">
             <div className="flex justify-between items-start mb-6">
               <h3 className="text-xl font-black italic uppercase text-white leading-tight">
                 Log to <span className="text-orange-500">Timeline</span>
               </h3>
               <button
                 onClick={() => setActiveRecipe(null)}
-                className="text-zinc-500 hover:text-white transition-colors"
+                className="text-zinc-500 hover:text-white"
               >
                 <X size={20} />
               </button>
             </div>
 
-            <p className="text-zinc-400 text-xs mb-6 uppercase font-bold tracking-widest text-left leading-relaxed">
+            <p className="text-zinc-400 text-xs mb-6 uppercase font-bold tracking-widest leading-relaxed">
               Select category for: <br />
               <span className="text-white italic">{activeRecipe.title}</span>
             </p>
 
+            {/* Knappar för att välja måltidstyp */}
             <div className="grid grid-cols-2 gap-3">
-              {(["breakfast", "lunch", "dinner", "snack"] as const).map(
+              {(['breakfast', 'lunch', 'dinner', 'snack'] as const).map(
                 (type) => (
                   <button
                     key={type}
@@ -124,32 +135,34 @@ export default function RecommendedFuel({
         </div>
       )}
 
-      {/* HEADER */}
-      <div className="flex justify-between items-end mb-6 text-left">
+      {/* --- HEADER --- */}
+      <div className="flex justify-between items-end mb-6">
         <div>
-          <h2 className="text-2xl font-black italic uppercase tracking-tighter text-white font-sans">
+          <h2 className="text-2xl font-black italic uppercase tracking-tighter text-white">
             Recommended <span className="text-orange-500">Recipe</span>
           </h2>
           <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-1">
             Optimized meal suggestions for your goals
           </p>
         </div>
+        {/* Uppdatera-knapp för att hämta nya förslag */}
         <button
           onClick={fetchRecipes}
           disabled={isRefreshing}
-          className={`p-3 rounded-full bg-zinc-900 border border-zinc-800 hover:border-orange-500 transition-all ${isRefreshing ? "animate-spin opacity-50" : ""}`}
+          className={`p-3 rounded-full bg-zinc-900 border border-zinc-800 hover:border-orange-500 transition-all ${isRefreshing ? 'animate-spin opacity-50' : ''}`}
         >
           <RefreshCcw size={16} className="text-orange-500" />
         </button>
       </div>
 
-      {/* RECIPE GRID */}
+      {/* --- RECIPE GRID (KORTEN) --- */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {recipes.map((recipe) => (
           <div
             key={recipe.id}
             className="group relative bg-zinc-900/40 rounded-[2.5rem] border border-zinc-800/50 overflow-hidden hover:border-orange-500/50 transition-all duration-500 shadow-xl flex flex-col h-full text-left"
           >
+            {/* BILD-CONTAINER */}
             <div className="relative h-44 w-full overflow-hidden">
               <Image
                 src={recipe.image}
@@ -157,18 +170,22 @@ export default function RecommendedFuel({
                 fill
                 className="object-cover group-hover:scale-105 transition duration-700 opacity-70"
               />
+              {/* Snygg gradient som gör att texten syns bättre över bilden */}
               <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />
+              {/* Badge */}
               <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border border-white/10 flex items-center gap-1.5 text-white">
-                <Zap size={10} className="text-orange-500 fill-orange-500" />{" "}
+                <Zap size={10} className="text-orange-500 fill-orange-500" />{' '}
                 High Performance
               </div>
             </div>
 
+            {/* KORT-INNEHÅLL */}
             <div className="p-6 flex flex-col flex-grow">
               <h3 className="font-bold text-sm mb-6 line-clamp-2 italic uppercase text-white tracking-tight">
                 {recipe.title}
               </h3>
 
+              {/* ACTIONS LÄNGST NER */}
               <div className="mt-auto flex justify-between items-center gap-4">
                 <Link
                   href={`/nutrition/recipe/${recipe.id}`}
