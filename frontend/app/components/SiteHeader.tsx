@@ -17,6 +17,7 @@ import {
   Settings,
   HelpCircle,
   LogOut,
+  Users,
   ChefHat,
 } from "lucide-react";
 import { signOut } from "@/app/(auth)/actions";
@@ -31,7 +32,34 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
   const [hoveredLink, setHoveredLink] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Base navbar links (always visible)
+  // --- NOTIFICATION PERSISTENCE LOGIC ---
+  const [notificationsOn, setNotificationsOn] = useState<boolean>(true);
+  const [isRinging, setIsRinging] = useState(false);
+
+  // 1. Load preference on mount
+  useEffect(() => {
+    const savedPreference = localStorage.getItem('notifications_pref');
+    if (savedPreference !== null) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setNotificationsOn(savedPreference === 'true');
+    }
+  }, []);
+
+  const handleBellClick = () => {
+    setIsRinging(true);
+    
+    // Toggle state and save to localStorage
+    setNotificationsOn((prev) => {
+      const nextState = !prev;
+      localStorage.setItem('notifications_pref', String(nextState));
+      return nextState;
+    });
+
+    // Reset animation state after 500ms
+    setTimeout(() => setIsRinging(false), 500);
+  };
+  // --------------------------------------
+
   const baseNavLinks = [
     { name: "Home", href: "/" },
     { name: "About", href: "/about" },
@@ -47,33 +75,16 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
     ? [...baseNavLinks.slice(0, 2), dashboardLink, ...baseNavLinks.slice(2)]
     : baseNavLinks;
 
-  // Create Supabase browser client
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   );
 
-  // Logic to track if notifications are "on" (orange) or "off" (white)
-  const [notificationsOn, setNotificationsOn] = useState(true);
-  // Logic to trigger the physical animation
-  const [isRinging, setIsRinging] = useState(false);
-
-  const handleBellClick = () => {
-    setIsRinging(true);
-    // Toggles between orange and white
-    setNotificationsOn(!notificationsOn);
-
-    // Reset animation state after 500ms
-    setTimeout(() => setIsRinging(false), 500);
-  };
-
   useEffect(() => {
-    // Get initial user
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user);
     });
 
-    // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -83,7 +94,6 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
     return () => subscription.unsubscribe();
   }, [supabase.auth]);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -102,7 +112,6 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
     await signOut();
   };
 
-  // Get display name from user metadata or email
   const displayName =
     user?.user_metadata?.full_name || user?.email?.split("@")[0] || "User";
 
@@ -123,7 +132,7 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
           </span>
         </Link>
 
-        {/* The Sticky Pill Navbar with Bubbly Animation */}
+        {/* Navigation */}
         <nav className="hidden md:flex items-center gap-2 px-3 py-2 bg-zinc-900/40 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl relative">
           {navLinks.map((link) => (
             <Link
@@ -166,7 +175,7 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
               >
                 <motion.div
                   animate={
-                    isRinging
+                    isRinging && notificationsOn
                       ? {
                           rotate: [0, -20, 20, -15, 15, -5, 5, 0],
                           scale: [1, 1.2, 1],
@@ -180,7 +189,6 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
                 >
                   <Bell
                     size={22}
-                    // Simple logic: If on -> Orange, If off -> White
                     className={`transition-colors duration-300 ${
                       notificationsOn ? "text-orange-500" : "text-white"
                     }`}
@@ -189,7 +197,6 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
                   />
                 </motion.div>
 
-                {/* Subtle glow effect only when notifications are ON */}
                 {notificationsOn && (
                   <motion.div
                     layoutId="glow"
@@ -198,7 +205,7 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
                 )}
               </button>
 
-              {/* Profile Avatar & Dropdown */}
+              {/* Profile Dropdown */}
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -207,27 +214,22 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
                   <UserIcon size={20} />
                 </button>
 
-                {/* Dropdown Menu */}
                 <AnimatePresence>
                   {isDropdownOpen && (
                     <motion.div
-                      // 1. Start much smaller and higher up, growing from the top right
                       initial={{
                         opacity: 0,
                         scale: 0.85,
                         y: -20,
                         transformOrigin: "top right",
                       }}
-                      // 2. Animate to full size and correct position
                       animate={{ opacity: 1, scale: 1, y: 0 }}
-                      // 3. Exit quickly by shrinking
                       exit={{
                         opacity: 0,
                         scale: 0.9,
                         y: -10,
                         transition: { duration: 0.15, ease: "easeOut" },
                       }}
-                      // 4. The Bubbly Spring Physics configuration
                       transition={{
                         type: "spring",
                         bounce: 0.55, // Adjust between 0.4 (subtle) and 0.7 (very bouncy). 0.55 is very "Apple-like".
@@ -235,7 +237,6 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
                       }}
                       className="absolute right-0 mt-3 w-52 bg-zinc-900/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 p-1.5"
                     >
-                      {/* User Header - Compact Pill */}
                       <div className="px-3 py-2 mb-1 border-b border-white/5">
                         <p className="text-[11px] font-black text-zinc-500 uppercase tracking-widest">
                           Account
@@ -355,13 +356,13 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
             <>
               <Link
                 href="/login"
-                className="text-sm font-bold text-[var(--foreground)] hover:text-[var(--muted-foreground)] transition-colors"
+                className="text-sm font-bold text-white hover:text-zinc-400 transition-colors"
               >
                 Log In
               </Link>
               <Link
                 href="/signup"
-                className="px-5 py-2.5 bg-[var(--foreground)] text-[var(--background)] rounded-full text-sm font-bold hover:opacity-80 transition-colors"
+                className="px-5 py-2.5 bg-white text-black rounded-full text-sm font-bold hover:opacity-80 transition-colors"
               >
                 Sign Up
               </Link>
