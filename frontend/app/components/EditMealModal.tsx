@@ -4,11 +4,12 @@ import React, { useState } from 'react';
 import { X, Save, Trash2 } from 'lucide-react';
 import { updateMealLog } from '@/app/actions/nutrition';
 
+// --- INTERFACE ---
 interface EditProps {
   isOpen: boolean;
   onClose: () => void;
   onDelete: (id: string) => void;
-  onUpdate: () => void;
+  onUpdate: () => void; // Används för att trigga en återhämtning av data i huvudlistan
   itemData: {
     id: string;
     name: string;
@@ -19,120 +20,159 @@ interface EditProps {
   } | null;
 }
 
-export default function EditMealModal({ isOpen, onClose, onDelete, onUpdate, itemData }: EditProps) {
-  // Vi initierar state direkt. Eftersom vi använder 'key' i page.tsx 
-  // kommer denna komponent att skapas på nytt varje gång vi öppnar ett nytt item.
+export default function EditMealModal({
+  isOpen,
+  onClose,
+  onDelete,
+  onUpdate,
+  itemData,
+}: EditProps) {
+  // --- STATE HANTERING ---
+  // Vi initierar formulärdatat baserat på det objekt användaren klickat på.
+  // Vi rensar även eventuella 'g'-enheter från makrovärdena för att göra dem redo för input-fält.
   const [formData, setFormData] = useState({
     name: itemData?.name || '',
     kcal: itemData?.kcal || 0,
     p: itemData?.p?.replace('g', '') || '',
     c: itemData?.c?.replace('g', '') || '',
-    f: itemData?.f?.replace('g', '') || ''
+    f: itemData?.f?.replace('g', '') || '',
   });
 
+  // Säkerhetskoll: Om modalen inte ska vara öppen eller data saknas, rendera ingenting.
   if (!isOpen || !itemData) return null;
 
+  // --- SPAR-LOGIK ---
   const handleSave = async () => {
+    // Anropar Server Action för att uppdatera posten i databasen.
+    // Vi konverterar strängvärden från input-fälten tillbaka till nummer här.
     const result = await updateMealLog(itemData.id, {
       name: formData.name,
       calories: Number(formData.kcal),
       protein_g: Number(formData.p),
       carbs_g: Number(formData.c),
-      fat_g: Number(formData.f)
+      fat_g: Number(formData.f),
     });
 
     if (result.success) {
-      onUpdate();
-      onClose();
+      onUpdate(); // Uppdaterar vyn i bakgrunden (på MealTypePage)
+      onClose(); // Stänger modalen
     } else {
-      alert("Fel vid sparande: " + result.error);
+      alert('Fel vid sparande: ' + result.error);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 text-left">
+      {/* MODAL CONTAINER med animationsklasser från Tailwind CSS animate-plugin */}
       <div className="relative w-full max-w-2xl bg-zinc-900 border border-zinc-800 rounded-[3rem] p-10 shadow-2xl animate-in fade-in zoom-in duration-200">
-        
-        {/* Header */}
-        <div className="flex justify-between items-start mb-8">
+        {/* HEADER: Titel och stängknapp */}
+        <div className="flex justify-between items-start mb-8 text-left">
           <div>
             <h2 className="text-3xl font-extrabold tracking-tight text-white">
               Edit <span className="text-orange-500">Item</span>
             </h2>
-            <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-1">Update your meal details</p>
+            <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest mt-1">
+              Update your meal details
+            </p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-zinc-800 rounded-full transition text-zinc-500 hover:text-white">
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-zinc-800 rounded-full transition text-zinc-500 hover:text-white"
+          >
             <X size={24} />
           </button>
         </div>
 
-        {/* Form Fields */}
+        {/* FORMULÄRFÄLT */}
         <div className="space-y-6">
-          <div>
-            <label className="text-[10px] font-bold text-zinc-500 uppercase mb-2 block tracking-widest">Item Name</label>
-            <input 
-              type="text" 
+          {/* Namn på måltiden */}
+          <div className="text-left">
+            <label className="text-[10px] font-bold text-zinc-500 uppercase mb-2 block tracking-widest">
+              Item Name
+            </label>
+            <input
+              type="text"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               className="w-full bg-black border border-zinc-800 rounded-2xl py-4 px-4 focus:outline-none focus:border-orange-500 transition text-sm text-white"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-             <div>
-                <label className="text-[10px] font-bold text-zinc-500 uppercase mb-2 block text-orange-500 tracking-widest">Calories (kcal)</label>
-                <input 
-                  type="number" 
-                  value={formData.kcal}
-                  onChange={(e) => setFormData({ ...formData, kcal: Number(e.target.value) })}
-                  className="w-full bg-black border border-zinc-800 rounded-2xl py-4 px-4 focus:outline-none focus:border-orange-500 transition text-sm text-white" 
-                />
-             </div>
-             <div>
-                <label className="text-[10px] font-bold text-zinc-500 uppercase mb-2 block text-blue-400 tracking-widest">Protein (g)</label>
-                <input 
-                  type="text" 
-                  value={formData.p}
-                  onChange={(e) => setFormData({ ...formData, p: e.target.value })}
-                  className="w-full bg-black border border-zinc-800 rounded-2xl py-4 px-4 focus:outline-none transition text-sm text-white" 
-                />
-             </div>
+          {/* Kalorier och Protein (Sida vid sida) */}
+          <div className="grid grid-cols-2 gap-4 text-left">
+            <div>
+              <label className="text-[10px] font-bold text-zinc-500 uppercase mb-2 block text-orange-500 tracking-widest">
+                Calories (kcal)
+              </label>
+              <input
+                type="number"
+                value={formData.kcal}
+                onChange={(e) =>
+                  setFormData({ ...formData, kcal: Number(e.target.value) })
+                }
+                className="w-full bg-black border border-zinc-800 rounded-2xl py-4 px-4 focus:outline-none focus:border-orange-500 transition text-sm text-white"
+              />
+            </div>
+            <div>
+              <label className="text-[10px] font-bold text-zinc-500 uppercase mb-2 block text-blue-400 tracking-widest">
+                Protein (g)
+              </label>
+              <input
+                type="text"
+                value={formData.p}
+                onChange={(e) =>
+                  setFormData({ ...formData, p: e.target.value })
+                }
+                className="w-full bg-black border border-zinc-800 rounded-2xl py-4 px-4 focus:outline-none transition text-sm text-white"
+              />
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-             <div>
-                <label className="text-[10px] font-bold text-zinc-500 uppercase mb-2 block text-green-500 tracking-widest">Carbs (g)</label>
-                <input 
-                  type="text" 
-                  value={formData.c}
-                  onChange={(e) => setFormData({ ...formData, c: e.target.value })}
-                  className="w-full bg-black border border-zinc-800 rounded-2xl py-4 px-4 focus:outline-none transition text-sm text-white" 
-                />
-             </div>
-             <div>
-                <label className="text-[10px] font-bold text-zinc-500 uppercase mb-2 block text-yellow-600 tracking-widest">Fats (g)</label>
-                <input 
-                  type="text" 
-                  value={formData.f}
-                  onChange={(e) => setFormData({ ...formData, f: e.target.value })}
-                  className="w-full bg-black border border-zinc-800 rounded-2xl py-4 px-4 focus:outline-none transition text-sm text-white" 
-                />
-             </div>
+          {/* Kolhydrater och Fett (Sida vid sida) */}
+          <div className="grid grid-cols-2 gap-4 text-left">
+            <div>
+              <label className="text-[10px] font-bold text-zinc-500 uppercase mb-2 block text-green-500 tracking-widest">
+                Carbs (g)
+              </label>
+              <input
+                type="text"
+                value={formData.c}
+                onChange={(e) =>
+                  setFormData({ ...formData, c: e.target.value })
+                }
+                className="w-full bg-black border border-zinc-800 rounded-2xl py-4 px-4 focus:outline-none transition text-sm text-white"
+              />
+            </div>
+            <div>
+              <label className="text-[10px] font-bold text-zinc-500 uppercase mb-2 block text-yellow-600 tracking-widest">
+                Fats (g)
+              </label>
+              <input
+                type="text"
+                value={formData.f}
+                onChange={(e) =>
+                  setFormData({ ...formData, f: e.target.value })
+                }
+                className="w-full bg-black border border-zinc-800 rounded-2xl py-4 px-4 focus:outline-none transition text-sm text-white"
+              />
+            </div>
           </div>
         </div>
 
-        {/* Actions */}
+        {/* KNAPPAR: Delete och Save */}
         <div className="flex gap-4 mt-10">
-          <button 
+          <button
             type="button"
-            onClick={() => onDelete(itemData.id)}
+            onClick={() => onDelete(itemData.id)} // Använder onDelete-propen som skickats ner från föräldern
             className="flex-1 py-4 bg-zinc-800 hover:bg-red-900/20 hover:text-red-500 rounded-2xl font-bold text-xs uppercase tracking-widest transition flex items-center justify-center gap-2"
           >
             <Trash2 size={16} /> Delete
           </button>
-          <button 
+          <button
             type="button"
-            onClick={handleSave} 
+            onClick={handleSave}
             className="flex-[2] py-4 bg-orange-600 hover:bg-orange-500 rounded-2xl font-bold text-xs uppercase tracking-widest transition flex items-center justify-center gap-2 text-white shadow-lg"
           >
             <Save size={16} /> Save Changes
