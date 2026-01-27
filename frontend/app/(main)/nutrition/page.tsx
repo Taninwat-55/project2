@@ -1,35 +1,36 @@
-"use client";
+'use client';
 
-import Link from "next/link";
+import Link from 'next/link';
 import {
   Chart as ChartJS,
   ArcElement,
   Tooltip,
   Legend,
   ChartOptions,
-} from "chart.js";
-import { Doughnut } from "react-chartjs-2";
-import { useState, useEffect } from "react";
-import { Plus, Droplet } from "lucide-react";
+} from 'chart.js';
+import { Doughnut } from 'react-chartjs-2';
+import { useState, useEffect } from 'react';
+import { Plus, Droplet } from 'lucide-react';
 
-import { logHydration, getTodayHydration } from "@/app/actions/hydration";
+import { logHydration, getTodayHydration } from '@/app/actions/hydration';
 import {
   getNutritionGoals,
   getTodayNutrition,
   NutritionGoals,
   TodayNutrition,
-} from "@/app/actions/nutrition-goals";
-import { getMealTemplates, logMealFromTemplate } from "@/app/actions/nutrition";
-import LogMealModal from "@/app/components/LogMealModal";
-import CreateTemplateModal from "@/app/components/CreateTemplateModal";
-import ViewTemplateModal from "@/app/components/ViewTemplateModal";
+} from '@/app/actions/nutrition-goals';
+import { getMealTemplates, logMealFromTemplate } from '@/app/actions/nutrition';
+import LogMealModal from '@/app/components/LogMealModal';
+import CreateTemplateModal from '@/app/components/CreateTemplateModal';
+import ViewTemplateModal from '@/app/components/ViewTemplateModal';
 
 // Import av den nya komponenten
-import RecommendedFuel from "@/app/components/RecommendedFuel";
+import RecommendedFuel from '@/app/components/RecommendedFuel';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 // --- INTERFACES ---
+// Definierar strukturen på vår data så att TypeScript kan validera koden
 interface Ingredient {
   name: string;
   kcal: number;
@@ -55,12 +56,14 @@ interface MealTemplate {
 }
 
 export default function NutritionPage() {
+  // --- STATES ---
+  // Används för att hålla koll på om modaler är öppna eller stängda
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const [hydration, setHydration] = useState(0);
   const [activeMealType, setActiveMealType] = useState<
-    "breakfast" | "lunch" | "dinner" | "snack"
-  >("breakfast");
+    'breakfast' | 'lunch' | 'dinner' | 'snack'
+  >('breakfast');
 
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<MealTemplate | null>(
@@ -68,6 +71,8 @@ export default function NutritionPage() {
   );
   const [templates, setTemplates] = useState<MealTemplate[]>([]);
 
+  // NutritionGoals State: Här sätter vi standardvärden (2000 kcal osv)
+  // Detta fungerar som en säkerhetsåtgärd innan data hunnit hämtas från databasen.
   const [goals, setGoals] = useState<NutritionGoals>({
     calories: 2000,
     protein: 150,
@@ -76,6 +81,7 @@ export default function NutritionPage() {
     hasProfile: false,
   });
 
+  // TodayNutrition State: Håller koll på vad användaren har ätit idag
   const [consumed, setConsumed] = useState<TodayNutrition>({
     caloriesConsumed: 0,
     proteinConsumed: 0,
@@ -84,13 +90,15 @@ export default function NutritionPage() {
     caloriesBurned: 0,
   });
 
+  // Beräknar vätskeintag i procent för den visuella mätaren
   const hydrationGoal = 2500;
   const hydrationPercentage = Math.min(
     100,
     Math.round((hydration / hydrationGoal) * 100),
   );
 
-  // Denna funktion hämtar all data och uppdaterar statet på sidan
+  // --- DATA HÄMTNING ---
+  // Hämtar all data från Supabase via våra Server Actions
   const fetchData = async () => {
     try {
       const [hyd, nutGoals, todayNut, mealTemplates] = await Promise.all([
@@ -105,51 +113,55 @@ export default function NutritionPage() {
       setConsumed(todayNut);
       setTemplates(mealTemplates as unknown as MealTemplate[]);
     } catch (error) {
-      console.error("Kunde inte hämta data:", error);
+      console.error('Kunde inte hämta data:', error);
     }
   };
 
-useEffect(() => {
-  const loadData = async () => {
-    try {
-      await fetchData();
-    } catch (error) {
-      console.error("Error loading initial nutrition data:", error);
-    }
-  };
+  // useEffect körs en gång när komponenten laddas för att hämta datan direkt
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        await fetchData();
+      } catch (error) {
+        console.error('Error loading initial nutrition data:', error);
+      }
+    };
 
-  loadData();
-}, []); 
+    loadData();
+  }, []);
 
+  // Hanterar loggning av mat via en sparad mall (template)
   const handleLogTemplate = async (
     template: MealTemplate,
-    mealType: "breakfast" | "lunch" | "dinner" | "snack",
+    mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack',
   ) => {
     const result = await logMealFromTemplate(template, mealType);
     if (result.success) {
       setIsViewModalOpen(false);
-      fetchData();
+      fetchData(); // Uppdaterar sidan så användaren ser de nya siffrorna direkt
     } else {
-      alert("Error logging template: " + result.error);
+      alert('Error logging template: ' + result.error);
     }
   };
 
+  // Hjälpfunktion för att mappa rätt måltidstyp (frukost/lunch etc) till modalen
   const openLogModal = (mealName: string) => {
-    const typeMap: Record<string, "breakfast" | "lunch" | "dinner" | "snack"> =
+    const typeMap: Record<string, 'breakfast' | 'lunch' | 'dinner' | 'snack'> =
       {
-        Breakfast: "breakfast",
-        Lunch: "lunch",
-        Dinner: "dinner",
-        Snack: "snack",
+        Breakfast: 'breakfast',
+        Lunch: 'lunch',
+        Dinner: 'dinner',
+        Snack: 'snack',
       };
-    setActiveMealType(typeMap[mealName] || "breakfast");
+    setActiveMealType(typeMap[mealName] || 'breakfast');
     setIsLogModalOpen(true);
   };
 
+  // Hanterar vattenintag och uppdaterar UI direkt (Optimistic Update)
   const handleAddWater = async (amount: number) => {
     setHydration((prev) => prev + amount);
     const result = await logHydration(amount);
-    if (!result.success) setHydration((prev) => prev - amount);
+    if (!result.success) setHydration((prev) => prev - amount); // Revertera om det skiter sig i DB
   };
 
   const handleModalClose = () => {
@@ -158,18 +170,20 @@ useEffect(() => {
     fetchData();
   };
 
-  const macroOptions: ChartOptions<"doughnut"> = {
+  // Inställningar för Doughnut-cirklarna (styling)
+  const macroOptions: ChartOptions<'doughnut'> = {
     plugins: { tooltip: { enabled: false }, legend: { display: false } },
     responsive: true,
     maintainAspectRatio: true,
-    cutout: "80%",
+    cutout: '80%',
   };
 
+  // Skapar datan för cirkeldiagrammen (fylld del vs tom del)
   const createMacroData = (current: number, target: number, color: string) => ({
     datasets: [
       {
         data: [current, Math.max(0, target - current)],
-        backgroundColor: [color, "#18181b"],
+        backgroundColor: [color, '#18181b'],
         borderWidth: 0,
         borderRadius: 20,
         circumference: 360,
@@ -177,6 +191,7 @@ useEffect(() => {
     ],
   });
 
+  // Beräknar den totala kaloribudgeten (Mål + Träning)
   const totalCalorieBudget =
     (goals.calories || 2000) + (consumed.caloriesBurned || 0);
   const caloriesRemaining = Math.max(
@@ -184,33 +199,36 @@ useEffect(() => {
     totalCalorieBudget - consumed.caloriesConsumed,
   );
 
+  // --- STATUS LOGIK (Ternary operators) ---
+  // Här räknar vi ut vilken text som ska visas under cirklarna baserat på intag
   const proteinStatus =
     consumed.proteinConsumed >= goals.protein * 0.8
-      ? "High"
+      ? 'High'
       : consumed.proteinConsumed >= goals.protein * 0.5
-        ? "Good"
-        : "Low";
+        ? 'Good'
+        : 'Low';
   const carbsStatus =
     consumed.carbsConsumed >= goals.carbs * 0.8
-      ? "Near"
+      ? 'Near'
       : consumed.carbsConsumed >= goals.carbs * 0.5
-        ? "Good"
-        : "Low";
+        ? 'Good'
+        : 'Low';
   const fatStatus =
     consumed.fatConsumed >= goals.fat * 0.8
-      ? "Near"
+      ? 'Near'
       : consumed.fatConsumed >= goals.fat * 0.5
-        ? "Good"
-        : "Low";
+        ? 'Good'
+        : 'Low';
 
+  // En array som samlar all data för de 4 statistikkorten för att slippa upprepa kod i JSX
   const macroCards = [
     {
-      label: "Daily Calories",
+      label: 'Daily Calories',
       val: consumed.caloriesConsumed,
       goal: totalCalorieBudget,
-      unit: "kcal",
-      color: "#f97316",
-      footerLabel: "Remaining",
+      unit: 'kcal',
+      color: '#f97316',
+      footerLabel: 'Remaining',
       footerVal: caloriesRemaining.toString(),
       extra:
         consumed.caloriesBurned > 0
@@ -218,30 +236,30 @@ useEffect(() => {
           : null,
     },
     {
-      label: "Protein",
+      label: 'Protein',
       val: consumed.proteinConsumed,
       goal: goals.protein,
-      unit: "g",
-      color: "#206A9E",
-      footerLabel: "Status",
+      unit: 'g',
+      color: '#206A9E',
+      footerLabel: 'Status',
       footerVal: proteinStatus,
     },
     {
-      label: "Carbs",
+      label: 'Carbs',
       val: consumed.carbsConsumed,
       goal: goals.carbs,
-      unit: "g",
-      color: "#51A255",
-      footerLabel: "Target",
+      unit: 'g',
+      color: '#51A255',
+      footerLabel: 'Target',
       footerVal: carbsStatus,
     },
     {
-      label: "Fats",
+      label: 'Fats',
       val: consumed.fatConsumed,
       goal: goals.fat,
-      unit: "g",
-      color: "#C7831F",
-      footerLabel: "Balance",
+      unit: 'g',
+      color: '#C7831F',
+      footerLabel: 'Balance',
       footerVal: fatStatus,
     },
   ];
@@ -258,7 +276,7 @@ useEffect(() => {
           </p>
         </div>
 
-        {/* STATS GRID */}
+        {/* STATS GRID: Renderar de 4 cirklarna dynamiskt från macroCards arrayen */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {macroCards.map((m) => (
             <div
@@ -297,7 +315,7 @@ useEffect(() => {
                 <div className="flex justify-between text-[11px] font-bold uppercase border-t border-zinc-800/50 pt-3">
                   <span className="text-zinc-500">{m.footerLabel}</span>
                   <span style={{ color: m.color }}>
-                    {m.footerVal} {m.unit === "kcal" ? "kcal" : ""}
+                    {m.footerVal} {m.unit === 'kcal' ? 'kcal' : ''}
                   </span>
                 </div>
               </div>
@@ -316,16 +334,16 @@ useEffect(() => {
               <div className="text-zinc-500 text-[10px] font-bold uppercase tracking-widest">
                 <span className="text-white text-base mr-1">
                   {consumed.caloriesConsumed}
-                </span>{" "}
+                </span>{' '}
                 kcal consumed
               </div>
             </div>
             <div className="space-y-4">
               {[
-                { icon: "🥐", name: "Breakfast", type: "breakfast" },
-                { icon: "🍲", name: "Lunch", type: "lunch" },
-                { icon: "🥗", name: "Dinner", type: "dinner" },
-                { icon: "🍎", name: "Snack", type: "snack" },
+                { icon: '🥐', name: 'Breakfast', type: 'breakfast' },
+                { icon: '🍲', name: 'Lunch', type: 'lunch' },
+                { icon: '🥗', name: 'Dinner', type: 'dinner' },
+                { icon: '🍎', name: 'Snack', type: 'snack' },
               ].map((meal) => (
                 <div
                   key={meal.name}
@@ -401,7 +419,7 @@ useEffect(() => {
           </div>
         </div>
 
-        {/* HYDRATION SECTION */}
+        {/* HYDRATION SECTION: Visar vattenintag med en progress bar */}
         <div className="bg-gradient-to-br from-[#E65015] to-[#BC4315] rounded-[2.5rem] p-10 relative overflow-hidden shadow-2xl shadow-orange-900/20">
           <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
             <div className="flex-grow text-left">
@@ -445,7 +463,7 @@ useEffect(() => {
         </div>
       </main>
 
-      {/* MODALS */}
+      {/* MODALS: Olika fönster som poppar upp för att mata in data */}
       <LogMealModal
         isOpen={isLogModalOpen}
         onClose={handleModalClose}
