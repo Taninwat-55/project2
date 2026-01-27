@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { useState, useEffect, useRef } from 'react';
-import { createBrowserClient } from '@supabase/ssr';
-import { User } from '@supabase/supabase-js';
-import { motion, AnimatePresence } from 'framer-motion';
+import Link from "next/link";
+import { useState, useEffect, useRef } from "react";
+import { createBrowserClient } from "@supabase/ssr";
+import { User } from "@supabase/supabase-js";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Bell,
   User as UserIcon,
@@ -18,8 +18,9 @@ import {
   HelpCircle,
   LogOut,
   Users,
-} from 'lucide-react';
-import { signOut } from '@/app/(auth)/actions';
+  ChefHat,
+} from "lucide-react";
+import { signOut } from "@/app/(auth)/actions";
 
 interface SiteHeaderProps {
   fixed?: boolean;
@@ -60,21 +61,23 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
   // --------------------------------------
 
   const baseNavLinks = [
-    { name: 'Home', href: '/' },
-    { name: 'About', href: '/about' },
-    { name: 'Contact', href: '/contact' },
-    { name: 'Pricing', href: '/pricing' },
+    { name: "Home", href: "/" },
+    { name: "About", href: "/about" },
+    { name: "Contact", href: "/contact" },
+    { name: "Pricing", href: "/pricing" },
   ];
 
-  const dashboardLink = { name: 'Dashboard', href: '/dashboard' };
+  // Dashboard link (only shown when logged in)
+  const dashboardLink = { name: "Dashboard", href: "/dashboard" };
 
-  const navLinks = user 
+  // Conditionally add Dashboard link when user is logged in
+  const navLinks = user
     ? [...baseNavLinks.slice(0, 2), dashboardLink, ...baseNavLinks.slice(2)]
     : baseNavLinks;
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   );
 
   useEffect(() => {
@@ -100,8 +103,8 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
         setIsDropdownOpen(false);
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleSignOut = async () => {
@@ -110,12 +113,12 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
   };
 
   const displayName =
-    user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';
+    user?.user_metadata?.full_name || user?.email?.split("@")[0] || "User";
 
   return (
     <header
       className={`${
-        fixed ? 'sticky top-0' : 'relative'
+        fixed ? "sticky top-0" : "relative"
       } w-full z-50 transition-all duration-300`}
     >
       <div className="max-w-[1400px] mx-auto px-6 md:px-12 py-6 flex justify-between items-center">
@@ -148,7 +151,7 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{
-                      type: 'spring',
+                      type: "spring",
                       bounce: 0.2,
                       duration: 0.4,
                     }}
@@ -182,14 +185,15 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
                           scale: 1,
                         }
                   }
-                  transition={{ duration: 0.5, ease: 'easeInOut' }}
+                  transition={{ duration: 0.5, ease: "easeInOut" }}
                 >
                   <Bell
                     size={22}
                     className={`transition-colors duration-300 ${
-                      notificationsOn ? 'text-orange-500' : 'text-white'
+                      notificationsOn ? "text-orange-500" : "text-white"
                     }`}
-                    fill={notificationsOn ? 'currentColor' : 'none'}
+                    // Fill the bell slightly when "on" for a more premium look
+                    fill={notificationsOn ? "currentColor" : "none"}
                   />
                 </motion.div>
 
@@ -217,18 +221,18 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
                         opacity: 0,
                         scale: 0.85,
                         y: -20,
-                        transformOrigin: 'top right',
+                        transformOrigin: "top right",
                       }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{
                         opacity: 0,
                         scale: 0.9,
                         y: -10,
-                        transition: { duration: 0.15, ease: 'easeOut' },
+                        transition: { duration: 0.15, ease: "easeOut" },
                       }}
                       transition={{
-                        type: 'spring',
-                        bounce: 0.55,
+                        type: "spring",
+                        bounce: 0.55, // Adjust between 0.4 (subtle) and 0.7 (very bouncy). 0.55 is very "Apple-like".
                         duration: 0.5,
                       }}
                       className="absolute right-0 mt-3 w-52 bg-zinc-900/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 p-1.5"
@@ -244,13 +248,41 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
 
                       <div className="space-y-0.5">
                         {[
-                          { name: 'Dashboard', icon: <LayoutDashboard size={16} />, href: '/dashboard' },
-                          { name: 'Workouts', icon: <Dumbbell size={16} />, href: '/workouts' },
-                          { name: 'Nutrition', icon: <UtensilsCrossed size={16} />, href: '/nutrition' },
-                          { name: 'Progress', icon: <TrendingUp size={16} />, href: '/progress' },
-                          { name: 'Community', icon: <Users size={16} />, href: '/community' },
-                          { name: 'Archive', icon: <Archive size={16} />, href: '/archive' },
-                          { name: 'History', icon: <History size={16} />, href: '/history' },
+                          {
+                            name: "Dashboard",
+                            icon: <LayoutDashboard size={16} />,
+                            href: "/dashboard",
+                          },
+                          {
+                            name: "Workouts",
+                            icon: <Dumbbell size={16} />,
+                            href: "/workouts",
+                          },
+                          {
+                            name: "Nutrition",
+                            icon: <UtensilsCrossed size={16} />,
+                            href: "/nutrition",
+                          },
+                          {
+                            name: "Recipes",
+                            icon: <ChefHat size={16} />,
+                            href: "/nutrition/recipe",
+                          },
+                          {
+                            name: "Progress",
+                            icon: <TrendingUp size={16} />,
+                            href: "/progress",
+                          },
+                          {
+                            name: "Archive",
+                            icon: <Archive size={16} />,
+                            href: "/archive",
+                          },
+                          {
+                            name: "History",
+                            icon: <History size={16} />,
+                            href: "/history",
+                          },
                         ].map((item) => (
                           <Link
                             key={item.name}
@@ -276,8 +308,16 @@ export default function SiteHeader({ fixed = false }: SiteHeaderProps) {
 
                       <div className="space-y-0.5">
                         {[
-                          { name: 'Settings', icon: <Settings size={16} />, href: '/settings' },
-                          { name: 'Support', icon: <HelpCircle size={16} />, href: '/support' },
+                          {
+                            name: "Settings",
+                            icon: <Settings size={16} />,
+                            href: "/settings",
+                          },
+                          {
+                            name: "Support",
+                            icon: <HelpCircle size={16} />,
+                            href: "/support",
+                          },
                         ].map((item) => (
                           <Link
                             key={item.name}

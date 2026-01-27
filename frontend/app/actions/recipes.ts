@@ -1,6 +1,6 @@
 "use server";
 
-// --- TYPER FÖR ATT SLIPPA 'ANY' ---
+// --- TYPER ---
 
 interface SpoonacularRecipe {
   id: number;
@@ -19,6 +19,27 @@ interface SpoonacularRecipe {
 // --- FUNKTIONER ---
 
 /**
+ * Hämtar slumpmässiga recept för "Recommended Fuel" sektionen
+ */
+export async function getRandomRecipes(number = 3) {
+  const apiKey = process.env.SPOONACULAR_API_KEY;
+  // Vi lägger till addRecipeNutrition=true för att få makros direkt
+  const url = `https://api.spoonacular.com/recipes/random?number=${number}&tags=main+course&apiKey=${apiKey}&addRecipeNutrition=true`;
+
+  try {
+    const res = await fetch(url, { next: { revalidate: 3600 } });
+    
+    if (!res.ok) throw new Error("Misslyckades att hämta slumpmässiga recept");
+
+    const data = await res.json();
+    return data.recipes || [];
+  } catch (error) {
+    console.error("Error in getRandomRecipes:", error);
+    return [];
+  }
+}
+
+/**
  * Hämtar en lista med recept baserat på sökning och filter
  */
 export async function searchRecipes(query: string, category: string, sortBy: string) {
@@ -27,17 +48,15 @@ export async function searchRecipes(query: string, category: string, sortBy: str
   
   const params = new URLSearchParams({
     apiKey: apiKey!,
-    query: query || "healthy", // Standard sökning om fältet är tomt
+    query: query || "healthy", 
     addRecipeNutrition: 'true',
     number: '9'
   });
 
-  // Lägg till kategori om en annan än 'All' är vald
   if (category !== 'All') {
     params.append('type', category.toLowerCase());
   }
 
-  // Sorteringslogik
   if (sortBy === 'Most Protein') params.append('sort', 'protein');
   else if (sortBy === 'Lowest Calories') params.append('sort', 'calories');
   else if (sortBy === 'Fastest') params.append('sort', 'readyTime');
@@ -72,12 +91,19 @@ export async function searchRecipes(query: string, category: string, sortBy: str
  */
 export async function getRecipeDetails(id: string) {
   const apiKey = process.env.SPOONACULAR_API_KEY;
+  
+  console.log("Fetching recipe details for ID:", id);
+  console.log("Using API Key:", apiKey ? "FOUND" : "MISSING");
+
   const url = `https://api.spoonacular.com/recipes/${id}/information?apiKey=${apiKey}&includeNutrition=true`;
 
   try {
     const res = await fetch(url);
     
     if (!res.ok) {
+      // Om status är 402 betyder det att poängen är slut
+      // Om status är 401 är nyckeln felaktig
+      console.error(`Spoonacular API Error: ${res.status} ${res.statusText}`);
       throw new Error(`Failed to fetch recipe with id: ${id}`);
     }
 
