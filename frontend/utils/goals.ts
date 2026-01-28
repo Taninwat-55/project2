@@ -1,4 +1,3 @@
-// frontend/utils/goals.ts
 // Macro calculation utilities based on calorie goal and body weight
 
 export interface MacroGoals {

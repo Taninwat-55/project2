@@ -1,4 +1,3 @@
-// frontend/utils/bmr.ts
 import { ActivityLevel, Gender } from "@/types/database";
 
 // Mifflin-St Jeor Equation with Weight Goal Adjustments
