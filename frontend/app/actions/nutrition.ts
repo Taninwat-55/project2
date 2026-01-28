@@ -1,8 +1,8 @@
-"use server";
+'use server';
 
-import { createClient } from "@/utils/supabase/server";
-import { revalidatePath } from "next/cache";
-import { z } from "zod";
+import { createClient } from '@/utils/supabase/server';
+import { revalidatePath } from 'next/cache';
+import { z } from 'zod';
 
 /**
  * --- INTERFACES & SCHEMAN ---
@@ -26,9 +26,10 @@ interface UpdateMealData {
   fat_g: number;
 }
 
+// Zod-schema för strikt validering av måltidsdata innan den når databasen
 const MealSchema = z.object({
-  name: z.string().min(1, "Namn krävs"),
-  type: z.enum(["breakfast", "lunch", "dinner", "snack"]),
+  name: z.string().min(1, 'Namn krävs'),
+  type: z.enum(['breakfast', 'lunch', 'dinner', 'snack']),
   calories: z.number().nonnegative(),
   protein: z.number().nonnegative(),
   carbs: z.number().nonnegative(),
@@ -41,53 +42,58 @@ const MealSchema = z.object({
 
 // Logga en ny måltid (används av recept-sidan och manuell loggning)
 export async function logMeal(data: z.infer<typeof MealSchema>) {
-  // Validera att inkommande data stämmer överens med schemat
+  // Validera att inkommande data stämmer överens med schemat (kastar fel om validering misslyckas)
   const validatedData = MealSchema.parse(data);
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  // Hämtar den aktuella användaren från Supabase Auth-sessionen
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!user) return { success: false, error: "Du måste vara inloggad" };
+  if (!user) return { success: false, error: 'Du måste vara inloggad' };
 
   // Vi mappar frontend-namnen (protein) till databasens kolumner (protein_g)
-  const { error } = await supabase.from("meal_logs").insert({
-    user_id: user.id,
+  const { error } = await supabase.from('meal_logs').insert({
+    user_id: user.id, // Kopplar måltiden till den inloggade användaren
     name: validatedData.name,
     meal_type: validatedData.type,
     calories: Math.round(validatedData.calories),
     protein_g: Math.round(validatedData.protein),
     carbs_g: Math.round(validatedData.carbs),
     fat_g: Math.round(validatedData.fat),
-    eaten_at: new Date().toISOString(),
+    eaten_at: new Date().toISOString(), // Sparar tidpunkten för loggningen
   });
 
   if (error) return { success: false, error: error.message };
 
-  // Uppdatera nutrition-sidan så att graferna visar den nya maten direkt
-  revalidatePath("/nutrition");
+  // Uppdatera nutrition-sidan så att graferna visar den nya maten direkt (on-demand revalidation)
+  revalidatePath('/nutrition');
   return { success: true };
 }
 
 // Hämta alla måltider som loggats idag
 export async function getTodayMeals() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) return [];
 
-  // Skapa en tidsstämpel för början av dagen (00:00:00)
+  // Skapa en tidsstämpel för början av dagen (00:00:00) för att filtrera dagens intag
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   const { data, error } = await supabase
-    .from("meal_logs")
-    .select("*")
-    .eq("user_id", user.id)
-    .gte("eaten_at", today.toISOString()) // Vi kollar mot eaten_at
-    .order("eaten_at", { ascending: false });
+    .from('meal_logs')
+    .select('*')
+    .eq('user_id', user.id) // Hämtar endast den inloggade användarens data
+    .gte('eaten_at', today.toISOString()) // "Greater than or equal to" början av dagen
+    .order('eaten_at', { ascending: false }); // Nyaste måltiderna först
 
   if (error) {
-    console.error("Fel vid hämtning av måltider:", error.message);
+    console.error('Fel vid hämtning av måltider:', error.message);
     return [];
   }
 
@@ -97,29 +103,34 @@ export async function getTodayMeals() {
 // Radera en specifik loggad måltid
 export async function deleteMealLog(id: string) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { success: false, error: "Unauthorized" };
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'Unauthorized' };
 
   const { error } = await supabase
-    .from("meal_logs")
+    .from('meal_logs')
     .delete()
-    .eq("id", id) 
-    .eq("user_id", user.id); // Extra säkerhet: Radera bara om det är användarens egen rad
+    .eq('id', id)
+    .eq('user_id', user.id); // Extra säkerhet: Radera bara om det är användarens egen rad
 
   if (error) return { success: false, error: error.message };
 
-  revalidatePath("/nutrition");
+  // Uppdaterar cachen på nutrition-sidan så att raden försvinner direkt i UI
+  revalidatePath('/nutrition');
   return { success: true };
 }
 
-// Uppdatera en befintlig måltid
+// Uppdatera en befintlig måltid (t.ex. ändra mängd eller namn i efterhand)
 export async function updateMealLog(id: string, updates: UpdateMealData) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { success: false, error: "Unauthorized" };
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'Unauthorized' };
 
   const { error } = await supabase
-    .from("meal_logs")
+    .from('meal_logs')
     .update({
       name: updates.name,
       calories: Math.round(updates.calories),
@@ -127,12 +138,12 @@ export async function updateMealLog(id: string, updates: UpdateMealData) {
       carbs_g: Math.round(updates.carbs_g),
       fat_g: Math.round(updates.fat_g),
     })
-    .eq("id", id)
-    .eq("user_id", user.id);
+    .eq('id', id)
+    .eq('user_id', user.id);
 
   if (error) return { success: false, error: error.message };
 
-  revalidatePath("/nutrition");
+  revalidatePath('/nutrition');
   return { success: true };
 }
 
@@ -143,58 +154,71 @@ export async function updateMealLog(id: string, updates: UpdateMealData) {
 // Spara en måltid som en mall (favorit) för framtida bruk
 export async function saveMealTemplate(data: {
   name: string;
-  ingredients: { name: string; kcal: number; p: number; c: number; f: number }[];
+  ingredients: {
+    name: string;
+    kcal: number;
+    p: number;
+    c: number;
+    f: number;
+  }[];
   totals: { kcal: number; p: number; c: number; f: number };
 }) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!user) return { success: false, error: "Unauthorized" };
+  if (!user) return { success: false, error: 'Unauthorized' };
 
-  const { error } = await supabase.from("meal_templates").insert({
+  const { error } = await supabase.from('meal_templates').insert({
     user_id: user.id,
     name: data.name,
-    // Vi sparar hela ingredienslistan som JSON i databasen
+    // Just nu sparas totalerna i specifika kolumner för enkel summering
     total_kcal: data.totals.kcal,
     total_protein: data.totals.p,
     total_carbs: data.totals.c,
     total_fat: data.totals.f,
+    // Notera: Ingredienser skickas in men sparas inte i denna version av anropet
   });
 
   if (error) return { success: false, error: error.message };
 
-  revalidatePath("/nutrition");
+  revalidatePath('/nutrition');
   return { success: true };
 }
 
-// Hämta alla sparade mallar
+// Hämta alla sparade mallar för den inloggade användaren
 export async function getMealTemplates() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) return [];
 
   const { data, error } = await supabase
-    .from("meal_templates")
-    .select("*")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
+    .from('meal_templates')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false });
 
   if (error) return [];
   return data || [];
 }
 
-// Logga en måltid direkt från en sparad mall
+// Logga en måltid direkt från en sparad mall (kopierar värden från mall till logg)
 export async function logMealFromTemplate(
   template: MealTemplateData,
-  type: "breakfast" | "lunch" | "dinner" | "snack"
+  type: 'breakfast' | 'lunch' | 'dinner' | 'snack',
 ) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!user) return { success: false, error: "Unauthorized" };
+  if (!user) return { success: false, error: 'Unauthorized' };
 
-  const { error } = await supabase.from("meal_logs").insert({
+  const { error } = await supabase.from('meal_logs').insert({
     user_id: user.id,
     name: template.name,
     meal_type: type,
@@ -207,27 +231,28 @@ export async function logMealFromTemplate(
 
   if (error) return { success: false, error: error.message };
 
-  revalidatePath("/nutrition");
+  revalidatePath('/nutrition');
   return { success: true };
 }
 
+// Extern API-koppling för att hämta slumpmässiga receptförslag
 export async function getRandomRecipes(number = 3) {
   const API_KEY = process.env.SPOONACULAR_API_KEY;
-  
+
   try {
-    // Vi lägger till tags=main course för att få riktiga måltider 
-    // och nutrition=true för att få kalorier/makros direkt
+    // Vi lägger till tags=main course för att få riktiga måltider
+    // och använder Next.js fetch-cache för att spara på API-kvoten
     const res = await fetch(
       `https://api.spoonacular.com/recipes/random?number=${number}&tags=main+course&apiKey=${API_KEY}`,
-      { next: { revalidate: 3600 } } // Cache i en timme för att spara API-anrop
+      { next: { revalidate: 3600 } }, // Resultatet sparas i cachen i 1 timme
     );
 
-    if (!res.ok) throw new Error("Misslyckades att hämta recept");
+    if (!res.ok) throw new Error('Misslyckades att hämta recept');
 
     const data = await res.json();
     return data.recipes;
   } catch (error) {
-    console.error("Spoonacular Error:", error);
+    console.error('Spoonacular Error:', error);
     return [];
   }
 }
